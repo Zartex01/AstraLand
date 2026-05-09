@@ -1,0 +1,101 @@
+compass:
+  slot: 4
+  name: "&b&l✦ Sélecteur de Monde ✦"
+  lore:
+    - "&7Clic droit pour ouvrir"
+    - "&7le menu des mondes"
+
+gui:
+  title: "&8» &b&lAstraLand &8- &7Mondes «"
+  rows: 3
+
+worlds:
+  pvp-factions:
+    name: "&c&l⚔ PvP / Factions"
+    lore:
+      - "&7Rejoignez le monde PvP & Factions"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_pvpfactions"
+    item: DIAMOND_SWORD
+    slot: 1
+
+  skyblock:
+    name: "&a&l☁ Skyblock"
+    lore:
+      - "&7Rejoignez le monde Skyblock"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_skyblock"
+    item: GRASS_BLOCK
+    slot: 2
+
+  oneblock:
+    name: "&6&l■ OneBlock"
+    lore:
+      - "&7Rejoignez le monde OneBlock"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_oneblock"
+    item: STONE
+    slot: 3
+
+  bedwars:
+    name: "&c&l✦ Bedwars"
+    lore:
+      - "&7Rejoignez le monde Bedwars"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_bedwars"
+    item: RED_BED
+    slot: 4
+
+  spleef:
+    name: "&b&l❄ Spleef"
+    lore:
+      - "&7Rejoignez le monde Spleef"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_spleef"
+    item: SNOW_BLOCK
+    slot: 5
+
+  uhc:
+    name: "&4&l☠ UHC"
+    lore:
+      - "&7Rejoignez le monde UHC"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_uhc"
+    item: GOLDEN_APPLE
+    slot: 6
+
+  skywars:
+    name: "&9&l✈ Skywars"
+    lore:
+      - "&7Rejoignez le monde Skywars"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_skywars"
+    item: FEATHER
+    slot: 7
+
+  build-battle:
+    name: "&e&l⚒ Build Battle"
+    lore:
+      - "&7Rejoignez le monde Build Battle"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_buildbattle"
+    item: CRAFTING_TABLE
+    slot: 12
+
+  duels:
+    name: "&5&l⚔ Duels"
+    lore:
+      - "&7Rejoignez le monde Duels"
+      - ""
+      - "&eCliquez pour vous téléporter"
+    world: "world_duels"
+    item: IRON_SWORD
+    slot: 14
