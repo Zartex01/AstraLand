@@ -2,8 +2,7 @@ package com.astraland.startup.listener;
 
 import com.astraland.startup.AstraLandStartup;
 import com.astraland.startup.manager.ConfigManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,17 +39,18 @@ public class PlayerJoinListener implements Listener {
         ItemStack compass = new ItemStack(Material.COMPASS);
         ItemMeta meta = compass.getItemMeta();
 
-        meta.displayName(
-            LegacyComponentSerializer.legacyAmpersand()
-                .deserialize(config.getCompassName())
-        );
+        meta.setDisplayName(color(config.getCompassName()));
 
-        List<Component> lore = config.getCompassLore().stream()
-            .map(line -> LegacyComponentSerializer.legacyAmpersand().deserialize(line))
+        List<String> lore = config.getCompassLore().stream()
+            .map(this::color)
             .collect(Collectors.toList());
-        meta.lore(lore);
+        meta.setLore(lore);
 
         compass.setItemMeta(meta);
         player.getInventory().setItem(slot, compass);
+    }
+
+    private String color(String text) {
+        return ChatColor.translateAlternateColorCodes('&', text);
     }
 }

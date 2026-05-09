@@ -1,0 +1,25 @@
+[05:52:03] [Server thread/ERROR]: Error occurred while enabling AstraLand-Startup v1.0.0-SNAPSHOT (Is it up to date?)
+java.lang.NoClassDefFoundError: net/kyori/adventure/text/Component
+        at com.astraland.startup.AstraLandStartup.onEnable(AstraLandStartup.java:22) ~[?:?]
+        at org.bukkit.plugin.java.JavaPlugin.setEnabled(JavaPlugin.java:267) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.plugin.java.JavaPluginLoader.enablePlugin(JavaPluginLoader.java:342) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.plugin.SimplePluginManager.enablePlugin(SimplePluginManager.java:492) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.craftbukkit.v1_21_R3.CraftServer.enablePlugin(CraftServer.java:578) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at org.bukkit.craftbukkit.v1_21_R3.CraftServer.enablePlugins(CraftServer.java:492) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at org.bukkit.craftbukkit.v1_21_R3.CraftServer.reload(CraftServer.java:1017) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at org.bukkit.Bukkit.reload(Bukkit.java:871) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.command.defaults.ReloadCommand.execute(ReloadCommand.java:27) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.command.SimpleCommandMap.dispatch(SimpleCommandMap.java:150) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.craftbukkit.v1_21_R3.CraftServer.dispatchCommand(CraftServer.java:924) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at org.bukkit.craftbukkit.v1_21_R3.CraftServer.dispatchServerCommand(CraftServer.java:909) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.dedicated.DedicatedServer.br(DedicatedServer.java:413) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.dedicated.DedicatedServer.G(DedicatedServer.java:389) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.MinecraftServer.a(MinecraftServer.java:1383) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.MinecraftServer.y(MinecraftServer.java:1093) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:329) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
+Caused by: java.lang.ClassNotFoundException: net.kyori.adventure.text.Component
+        at org.bukkit.plugin.java.PluginClassLoader.loadClass0(PluginClassLoader.java:160) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.plugin.java.PluginClassLoader.loadClass(PluginClassLoader.java:112) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[?:?]
+        ... 18 more

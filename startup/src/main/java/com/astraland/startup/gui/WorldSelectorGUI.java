@@ -2,9 +2,8 @@ package com.astraland.startup.gui;
 
 import com.astraland.startup.AstraLandStartup;
 import com.astraland.startup.manager.ConfigManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -34,14 +33,12 @@ public class WorldSelectorGUI implements Listener {
         int rows = Math.max(1, Math.min(6, config.getGuiRows()));
         int size = rows * 9;
 
-        Component title = LegacyComponentSerializer.legacyAmpersand()
-            .deserialize(config.getGuiTitle());
-
+        String title = color(config.getGuiTitle());
         Inventory inv = Bukkit.createInventory(new WorldSelectorHolder(), size, title);
 
         ItemStack glass = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glass.getItemMeta();
-        glassMeta.displayName(Component.empty());
+        glassMeta.setDisplayName(" ");
         glass.setItemMeta(glassMeta);
 
         for (int i = 0; i < size; i++) {
@@ -62,14 +59,12 @@ public class WorldSelectorGUI implements Listener {
             ItemStack item = new ItemStack(worldConfig.getMaterial());
             ItemMeta meta = item.getItemMeta();
 
-            meta.displayName(
-                LegacyComponentSerializer.legacyAmpersand().deserialize(worldConfig.getName())
-            );
+            meta.setDisplayName(color(worldConfig.getName()));
 
-            List<Component> lore = worldConfig.getLore().stream()
-                .map(line -> LegacyComponentSerializer.legacyAmpersand().deserialize(line))
+            List<String> lore = worldConfig.getLore().stream()
+                .map(this::color)
                 .collect(Collectors.toList());
-            meta.lore(lore);
+            meta.setLore(lore);
 
             item.setItemMeta(meta);
             inv.setItem(slot, item);
@@ -95,13 +90,15 @@ public class WorldSelectorGUI implements Listener {
         player.closeInventory();
 
         if (world == null) {
-            player.sendMessage(LegacyComponentSerializer.legacyAmpersand()
-                .deserialize("&cLe monde &e" + worldName + " &cn'est pas chargé. Vérifie que Multiverse-Core l'a bien créé."));
+            player.sendMessage(color("&cLe monde &e" + worldName + " &cn'est pas chargé. Vérifie que Multiverse-Core l'a bien créé."));
             return;
         }
 
         player.teleport(world.getSpawnLocation());
-        player.sendMessage(LegacyComponentSerializer.legacyAmpersand()
-            .deserialize("&aTéléportation vers &e" + worldName + " &a!"));
+        player.sendMessage(color("&aTéléportation vers &e" + worldName + " &a!"));
+    }
+
+    private String color(String text) {
+        return ChatColor.translateAlternateColorCodes('&', text);
     }
 }
