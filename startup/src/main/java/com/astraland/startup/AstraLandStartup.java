@@ -4,6 +4,7 @@ import com.astraland.startup.gui.WorldSelectorGUI;
 import com.astraland.startup.listener.CompassLockListener;
 import com.astraland.startup.listener.CompassListener;
 import com.astraland.startup.listener.PlayerJoinListener;
+import com.astraland.startup.listener.PlayerVisibilityListener;
 import com.astraland.startup.listener.WorldChangeListener;
 import com.astraland.startup.manager.ConfigManager;
 import com.astraland.startup.manager.LocationManager;
@@ -33,6 +34,7 @@ public class AstraLandStartup extends JavaPlugin {
         getServer().getPluginManager().registerEvents(worldSelectorGUI, this);
         getServer().getPluginManager().registerEvents(new CompassLockListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldChangeListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerVisibilityListener(this), this);
 
         getLogger().info("=================================");
         getLogger().info("   AstraLand - Startup chargé !  ");
