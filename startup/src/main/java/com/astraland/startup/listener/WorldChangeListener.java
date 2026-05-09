@@ -1,7 +1,6 @@
 package com.astraland.startup.listener;
 
 import com.astraland.startup.AstraLandStartup;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,12 +26,6 @@ public class WorldChangeListener implements Listener {
 
         if (nowWorld.equals(MAIN_WORLD)) {
             plugin.getPlayerJoinListener().giveCompass(player);
-
-            Location saved = plugin.getLocationManager().get(player.getUniqueId());
-            if (saved != null) {
-                player.teleport(saved);
-            }
-
         } else if (beforeWorld.equals(MAIN_WORLD)) {
             removeCompass(player);
         }
