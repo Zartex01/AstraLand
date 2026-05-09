@@ -3,6 +3,7 @@ package com.astraland.skyblock;
 import com.astraland.skyblock.commands.IslandCommand;
 import com.astraland.skyblock.listeners.IslandListener;
 import com.astraland.skyblock.managers.IslandManager;
+import com.astraland.skyblock.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,7 @@ public class Skyblock extends JavaPlugin {
 
     private static Skyblock instance;
     private IslandManager islandManager;
+    private ScoreboardTask scoreboardTask;
 
     @Override
     public void onEnable() {
@@ -21,11 +23,16 @@ public class Skyblock extends JavaPlugin {
         getCommand("island").setTabCompleter(new IslandCommand(this));
 
         getServer().getPluginManager().registerEvents(new IslandListener(this), this);
+
+        this.scoreboardTask = new ScoreboardTask(this);
+        this.scoreboardTask.start();
+
         getLogger().info("AstraLand - Skyblock chargé !");
     }
 
     @Override
     public void onDisable() {
+        if (scoreboardTask != null) scoreboardTask.stop();
         if (islandManager != null) islandManager.saveAll();
         getLogger().info("AstraLand - Skyblock désactivé.");
     }

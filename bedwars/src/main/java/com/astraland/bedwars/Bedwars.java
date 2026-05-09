@@ -3,6 +3,7 @@ package com.astraland.bedwars;
 import com.astraland.bedwars.commands.BedwarsCommand;
 import com.astraland.bedwars.listeners.BedwarsListener;
 import com.astraland.bedwars.managers.ArenaManager;
+import com.astraland.bedwars.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,7 @@ public class Bedwars extends JavaPlugin {
 
     private static Bedwars instance;
     private ArenaManager arenaManager;
+    private ScoreboardTask scoreboardTask;
 
     @Override
     public void onEnable() {
@@ -21,11 +23,16 @@ public class Bedwars extends JavaPlugin {
         getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
 
         getServer().getPluginManager().registerEvents(new BedwarsListener(this), this);
+
+        this.scoreboardTask = new ScoreboardTask(this);
+        this.scoreboardTask.start();
+
         getLogger().info("AstraLand - Bedwars chargé !");
     }
 
     @Override
     public void onDisable() {
+        if (scoreboardTask != null) scoreboardTask.stop();
         if (arenaManager != null) arenaManager.saveAll();
         getLogger().info("AstraLand - Bedwars désactivé.");
     }

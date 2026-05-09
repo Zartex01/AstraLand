@@ -3,6 +3,7 @@ package com.astraland.uhc;
 import com.astraland.uhc.commands.UHCCommand;
 import com.astraland.uhc.listeners.UHCListener;
 import com.astraland.uhc.managers.UHCManager;
+import com.astraland.uhc.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,7 @@ public class UHC extends JavaPlugin {
 
     private static UHC instance;
     private UHCManager uhcManager;
+    private ScoreboardTask scoreboardTask;
 
     @Override
     public void onEnable() {
@@ -21,11 +23,16 @@ public class UHC extends JavaPlugin {
         getCommand("uhc").setTabCompleter(new UHCCommand(this));
 
         getServer().getPluginManager().registerEvents(new UHCListener(this), this);
+
+        this.scoreboardTask = new ScoreboardTask(this);
+        this.scoreboardTask.start();
+
         getLogger().info("AstraLand - UHC chargé !");
     }
 
     @Override
     public void onDisable() {
+        if (scoreboardTask != null) scoreboardTask.stop();
         if (uhcManager != null) uhcManager.stopGame();
         getLogger().info("AstraLand - UHC désactivé.");
     }

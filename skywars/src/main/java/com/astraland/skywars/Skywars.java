@@ -3,6 +3,7 @@ package com.astraland.skywars;
 import com.astraland.skywars.commands.SkywarsCommand;
 import com.astraland.skywars.listeners.SkywarsListener;
 import com.astraland.skywars.managers.SkywarsManager;
+import com.astraland.skywars.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,7 @@ public class Skywars extends JavaPlugin {
 
     private static Skywars instance;
     private SkywarsManager skywarsManager;
+    private ScoreboardTask scoreboardTask;
 
     @Override
     public void onEnable() {
@@ -21,11 +23,16 @@ public class Skywars extends JavaPlugin {
         getCommand("skywars").setTabCompleter(new SkywarsCommand(this));
 
         getServer().getPluginManager().registerEvents(new SkywarsListener(this), this);
+
+        this.scoreboardTask = new ScoreboardTask(this);
+        this.scoreboardTask.start();
+
         getLogger().info("AstraLand - Skywars chargé !");
     }
 
     @Override
     public void onDisable() {
+        if (scoreboardTask != null) scoreboardTask.stop();
         if (skywarsManager != null) skywarsManager.stopAll();
         getLogger().info("AstraLand - Skywars désactivé.");
     }

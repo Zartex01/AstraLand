@@ -3,6 +3,7 @@ package com.astraland.spleef;
 import com.astraland.spleef.commands.SpleefCommand;
 import com.astraland.spleef.listeners.SpleefListener;
 import com.astraland.spleef.managers.SpleefManager;
+import com.astraland.spleef.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,7 @@ public class Spleef extends JavaPlugin {
 
     private static Spleef instance;
     private SpleefManager spleefManager;
+    private ScoreboardTask scoreboardTask;
 
     @Override
     public void onEnable() {
@@ -21,11 +23,16 @@ public class Spleef extends JavaPlugin {
         getCommand("spleef").setTabCompleter(new SpleefCommand(this));
 
         getServer().getPluginManager().registerEvents(new SpleefListener(this), this);
+
+        this.scoreboardTask = new ScoreboardTask(this);
+        this.scoreboardTask.start();
+
         getLogger().info("AstraLand - Spleef chargé !");
     }
 
     @Override
     public void onDisable() {
+        if (scoreboardTask != null) scoreboardTask.stop();
         if (spleefManager != null) spleefManager.stopAll();
         getLogger().info("AstraLand - Spleef désactivé.");
     }

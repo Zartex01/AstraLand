@@ -1,0 +1,136 @@
+package com.astraland.skywars.scoreboard;
+
+import com.astraland.skywars.Skywars;
+import com.astraland.skywars.models.SkywarsArena;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+public class ScoreboardTask implements Listener {
+
+    private static final String[] E = {
+        "§0","§1","§2","§3","§4","§5","§6","§7","§8","§9","§a","§b","§c","§d"
+    };
+
+    private final Skywars plugin;
+    private BukkitTask task;
+    private final Map<UUID, Scoreboard> boards = new HashMap<>();
+    private final Map<UUID, Integer> sessionKills = new HashMap<>();
+
+    public ScoreboardTask(Skywars plugin) { this.plugin = plugin; }
+
+    public void start() {
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+        task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20L, 20L);
+        for (Player p : Bukkit.getOnlinePlayers()) if (plugin.isInPluginWorld(p)) init(p);
+    }
+
+    public void stop() {
+        if (task != null) { task.cancel(); task = null; }
+        HandlerList.unregisterAll(this);
+        boards.forEach((uuid, b) -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null) p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        });
+        boards.clear();
+        sessionKills.clear();
+    }
+
+    public void addKill(UUID uuid) { sessionKills.merge(uuid, 1, Integer::sum); }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (plugin.isInPluginWorld(e.getPlayer())) init(e.getPlayer());
+        }, 5L);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        boards.remove(e.getPlayer().getUniqueId());
+        sessionKills.remove(e.getPlayer().getUniqueId());
+    }
+
+    private void init(Player p) {
+        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective obj = board.registerNewObjective("astraland", "dummy", c("&6&l✦ AstraLand ✦"));
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        for (int i = 0; i < E.length; i++) {
+            Team t = board.registerNewTeam("l" + i);
+            t.addEntry(E[i]);
+            obj.getScore(E[i]).setScore(i);
+        }
+        boards.put(p.getUniqueId(), board);
+        p.setScoreboard(board);
+    }
+
+    private void setLine(Scoreboard b, int slot, String text) {
+        Team t = b.getTeam("l" + slot);
+        if (t == null) return;
+        String s = c(text);
+        t.setPrefix(s.length() > 64 ? s.substring(0, 64) : s);
+    }
+
+    private void tick() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!plugin.isInPluginWorld(p)) continue;
+            if (!boards.containsKey(p.getUniqueId())) init(p);
+            update(p, boards.get(p.getUniqueId()));
+        }
+    }
+
+    private void update(Player p, Scoreboard board) {
+        UUID uid = p.getUniqueId();
+        SkywarsArena arena = plugin.getSkywarsManager().getPlayerArena(uid);
+
+        String arenaLine, stateLine, playersLine, killsLine, kitLine;
+        int kills = sessionKills.getOrDefault(uid, 0);
+
+        if (arena != null) {
+            arenaLine = "&e" + arena.getName();
+            stateLine = switch (arena.getState()) {
+                case WAITING   -> "&7En attente...";
+                case COUNTDOWN -> "&6Départ dans &e" + arena.getCountdown() + "s";
+                case INGAME    -> "&aEn jeu";
+                case FINISHED  -> "&cTerminé";
+            };
+            playersLine = "&f" + arena.getPlayers().size() + "&7/" + arena.getMaxPlayers();
+            String kit = arena.getPlayerKits().getOrDefault(uid, "Aucun");
+            kitLine = "&e" + kit;
+        } else {
+            arenaLine   = "&8Lobby";
+            stateLine   = "&7En attente d'une partie";
+            playersLine = "&8-";
+            kitLine     = "&8-";
+        }
+        killsLine = "&a" + kills + " &7kill(s)";
+
+        setLine(board, 13, " ");
+        setLine(board, 12, "&f" + p.getName());
+        setLine(board, 11, "&8──────────────");
+        setLine(board, 10, "&7Arène: " + arenaLine);
+        setLine(board, 9,  "&7Joueurs: " + playersLine);
+        setLine(board, 8,  "&7État: " + stateLine);
+        setLine(board, 7,  "&8──────────────");
+        setLine(board, 6,  "&7Kit: " + kitLine);
+        setLine(board, 5,  "&7Kills: " + killsLine);
+        setLine(board, 4,  "&8──────────────");
+        setLine(board, 3,  "&7Mode: &eSkyWars");
+        setLine(board, 2,  " ");
+        setLine(board, 1,  "&bastraland-fr.com");
+        setLine(board, 0,  "&e    » /vote");
+    }
+
+    private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
+}

@@ -3,6 +3,7 @@ package com.astraland.buildbattle;
 import com.astraland.buildbattle.commands.BuildBattleCommand;
 import com.astraland.buildbattle.listeners.BuildBattleListener;
 import com.astraland.buildbattle.managers.BuildBattleManager;
+import com.astraland.buildbattle.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,7 @@ public class BuildBattle extends JavaPlugin {
 
     private static BuildBattle instance;
     private BuildBattleManager buildBattleManager;
+    private ScoreboardTask scoreboardTask;
 
     @Override
     public void onEnable() {
@@ -21,11 +23,16 @@ public class BuildBattle extends JavaPlugin {
         getCommand("buildbattle").setTabCompleter(new BuildBattleCommand(this));
 
         getServer().getPluginManager().registerEvents(new BuildBattleListener(this), this);
+
+        this.scoreboardTask = new ScoreboardTask(this);
+        this.scoreboardTask.start();
+
         getLogger().info("AstraLand - Build Battle chargé !");
     }
 
     @Override
     public void onDisable() {
+        if (scoreboardTask != null) scoreboardTask.stop();
         if (buildBattleManager != null) buildBattleManager.stopAll();
         getLogger().info("AstraLand - Build Battle désactivé.");
     }

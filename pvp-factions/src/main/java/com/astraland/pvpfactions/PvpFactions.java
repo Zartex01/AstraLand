@@ -5,6 +5,7 @@ import com.astraland.pvpfactions.database.DatabaseManager;
 import com.astraland.pvpfactions.listeners.ChatListener;
 import com.astraland.pvpfactions.listeners.PvpListener;
 import com.astraland.pvpfactions.managers.*;
+import com.astraland.pvpfactions.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,6 +17,7 @@ public class PvpFactions extends JavaPlugin {
     private StatsManager statsManager;
     private BountyManager bountyManager;
     private KitManager kitManager;
+    private ScoreboardTask scoreboardTask;
 
     @Override
     public void onEnable() {
@@ -62,11 +64,16 @@ public class PvpFactions extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PvpListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
 
+        // Scoreboard
+        this.scoreboardTask = new ScoreboardTask(this);
+        this.scoreboardTask.start();
+
         getLogger().info("AstraLand - PvP/Factions chargé avec SQLite !");
     }
 
     @Override
     public void onDisable() {
+        if (scoreboardTask != null) scoreboardTask.stop();
         if (databaseManager != null) databaseManager.disconnect();
         getLogger().info("AstraLand - PvP/Factions désactivé.");
     }
