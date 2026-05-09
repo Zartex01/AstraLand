@@ -79,7 +79,9 @@ public class ScoreboardTask implements Listener {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (!plugin.isInPluginWorld(p)) continue;
             if (!boards.containsKey(p.getUniqueId())) init(p);
-            update(p, boards.get(p.getUniqueId()));
+            Scoreboard board = boards.get(p.getUniqueId());
+            if (!p.getScoreboard().equals(board)) p.setScoreboard(board);
+            update(p, board);
         }
     }
 
