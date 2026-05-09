@@ -23,6 +23,7 @@ public class ChatListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
+        if (!plugin.isInPluginWorld(player)) return;
         FactionManager fm = plugin.getFactionManager();
 
         if (!fm.isFactionChat(player.getUniqueId())) return;

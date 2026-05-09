@@ -3,6 +3,7 @@ package com.astraland.uhc;
 import com.astraland.uhc.commands.UHCCommand;
 import com.astraland.uhc.listeners.UHCListener;
 import com.astraland.uhc.managers.UHCManager;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class UHC extends JavaPlugin {
@@ -31,4 +32,8 @@ public class UHC extends JavaPlugin {
 
     public static UHC getInstance() { return instance; }
     public UHCManager getUhcManager() { return uhcManager; }
+
+    public String getPluginWorld() { return getConfig().getString("uhc.world", "world_uhc"); }
+    public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg() { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

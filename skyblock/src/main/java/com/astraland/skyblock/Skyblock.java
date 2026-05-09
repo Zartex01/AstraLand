@@ -3,6 +3,7 @@ package com.astraland.skyblock;
 import com.astraland.skyblock.commands.IslandCommand;
 import com.astraland.skyblock.listeners.IslandListener;
 import com.astraland.skyblock.managers.IslandManager;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Skyblock extends JavaPlugin {
@@ -31,4 +32,8 @@ public class Skyblock extends JavaPlugin {
 
     public static Skyblock getInstance() { return instance; }
     public IslandManager getIslandManager() { return islandManager; }
+
+    public String getPluginWorld() { return getConfig().getString("island.world", "world_skyblock"); }
+    public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg() { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

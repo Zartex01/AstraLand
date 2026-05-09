@@ -31,6 +31,7 @@ public class PvpListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
+        if (!plugin.isInPluginWorld(victim)) return;
         StatsManager sm = plugin.getStatsManager();
         FactionManager fm = plugin.getFactionManager();
         BountyManager bm = plugin.getBountyManager();
@@ -88,6 +89,7 @@ public class PvpListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player victim)) return;
+        if (!plugin.isInPluginWorld(victim)) return;
         Player attacker = null;
         Entity damager = event.getDamager();
         if (damager instanceof Player p) attacker = p;
@@ -109,6 +111,7 @@ public class PvpListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+        if (!plugin.isInPluginWorld(player)) return;
         if (player.hasPermission("astraland.factions.admin")) return;
         FactionManager fm = plugin.getFactionManager();
         Faction owner = fm.getFactionByClaim(event.getBlock().getChunk());
@@ -123,6 +126,7 @@ public class PvpListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
+        if (!plugin.isInPluginWorld(player)) return;
         if (player.hasPermission("astraland.factions.admin")) return;
         FactionManager fm = plugin.getFactionManager();
         Faction owner = fm.getFactionByClaim(event.getBlock().getChunk());
@@ -137,6 +141,7 @@ public class PvpListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
+        if (!plugin.isInPluginWorld(player)) return;
         FactionManager fm = plugin.getFactionManager();
         if (!fm.isAutoclaiming(player.getUniqueId())) return;
 

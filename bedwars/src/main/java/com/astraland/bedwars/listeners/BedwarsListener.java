@@ -32,6 +32,7 @@ public class BedwarsListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
+        if (!plugin.isInPluginWorld(victim)) return;
         ArenaManager am = plugin.getArenaManager();
         Arena arena = am.getPlayerArena(victim.getUniqueId());
         if (arena == null || arena.getState() != GameState.INGAME) return;
@@ -65,6 +66,7 @@ public class BedwarsListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+        if (!plugin.isInPluginWorld(player)) return;
         ArenaManager am = plugin.getArenaManager();
         Arena arena = am.getPlayerArena(player.getUniqueId());
         if (arena == null || arena.getState() != GameState.INGAME) return;
@@ -101,6 +103,7 @@ public class BedwarsListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        if (!plugin.isInPluginWorld(event.getPlayer())) return;
         ArenaManager am = plugin.getArenaManager();
         Arena arena = am.getPlayerArena(event.getPlayer().getUniqueId());
         if (arena != null) am.leaveArena(arena, event.getPlayer().getUniqueId());

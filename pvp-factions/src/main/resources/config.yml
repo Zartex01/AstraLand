@@ -1,5 +1,7 @@
 prefix: "&8[&c&lFactions&8] &r"
 
+world: "world_pvpfactions"
+
 faction:
   max-name-length: 20
   min-name-length: 3

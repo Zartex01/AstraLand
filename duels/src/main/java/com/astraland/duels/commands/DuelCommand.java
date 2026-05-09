@@ -23,6 +23,7 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) { sender.sendMessage("Joueur uniquement."); return true; }
+        if (!plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
         DuelManager dm = plugin.getDuelManager();
         String sub = args.length > 0 ? args[0].toLowerCase() : "help";
 

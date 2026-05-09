@@ -3,6 +3,7 @@ package com.astraland.bedwars;
 import com.astraland.bedwars.commands.BedwarsCommand;
 import com.astraland.bedwars.listeners.BedwarsListener;
 import com.astraland.bedwars.managers.ArenaManager;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Bedwars extends JavaPlugin {
@@ -31,4 +32,8 @@ public class Bedwars extends JavaPlugin {
 
     public static Bedwars getInstance() { return instance; }
     public ArenaManager getArenaManager() { return arenaManager; }
+
+    public String getPluginWorld() { return getConfig().getString("bedwars.lobby-world", "world_bedwars"); }
+    public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg() { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

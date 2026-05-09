@@ -20,6 +20,7 @@ public class DuelListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player loser = event.getEntity();
+        if (!plugin.isInPluginWorld(loser)) return;
         DuelManager dm = plugin.getDuelManager();
         if (!dm.isInDuel(loser.getUniqueId())) return;
 
@@ -33,6 +34,7 @@ public class DuelListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player victim)) return;
+        if (!plugin.isInPluginWorld(victim)) return;
 
         Player attacker = null;
         if (event.getDamager() instanceof Player) attacker = (Player) event.getDamager();
@@ -61,6 +63,7 @@ public class DuelListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        if (!plugin.isInPluginWorld(event.getPlayer())) return;
         DuelManager dm = plugin.getDuelManager();
         if (dm.isInDuel(event.getPlayer().getUniqueId())) {
             dm.onDeath(event.getPlayer());

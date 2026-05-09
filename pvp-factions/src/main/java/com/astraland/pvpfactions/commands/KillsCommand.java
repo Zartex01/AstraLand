@@ -22,6 +22,8 @@ public class KillsCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         StatsManager sm = plugin.getStatsManager();
 
+        if (sender instanceof Player player && !plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
+
         UUID target;
         String name;
 

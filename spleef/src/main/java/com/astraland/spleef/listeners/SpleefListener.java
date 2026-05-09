@@ -22,6 +22,7 @@ public class SpleefListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+        if (!plugin.isInPluginWorld(player)) return;
         SpleefManager sm = plugin.getSpleefManager();
         SpleefGame game = sm.getPlayerGame(player.getUniqueId());
         if (game == null || game.getState() != SpleefGame.State.INGAME) return;
@@ -38,6 +39,7 @@ public class SpleefListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
+        if (!plugin.isInPluginWorld(player)) return;
         SpleefManager sm = plugin.getSpleefManager();
         SpleefGame game = sm.getPlayerGame(player.getUniqueId());
         if (game == null || game.getState() != SpleefGame.State.INGAME) return;
@@ -56,6 +58,7 @@ public class SpleefListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        if (!plugin.isInPluginWorld(event.getPlayer())) return;
         SpleefManager sm = plugin.getSpleefManager();
         SpleefGame game = sm.getPlayerGame(event.getPlayer().getUniqueId());
         if (game != null) sm.leaveGame(game, event.getPlayer());

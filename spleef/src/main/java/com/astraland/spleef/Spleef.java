@@ -3,6 +3,7 @@ package com.astraland.spleef;
 import com.astraland.spleef.commands.SpleefCommand;
 import com.astraland.spleef.listeners.SpleefListener;
 import com.astraland.spleef.managers.SpleefManager;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Spleef extends JavaPlugin {
@@ -31,4 +32,8 @@ public class Spleef extends JavaPlugin {
 
     public static Spleef getInstance() { return instance; }
     public SpleefManager getSpleefManager() { return spleefManager; }
+
+    public String getPluginWorld() { return getConfig().getString("spleef.lobby-world", "world_spleef"); }
+    public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg() { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

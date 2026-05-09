@@ -21,6 +21,7 @@ public class BuildBattleListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
+        if (!plugin.isInPluginWorld(player)) return;
         BuildBattleManager bm = plugin.getBuildBattleManager();
         BBGame game = bm.getPlayerGame(player.getUniqueId());
         if (game == null) return;
@@ -34,6 +35,7 @@ public class BuildBattleListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+        if (!plugin.isInPluginWorld(player)) return;
         BuildBattleManager bm = plugin.getBuildBattleManager();
         BBGame game = bm.getPlayerGame(player.getUniqueId());
         if (game == null) return;
@@ -47,6 +49,7 @@ public class BuildBattleListener implements Listener {
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player attacker)) return;
         if (!(event.getEntity() instanceof Player)) return;
+        if (!plugin.isInPluginWorld(attacker)) return;
 
         BuildBattleManager bm = plugin.getBuildBattleManager();
         BBGame game = bm.getPlayerGame(attacker.getUniqueId());
@@ -55,6 +58,7 @@ public class BuildBattleListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        if (!plugin.isInPluginWorld(event.getPlayer())) return;
         BuildBattleManager bm = plugin.getBuildBattleManager();
         BBGame game = bm.getPlayerGame(event.getPlayer().getUniqueId());
         if (game != null) bm.leaveGame(game, event.getPlayer());

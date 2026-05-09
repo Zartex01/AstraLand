@@ -3,6 +3,7 @@ package com.astraland.duels;
 import com.astraland.duels.commands.DuelCommand;
 import com.astraland.duels.listeners.DuelListener;
 import com.astraland.duels.managers.DuelManager;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Duels extends JavaPlugin {
@@ -31,4 +32,8 @@ public class Duels extends JavaPlugin {
 
     public static Duels getInstance() { return instance; }
     public DuelManager getDuelManager() { return duelManager; }
+
+    public String getPluginWorld() { return getConfig().getString("duels.world", "world_duels"); }
+    public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg() { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

@@ -5,6 +5,7 @@ import com.astraland.pvpfactions.database.DatabaseManager;
 import com.astraland.pvpfactions.listeners.ChatListener;
 import com.astraland.pvpfactions.listeners.PvpListener;
 import com.astraland.pvpfactions.managers.*;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PvpFactions extends JavaPlugin {
@@ -73,4 +74,8 @@ public class PvpFactions extends JavaPlugin {
     public StatsManager getStatsManager() { return statsManager; }
     public BountyManager getBountyManager() { return bountyManager; }
     public KitManager getKitManager() { return kitManager; }
+
+    public String getPluginWorld() { return getConfig().getString("world", "world_pvpfactions"); }
+    public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg() { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

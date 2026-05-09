@@ -22,6 +22,7 @@ public class UHCCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (sender instanceof Player player && !plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
         UHCManager um = plugin.getUhcManager();
         UHCGame game = um.getGame();
         String sub = args.length > 0 ? args[0].toLowerCase() : "list";

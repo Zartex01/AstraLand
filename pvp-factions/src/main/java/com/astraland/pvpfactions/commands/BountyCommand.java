@@ -29,6 +29,8 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         BountyManager bm = plugin.getBountyManager();
 
+        if (sender instanceof Player player && !plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
+
         if (label.equalsIgnoreCase("bountylist") || (args.length > 0 && args[0].equalsIgnoreCase("list"))) {
             List<Map.Entry<UUID, Integer>> top = bm.getTopBounties(10);
             sender.sendMessage(c("&6&l=== Primes actives ==="));

@@ -34,6 +34,7 @@ public class UHCListener implements Listener {
     @EventHandler
     public void onHealthRegen(EntityRegainHealthEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
+        if (!plugin.isInPluginWorld(player)) return;
         UHCManager um = plugin.getUhcManager();
         UHCGame game = um.getGame();
         if (!game.isInGame(player.getUniqueId())) return;
@@ -48,6 +49,7 @@ public class UHCListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
+        if (!plugin.isInPluginWorld(victim)) return;
         UHCManager um = plugin.getUhcManager();
         UHCGame game = um.getGame();
         if (!game.isInGame(victim.getUniqueId())) return;
@@ -75,6 +77,7 @@ public class UHCListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        if (!plugin.isInPluginWorld(event.getPlayer())) return;
         UHCManager um = plugin.getUhcManager();
         UHCGame game = um.getGame();
         if (game.isInGame(event.getPlayer().getUniqueId())) {

@@ -3,6 +3,7 @@ package com.astraland.buildbattle;
 import com.astraland.buildbattle.commands.BuildBattleCommand;
 import com.astraland.buildbattle.listeners.BuildBattleListener;
 import com.astraland.buildbattle.managers.BuildBattleManager;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BuildBattle extends JavaPlugin {
@@ -31,4 +32,8 @@ public class BuildBattle extends JavaPlugin {
 
     public static BuildBattle getInstance() { return instance; }
     public BuildBattleManager getBuildBattleManager() { return buildBattleManager; }
+
+    public String getPluginWorld() { return getConfig().getString("buildbattle.lobby-world", "world_buildbattle"); }
+    public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg() { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

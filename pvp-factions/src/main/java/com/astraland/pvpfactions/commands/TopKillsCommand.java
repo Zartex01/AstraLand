@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.command.TabCompleter;
 
 import java.util.Arrays;
@@ -26,6 +27,7 @@ public class TopKillsCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         StatsManager sm = plugin.getStatsManager();
+        if (sender instanceof Player player && !plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
         String mode = args.length > 0 ? args[0].toLowerCase() : "kills";
 
         if (mode.equals("streak")) {

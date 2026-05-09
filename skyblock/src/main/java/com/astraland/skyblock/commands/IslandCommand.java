@@ -25,6 +25,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) { sender.sendMessage("Joueur uniquement."); return true; }
+        if (!plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
         IslandManager im = plugin.getIslandManager();
         String sub = args.length > 0 ? args[0].toLowerCase() : "home";
 

@@ -19,6 +19,7 @@ public class SkywarsListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
+        if (!plugin.isInPluginWorld(victim)) return;
         SkywarsManager sm = plugin.getSkywarsManager();
         SkywarsArena arena = sm.getPlayerArena(victim.getUniqueId());
         if (arena == null || arena.getState() != SkywarsArena.State.INGAME) return;
@@ -38,6 +39,7 @@ public class SkywarsListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        if (!plugin.isInPluginWorld(event.getPlayer())) return;
         SkywarsManager sm = plugin.getSkywarsManager();
         SkywarsArena arena = sm.getPlayerArena(event.getPlayer().getUniqueId());
         if (arena != null) sm.leaveArena(arena, event.getPlayer());

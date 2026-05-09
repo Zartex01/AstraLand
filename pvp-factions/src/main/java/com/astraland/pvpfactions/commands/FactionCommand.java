@@ -27,6 +27,7 @@ public class FactionCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) { sender.sendMessage("Joueur uniquement."); return true; }
+        if (!plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
         if (args.length == 0) { sendHelp(player); return true; }
 
         FactionManager fm = plugin.getFactionManager();
