@@ -1,0 +1,6 @@
+name: AstraLand-Skyblock
+version: 1.0.0-SNAPSHOT
+main: com.astraland.skyblock.Skyblock
+api-version: "1.21"
+description: AstraLand - Module Skyblock
+authors: [AstraLand]

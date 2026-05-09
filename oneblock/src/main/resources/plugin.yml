@@ -1,0 +1,6 @@
+name: AstraLand-OneBlock
+version: 1.0.0-SNAPSHOT
+main: com.astraland.oneblock.OneBlock
+api-version: "1.21"
+description: AstraLand - Module OneBlock
+authors: [AstraLand]

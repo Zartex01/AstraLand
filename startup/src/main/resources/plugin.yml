@@ -1,0 +1,6 @@
+name: AstraLand-Startup
+version: 1.0.0-SNAPSHOT
+main: com.astraland.startup.AstraLandStartup
+api-version: "1.21"
+description: AstraLand - Module principal de démarrage
+authors: [AstraLand]

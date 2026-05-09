@@ -1,0 +1,6 @@
+name: AstraLand-BuildBattle
+version: 1.0.0-SNAPSHOT
+main: com.astraland.buildbattle.BuildBattle
+api-version: "1.21"
+description: AstraLand - Module Build Battle
+authors: [AstraLand]

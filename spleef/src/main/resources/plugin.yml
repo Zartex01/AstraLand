@@ -1,0 +1,6 @@
+name: AstraLand-Spleef
+version: 1.0.0-SNAPSHOT
+main: com.astraland.spleef.Spleef
+api-version: "1.21"
+description: AstraLand - Module Spleef
+authors: [AstraLand]

@@ -1,0 +1,6 @@
+name: AstraLand-PvpFactions
+version: 1.0.0-SNAPSHOT
+main: com.astraland.pvpfactions.PvpFactions
+api-version: "1.21"
+description: AstraLand - Module PvP/Factions
+authors: [AstraLand]

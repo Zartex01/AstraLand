@@ -1,0 +1,6 @@
+name: AstraLand-Skywars
+version: 1.0.0-SNAPSHOT
+main: com.astraland.skywars.Skywars
+api-version: "1.21"
+description: AstraLand - Module Skywars
+authors: [AstraLand]

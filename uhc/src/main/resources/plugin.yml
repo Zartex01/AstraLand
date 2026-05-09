@@ -1,0 +1,6 @@
+name: AstraLand-UHC
+version: 1.0.0-SNAPSHOT
+main: com.astraland.uhc.UHC
+api-version: "1.21"
+description: AstraLand - Module UHC
+authors: [AstraLand]

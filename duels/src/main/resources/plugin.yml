@@ -1,0 +1,6 @@
+name: AstraLand-Duels
+version: 1.0.0-SNAPSHOT
+main: com.astraland.duels.Duels
+api-version: "1.21"
+description: AstraLand - Module Duels
+authors: [AstraLand]

@@ -1,0 +1,6 @@
+name: AstraLand-Bedwars
+version: 1.0.0-SNAPSHOT
+main: com.astraland.bedwars.Bedwars
+api-version: "1.21"
+description: AstraLand - Module Bedwars
+authors: [AstraLand]
