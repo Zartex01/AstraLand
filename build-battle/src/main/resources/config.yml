@@ -1,0 +1,25 @@
+prefix: "&8[&e&lBuildBattle&8] &r"
+
+buildbattle:
+  lobby-world: "world_buildbattle"
+  min-players: 2
+  build-time: 180
+  vote-time: 60
+
+themes:
+  - "Maison"
+  - "Château"
+  - "Ferme"
+  - "Jungle"
+  - "Désert"
+  - "Vaisseau spatial"
+  - "Sous-marin"
+  - "Dragon"
+  - "Ville médiévale"
+  - "Robot"
+
+messages:
+  theme-announced: "&6Thème : &e&l%theme%"
+  build-start: "&aC'est parti ! Vous avez &e%time% secondes &apour construire !"
+  vote-start: "&aPhase de vote ! Votez de 1 à 5."
+  winner: "&6%player% &agagne avec un score de &e%score%/5 &a!"

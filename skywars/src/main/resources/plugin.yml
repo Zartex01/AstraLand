@@ -4,3 +4,9 @@ main: com.astraland.skywars.Skywars
 api-version: "1.21"
 description: AstraLand - Module Skywars
 authors: [AstraLand]
+
+commands:
+  skywars:
+    description: Commandes Skywars
+    aliases: [sw]
+    usage: /skywars <join|leave|list|kit|create|setspawn|start>

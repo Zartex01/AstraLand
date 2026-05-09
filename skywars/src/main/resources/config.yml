@@ -1,0 +1,30 @@
+prefix: "&8[&9&lSkywars&8] &r"
+
+skywars:
+  lobby-world: "world_skywars"
+  min-players: 2
+  countdown: 30
+
+kits:
+  WARRIOR:
+    display: "&cGuerrier"
+    items:
+      - IRON_SWORD
+      - IRON_CHESTPLATE
+  ARCHER:
+    display: "&aArcher"
+    items:
+      - BOW
+      - ARROW
+      - LEATHER_CHESTPLATE
+  MAGE:
+    display: "&5Mage"
+    items:
+      - BLAZE_ROD
+      - ENDER_PEARL
+
+messages:
+  game-start: "&aLa partie Skywars commence !"
+  player-eliminated: "&c%player% &aest éliminé !"
+  winner: "&6%player% &agagne la partie !"
+  kit-selected: "&aKit &e%kit% &asélectionné !"

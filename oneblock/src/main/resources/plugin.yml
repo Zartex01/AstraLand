@@ -4,3 +4,9 @@ main: com.astraland.oneblock.OneBlock
 api-version: "1.21"
 description: AstraLand - Module OneBlock
 authors: [AstraLand]
+
+commands:
+  oneblock:
+    description: Commandes OneBlock
+    aliases: [ob, one]
+    usage: /oneblock <create|home|info|phase|top>

@@ -4,3 +4,8 @@ main: com.astraland.uhc.UHC
 api-version: "1.21"
 description: AstraLand - Module UHC
 authors: [AstraLand]
+
+commands:
+  uhc:
+    description: Commandes UHC
+    usage: /uhc <start|stop|join|leave|list|setworld|scenario>

@@ -1,0 +1,27 @@
+prefix: "&8[&c&lBedwars&8] &r"
+
+bedwars:
+  lobby-world: "world_bedwars"
+  min-players: 2
+  countdown: 30
+  game-duration: 1200
+
+teams:
+  RED:
+    color: "&c"
+    display: "Rouge"
+  BLUE:
+    color: "&9"
+    display: "Bleu"
+  GREEN:
+    color: "&a"
+    display: "Vert"
+  YELLOW:
+    color: "&e"
+    display: "Jaune"
+
+generators:
+  iron-delay: 3
+  gold-delay: 10
+  diamond-delay: 30
+  emerald-delay: 60

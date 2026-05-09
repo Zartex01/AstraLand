@@ -4,3 +4,13 @@ main: com.astraland.pvpfactions.PvpFactions
 api-version: "1.21"
 description: AstraLand - Module PvP/Factions
 authors: [AstraLand]
+
+commands:
+  faction:
+    description: Commandes de factions
+    aliases: [f, factions]
+    usage: /faction <create|join|leave|invite|kick|info|list|claim|unclaim|sethome|home|ally|enemy|neutral|promote|demote|disband|chat|top>
+  kills:
+    description: Voir ses statistiques PvP
+    aliases: [stats, kd]
+    usage: /kills [joueur]

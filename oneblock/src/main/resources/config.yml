@@ -1,0 +1,25 @@
+prefix: "&8[&6&lOneBlock&8] &r"
+
+oneblock:
+  world: "world_oneblock"
+  spawn-distance: 300
+
+phases:
+  - name: "Plaines"
+    blocks-required: 0
+    color: "&a"
+  - name: "Forêt"
+    blocks-required: 100
+    color: "&2"
+  - name: "Désert"
+    blocks-required: 500
+    color: "&e"
+  - name: "Neige"
+    blocks-required: 1000
+    color: "&b"
+  - name: "Enfer"
+    blocks-required: 2000
+    color: "&c"
+  - name: "End"
+    blocks-required: 5000
+    color: "&5"

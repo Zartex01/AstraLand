@@ -1,0 +1,24 @@
+prefix: "&8[&4&lUHC&8] &r"
+
+uhc:
+  world: "world_uhc"
+  border-start: 2000
+  border-final: 50
+  border-shrink-after: 900
+  grace-period: 600
+  golden-head: true
+  natural-regen: false
+  scatter-radius: 800
+
+scenarios:
+  - VANILLA
+  - CUTCLEAN
+  - TIMEBOMB
+  - NOFALL
+
+messages:
+  game-start: "&4La partie UHC commence ! Bonne chance !"
+  grace-end: "&cLa période de grâce est terminée. &4PvP activé !"
+  border-shrink: "&cLa bordure commence à rétrécir !"
+  winner: "&6%player% &aremporte le UHC !"
+  golden-head: "&aRecette tête en or activée."

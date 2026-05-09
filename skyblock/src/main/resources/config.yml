@@ -1,0 +1,16 @@
+prefix: "&8[&a&lSkyblock&8] &r"
+
+island:
+  world: "world_skyblock"
+  size: 100
+  spawn-distance: 200
+  default-level: 0
+
+messages:
+  island-created: "&aIle créée ! Utilise &e/is home &apour t'y téléporter."
+  island-exists: "&cTu as déjà une île !"
+  no-island: "&cTu n'as pas d'île. Utilise &e/is create&c."
+  teleporting: "&aTéléportation vers ton île..."
+  invited: "&a%player% t'a invité sur son île !"
+  kicked: "&cTu as été expulsé de l'île."
+  protected: "&cCette zone est protégée !"

@@ -1,0 +1,24 @@
+prefix: "&8[&c&lFactions&8] &r"
+
+faction:
+  max-name-length: 20
+  min-name-length: 3
+  max-members: 30
+  power-per-player: 10.0
+  power-loss-on-death: 2.0
+  max-claims-per-power: 1
+  protected-worlds:
+    - world
+
+pvp:
+  disable-friendly-fire: true
+
+messages:
+  faction-created: "&aFaction &e%faction% &acréée avec succès !"
+  faction-disbanded: "&cFaction &e%faction% &cdissoute."
+  no-faction: "&cTu n'as pas de faction."
+  already-in-faction: "&cTu es déjà dans une faction."
+  not-leader: "&cTu dois être chef de faction pour faire ça."
+  not-officer: "&cTu dois être officier ou chef pour faire ça."
+  player-not-found: "&cJoueur introuvable."
+  teleporting: "&aTéléportation dans &e3 secondes&a... Ne bouge pas !"

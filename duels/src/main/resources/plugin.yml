@@ -4,3 +4,8 @@ main: com.astraland.duels.Duels
 api-version: "1.21"
 description: AstraLand - Module Duels
 authors: [AstraLand]
+
+commands:
+  duel:
+    description: Commandes Duels
+    usage: /duel <joueur|accept|deny|kit|leave|list|create|setspawn>

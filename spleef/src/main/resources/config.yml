@@ -1,0 +1,14 @@
+prefix: "&8[&b&lSpleef&8] &r"
+
+spleef:
+  lobby-world: "world_spleef"
+  min-players: 2
+  countdown: 20
+  shovel-enchanted: true
+
+messages:
+  game-start: "&aLa partie commence !"
+  player-eliminated: "&c%player% &aest éliminé !"
+  winner: "&6%player% &agagne la partie de Spleef !"
+  already-in-game: "&cTu es déjà dans une partie."
+  not-in-game: "&cTu n'es pas dans une partie."

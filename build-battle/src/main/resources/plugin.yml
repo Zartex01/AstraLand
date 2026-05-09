@@ -4,3 +4,9 @@ main: com.astraland.buildbattle.BuildBattle
 api-version: "1.21"
 description: AstraLand - Module Build Battle
 authors: [AstraLand]
+
+commands:
+  buildbattle:
+    description: Commandes Build Battle
+    aliases: [bb]
+    usage: /buildbattle <join|leave|list|vote|create|setspawn|start>

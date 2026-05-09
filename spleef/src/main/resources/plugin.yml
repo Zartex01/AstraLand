@@ -4,3 +4,8 @@ main: com.astraland.spleef.Spleef
 api-version: "1.21"
 description: AstraLand - Module Spleef
 authors: [AstraLand]
+
+commands:
+  spleef:
+    description: Commandes Spleef
+    usage: /spleef <join|leave|list|create|setspawn|start|stop>

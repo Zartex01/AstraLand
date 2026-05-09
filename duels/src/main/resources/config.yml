@@ -1,0 +1,42 @@
+prefix: "&8[&5&lDuels&8] &r"
+
+duels:
+  world: "world_duels"
+  request-timeout: 30
+  countdown: 5
+
+kits:
+  NODEBUFF:
+    display: "&cNoDebuff"
+    items:
+      - DIAMOND_SWORD
+      - DIAMOND_CHESTPLATE
+      - DIAMOND_LEGGINGS
+      - DIAMOND_BOOTS
+      - DIAMOND_HELMET
+  SOUP:
+    display: "&eSoup"
+    items:
+      - IRON_SWORD
+      - MUSHROOM_STEW
+  ARCHER:
+    display: "&2Archer"
+    items:
+      - BOW
+      - ARROW
+      - CHAINMAIL_CHESTPLATE
+  UHC:
+    display: "&4UHC"
+    items:
+      - GOLDEN_APPLE
+      - DIAMOND_SWORD
+      - DIAMOND_CHESTPLATE
+
+messages:
+  request-sent: "&aDemande de duel envoyée à &e%player%&a."
+  request-received: "&e%player% &ате défie en duel ! &e/duel accept &aou &e/duel deny"
+  request-expired: "&cLa demande de duel a expiré."
+  duel-start: "&aDuel contre &e%player% &acommence !"
+  duel-won: "&6Tu as gagné le duel contre &e%player%&6 !"
+  duel-lost: "&cTu as perdu le duel contre &e%player%&c."
+  kit-selected: "&aKit &e%kit% &asélectionné."

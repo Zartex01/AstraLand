@@ -4,3 +4,9 @@ main: com.astraland.skyblock.Skyblock
 api-version: "1.21"
 description: AstraLand - Module Skyblock
 authors: [AstraLand]
+
+commands:
+  island:
+    description: Commandes Skyblock
+    aliases: [is, sb, skyblock]
+    usage: /island <create|home|sethome|invite|kick|info|top|warp|leave|expand>

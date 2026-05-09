@@ -4,3 +4,9 @@ main: com.astraland.bedwars.Bedwars
 api-version: "1.21"
 description: AstraLand - Module Bedwars
 authors: [AstraLand]
+
+commands:
+  bedwars:
+    description: Commandes Bedwars
+    aliases: [bw]
+    usage: /bedwars <join|leave|list|create|setbed|setspawn|start>
