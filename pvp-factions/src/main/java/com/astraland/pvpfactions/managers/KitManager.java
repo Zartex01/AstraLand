@@ -1,27 +1,42 @@
 package com.astraland.pvpfactions.managers;
 
 import com.astraland.pvpfactions.PvpFactions;
+import com.astraland.pvpfactions.database.DatabaseManager;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.File;
-import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.*;
 
 public class KitManager {
 
     private final PvpFactions plugin;
+    private final DatabaseManager db;
+
+    // Cache en mémoire : joueur -> (kit -> lastUse timestamp)
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
-    private File dataFile;
 
     public KitManager(PvpFactions plugin) {
         this.plugin = plugin;
-        this.dataFile = new File(plugin.getDataFolder(), "kit_cooldowns.yml");
-        load();
+        this.db = plugin.getDatabaseManager();
+        loadAll();
+    }
+
+    private void loadAll() {
+        try {
+            ResultSet rs = db.query("SELECT * FROM kit_cooldowns");
+            while (rs.next()) {
+                UUID uuid = UUID.fromString(rs.getString("player_uuid"));
+                String kit = rs.getString("kit_name");
+                long lastUse = rs.getLong("last_use");
+                cooldowns.computeIfAbsent(uuid, k -> new HashMap<>()).put(kit, lastUse);
+            }
+            rs.close();
+        } catch (Exception e) {
+            plugin.getLogger().severe("[DB] Erreur chargement kit cooldowns : " + e.getMessage());
+        }
     }
 
     public Set<String> getKitNames() {
@@ -50,13 +65,11 @@ public class KitManager {
         String permission = kitSec.getString("permission", "");
         if (!permission.isEmpty() && !player.hasPermission(permission)) return false;
 
-        long remaining = getCooldownRemaining(player.getUniqueId(), kitName);
-        if (remaining > 0) return false;
+        if (getCooldownRemaining(player.getUniqueId(), kitName) > 0) return false;
 
         player.getInventory().clear();
 
-        List<String> items = kitSec.getStringList("items");
-        for (String itemStr : items) {
+        for (String itemStr : kitSec.getStringList("items")) {
             String[] parts = itemStr.split(":");
             try {
                 Material mat = Material.valueOf(parts[0].toUpperCase());
@@ -65,17 +78,15 @@ public class KitManager {
             } catch (Exception ignored) {}
         }
 
-        if (kitSec.getStringList("armor").size() > 0) {
-            List<String> armor = kitSec.getStringList("armor");
-            if (armor.size() > 0) trySetArmor(player, armor.get(0), 3);
-            if (armor.size() > 1) trySetArmor(player, armor.get(1), 2);
-            if (armor.size() > 2) trySetArmor(player, armor.get(2), 1);
-            if (armor.size() > 3) trySetArmor(player, armor.get(3), 0);
-        }
+        List<String> armor = kitSec.getStringList("armor");
+        if (armor.size() > 0) trySetArmor(player, armor.get(0), 3);
+        if (armor.size() > 1) trySetArmor(player, armor.get(1), 2);
+        if (armor.size() > 2) trySetArmor(player, armor.get(2), 1);
+        if (armor.size() > 3) trySetArmor(player, armor.get(3), 0);
 
-        cooldowns.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>())
-            .put(kitName, System.currentTimeMillis());
-        save();
+        long now = System.currentTimeMillis();
+        cooldowns.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>()).put(kitName, now);
+        db.upsertKitCooldown(player.getUniqueId().toString(), kitName, now);
         return true;
     }
 
@@ -89,32 +100,5 @@ public class KitManager {
                 case 0 -> player.getInventory().setBoots(item);
             }
         } catch (Exception ignored) {}
-    }
-
-    private void save() {
-        if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
-        FileConfiguration cfg = new YamlConfiguration();
-        for (Map.Entry<UUID, Map<String, Long>> e : cooldowns.entrySet()) {
-            for (Map.Entry<String, Long> c : e.getValue().entrySet()) {
-                cfg.set("cooldowns." + e.getKey() + "." + c.getKey(), c.getValue());
-            }
-        }
-        try { cfg.save(dataFile); } catch (IOException ex) { ex.printStackTrace(); }
-    }
-
-    private void load() {
-        if (!dataFile.exists()) return;
-        FileConfiguration cfg = YamlConfiguration.loadConfiguration(dataFile);
-        if (cfg.getConfigurationSection("cooldowns") == null) return;
-        for (String uuidStr : cfg.getConfigurationSection("cooldowns").getKeys(false)) {
-            try {
-                UUID uuid = UUID.fromString(uuidStr);
-                ConfigurationSection sec = cfg.getConfigurationSection("cooldowns." + uuidStr);
-                if (sec == null) continue;
-                Map<String, Long> map = new HashMap<>();
-                for (String kit : sec.getKeys(false)) map.put(kit, cfg.getLong("cooldowns." + uuidStr + "." + kit));
-                cooldowns.put(uuid, map);
-            } catch (Exception ignored) {}
-        }
     }
 }

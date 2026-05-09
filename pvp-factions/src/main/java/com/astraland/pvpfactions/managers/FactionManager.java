@@ -1,39 +1,121 @@
 package com.astraland.pvpfactions.managers;
 
 import com.astraland.pvpfactions.PvpFactions;
+import com.astraland.pvpfactions.database.DatabaseManager;
 import com.astraland.pvpfactions.models.Faction;
 import com.astraland.pvpfactions.models.FactionRole;
-import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.*;
 
 public class FactionManager {
 
     private final PvpFactions plugin;
+    private final DatabaseManager db;
+
     private final Map<String, Faction> factions = new LinkedHashMap<>();
     private final Map<UUID, String> playerFaction = new HashMap<>();
     private final Map<UUID, Boolean> factionChat = new HashMap<>();
     private final Set<UUID> autoclaimPlayers = new HashSet<>();
-    private File dataFile;
 
     public FactionManager(PvpFactions plugin) {
         this.plugin = plugin;
-        this.dataFile = new File(plugin.getDataFolder(), "factions.yml");
-        load();
+        this.db = plugin.getDatabaseManager();
+        loadAll();
     }
+
+    // ─── CHARGEMENT ──────────────────────────────────────────────────────────
+
+    private void loadAll() {
+        try {
+            // Factions de base
+            ResultSet rs = db.query("SELECT * FROM factions");
+            while (rs.next()) {
+                String name = rs.getString("name");
+                UUID leader = UUID.fromString(rs.getString("leader_uuid"));
+                Faction f = new Faction(name, leader);
+                f.setTag(rs.getString("tag"));
+                f.setDescription(rs.getString("description"));
+                f.setMotd(rs.getString("motd"));
+                f.setOpen(rs.getInt("open") == 1);
+                f.setPower(rs.getDouble("power"));
+                factions.put(name.toLowerCase(), f);
+            }
+            rs.close();
+
+            // Membres
+            rs = db.query("SELECT * FROM faction_members");
+            while (rs.next()) {
+                String fname = rs.getString("faction_name").toLowerCase();
+                Faction f = factions.get(fname);
+                if (f == null) continue;
+                UUID uuid = UUID.fromString(rs.getString("player_uuid"));
+                FactionRole role = FactionRole.valueOf(rs.getString("role"));
+                f.getMembers().put(uuid, role);
+                playerFaction.put(uuid, fname);
+            }
+            rs.close();
+
+            // Alliés
+            rs = db.query("SELECT * FROM faction_allies");
+            while (rs.next()) {
+                Faction f = factions.get(rs.getString("faction_name").toLowerCase());
+                if (f != null) f.getAllies().add(rs.getString("ally_name").toLowerCase());
+            }
+            rs.close();
+
+            // Ennemis
+            rs = db.query("SELECT * FROM faction_enemies");
+            while (rs.next()) {
+                Faction f = factions.get(rs.getString("faction_name").toLowerCase());
+                if (f != null) f.getEnemies().add(rs.getString("enemy_name").toLowerCase());
+            }
+            rs.close();
+
+            // Claims
+            rs = db.query("SELECT * FROM faction_claims");
+            while (rs.next()) {
+                Faction f = factions.get(rs.getString("faction_name").toLowerCase());
+                if (f != null) f.getClaims().add(rs.getString("claim_key"));
+            }
+            rs.close();
+
+            // Homes
+            rs = db.query("SELECT * FROM faction_home");
+            while (rs.next()) {
+                Faction f = factions.get(rs.getString("faction_name").toLowerCase());
+                if (f == null) continue;
+                Location loc = DatabaseManager.rsToLocation(rs);
+                if (loc != null) f.setHome(loc);
+            }
+            rs.close();
+
+            // Warps
+            rs = db.query("SELECT * FROM faction_warps");
+            while (rs.next()) {
+                Faction f = factions.get(rs.getString("faction_name").toLowerCase());
+                if (f == null) continue;
+                Location loc = DatabaseManager.rsToLocation(rs);
+                if (loc != null) f.getWarps().put(rs.getString("warp_name"), loc);
+            }
+            rs.close();
+
+            plugin.getLogger().info("[DB] " + factions.size() + " faction(s) chargée(s).");
+        } catch (Exception e) {
+            plugin.getLogger().severe("[DB] Erreur lors du chargement des factions : " + e.getMessage());
+        }
+    }
+
+    // ─── OPÉRATIONS ──────────────────────────────────────────────────────────
 
     public Faction createFaction(String name, UUID leader) {
         Faction f = new Faction(name, leader);
         factions.put(name.toLowerCase(), f);
         playerFaction.put(leader, name.toLowerCase());
-        saveAll();
+        db.upsertFaction(name, f.getTag(), f.getDescription(), f.getMotd(), f.isOpen(), f.getPower(), leader.toString());
+        db.upsertMember(name, leader.toString(), FactionRole.LEADER.name());
         return f;
     }
 
@@ -44,23 +126,18 @@ public class FactionManager {
             autoclaimPlayers.remove(uuid);
         }
         factions.remove(f.getName().toLowerCase());
-        saveAll();
+        db.deleteFaction(f.getName());
     }
 
-    public Faction getFaction(String name) { return factions.get(name.toLowerCase()); }
-
-    public Faction getPlayerFaction(UUID uuid) {
-        String name = playerFaction.get(uuid);
-        return name == null ? null : factions.get(name);
+    public void saveFaction(Faction f) {
+        db.upsertFaction(f.getName(), f.getTag(), f.getDescription(), f.getMotd(),
+                f.isOpen(), f.getPower(), f.getLeader().toString());
     }
-
-    public boolean hasPlayerFaction(UUID uuid) { return playerFaction.containsKey(uuid); }
-    public boolean factionExists(String name) { return factions.containsKey(name.toLowerCase()); }
 
     public void joinFaction(Faction f, UUID uuid) {
         f.addMember(uuid);
         playerFaction.put(uuid, f.getName().toLowerCase());
-        saveAll();
+        db.upsertMember(f.getName(), uuid.toString(), FactionRole.MEMBER.name());
     }
 
     public void leaveFaction(Faction f, UUID uuid) {
@@ -68,137 +145,116 @@ public class FactionManager {
         playerFaction.remove(uuid);
         factionChat.remove(uuid);
         autoclaimPlayers.remove(uuid);
-        saveAll();
+        db.deleteMember(f.getName(), uuid.toString());
     }
+
+    public void promoteMember(Faction f, UUID uuid) {
+        f.promote(uuid);
+        db.upsertMember(f.getName(), uuid.toString(), f.getMembers().get(uuid).name());
+    }
+
+    public void demoteMember(Faction f, UUID uuid) {
+        f.demote(uuid);
+        db.upsertMember(f.getName(), uuid.toString(), f.getMembers().get(uuid).name());
+    }
+
+    public void setLeader(Faction f, UUID oldLeader, UUID newLeader) {
+        f.getMembers().put(oldLeader, FactionRole.OFFICER);
+        f.getMembers().put(newLeader, FactionRole.LEADER);
+        f.setLeader(newLeader);
+        db.upsertFaction(f.getName(), f.getTag(), f.getDescription(), f.getMotd(), f.isOpen(), f.getPower(), newLeader.toString());
+        db.upsertMember(f.getName(), oldLeader.toString(), FactionRole.OFFICER.name());
+        db.upsertMember(f.getName(), newLeader.toString(), FactionRole.LEADER.name());
+    }
+
+    public void addAlly(Faction f, Faction target) {
+        f.getAllies().add(target.getName().toLowerCase());
+        f.getEnemies().remove(target.getName().toLowerCase());
+        db.setAlly(f.getName(), target.getName().toLowerCase());
+        db.removeEnemy(f.getName(), target.getName().toLowerCase());
+    }
+
+    public void addEnemy(Faction f, Faction target) {
+        f.getEnemies().add(target.getName().toLowerCase());
+        f.getAllies().remove(target.getName().toLowerCase());
+        db.setEnemy(f.getName(), target.getName().toLowerCase());
+        db.removeAlly(f.getName(), target.getName().toLowerCase());
+    }
+
+    public void setNeutral(Faction f, Faction target) {
+        f.getAllies().remove(target.getName().toLowerCase());
+        f.getEnemies().remove(target.getName().toLowerCase());
+        db.removeAlly(f.getName(), target.getName().toLowerCase());
+        db.removeEnemy(f.getName(), target.getName().toLowerCase());
+    }
+
+    public void addClaim(Faction f, Chunk chunk) {
+        String key = chunkKey(chunk);
+        f.getClaims().add(key);
+        db.addClaim(f.getName(), key);
+    }
+
+    public void removeClaim(Faction f, Chunk chunk) {
+        String key = chunkKey(chunk);
+        f.getClaims().remove(key);
+        db.removeClaim(key);
+    }
+
+    public void removeAllClaims(Faction f) {
+        f.getClaims().clear();
+        db.removeAllClaims(f.getName());
+    }
+
+    public void setHome(Faction f, Location loc) {
+        f.setHome(loc);
+        db.setHome(f.getName(), loc);
+    }
+
+    public void setWarp(Faction f, String warpName, Location loc) {
+        f.getWarps().put(warpName.toLowerCase(), loc);
+        db.setWarp(f.getName(), warpName.toLowerCase(), loc);
+    }
+
+    public void deleteWarp(Faction f, String warpName) {
+        f.getWarps().remove(warpName.toLowerCase());
+        db.deleteWarp(f.getName(), warpName.toLowerCase());
+    }
+
+    public void updatePower(Faction f) {
+        db.upsertFaction(f.getName(), f.getTag(), f.getDescription(), f.getMotd(), f.isOpen(), f.getPower(), f.getLeader().toString());
+    }
+
+    // ─── CHAT / AUTOCLAIM ────────────────────────────────────────────────────
 
     public boolean isFactionChat(UUID uuid) { return factionChat.getOrDefault(uuid, false); }
     public void toggleFactionChat(UUID uuid) { factionChat.put(uuid, !factionChat.getOrDefault(uuid, false)); }
-
     public boolean isAutoclaiming(UUID uuid) { return autoclaimPlayers.contains(uuid); }
     public void toggleAutoclaim(UUID uuid) {
         if (autoclaimPlayers.contains(uuid)) autoclaimPlayers.remove(uuid);
         else autoclaimPlayers.add(uuid);
     }
 
+    // ─── GETTERS ─────────────────────────────────────────────────────────────
+
+    public Faction getFaction(String name) { return name == null ? null : factions.get(name.toLowerCase()); }
+    public Faction getPlayerFaction(UUID uuid) {
+        String name = playerFaction.get(uuid);
+        return name == null ? null : factions.get(name);
+    }
+    public boolean hasPlayerFaction(UUID uuid) { return playerFaction.containsKey(uuid); }
+    public boolean factionExists(String name) { return factions.containsKey(name.toLowerCase()); }
     public Collection<Faction> getAllFactions() { return factions.values(); }
 
-    public Faction getFactionByClaim(org.bukkit.Chunk chunk) {
-        String key = chunk.getWorld().getName() + ":" + chunk.getX() + ":" + chunk.getZ();
+    public Faction getFactionByClaim(Chunk chunk) {
+        String key = chunkKey(chunk);
         for (Faction f : factions.values()) if (f.getClaims().contains(key)) return f;
         return null;
     }
 
-    public void saveAll() {
-        if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
-        FileConfiguration data = new YamlConfiguration();
-
-        for (Faction f : factions.values()) {
-            String path = "factions." + f.getName();
-            data.set(path + ".leader", f.getLeader().toString());
-            data.set(path + ".tag", f.getTag());
-            data.set(path + ".description", f.getDescription());
-            data.set(path + ".motd", f.getMotd());
-            data.set(path + ".open", f.isOpen());
-            data.set(path + ".power", f.getPower());
-
-            Map<String, String> membersMap = new LinkedHashMap<>();
-            for (Map.Entry<UUID, FactionRole> e : f.getMembers().entrySet())
-                membersMap.put(e.getKey().toString(), e.getValue().name());
-            data.set(path + ".members", membersMap);
-
-            data.set(path + ".allies", new ArrayList<>(f.getAllies()));
-            data.set(path + ".enemies", new ArrayList<>(f.getEnemies()));
-            data.set(path + ".claims", new ArrayList<>(f.getClaims()));
-
-            if (f.getHome() != null) saveLocation(data, path + ".home", f.getHome());
-
-            int warpIdx = 0;
-            for (Map.Entry<String, Location> w : f.getWarps().entrySet()) {
-                data.set(path + ".warps." + w.getKey() + ".world", w.getValue().getWorld().getName());
-                data.set(path + ".warps." + w.getKey() + ".x", w.getValue().getX());
-                data.set(path + ".warps." + w.getKey() + ".y", w.getValue().getY());
-                data.set(path + ".warps." + w.getKey() + ".z", w.getValue().getZ());
-                data.set(path + ".warps." + w.getKey() + ".yaw", (double) w.getValue().getYaw());
-                data.set(path + ".warps." + w.getKey() + ".pitch", (double) w.getValue().getPitch());
-            }
-        }
-
-        try { data.save(dataFile); } catch (IOException e) { e.printStackTrace(); }
+    private String chunkKey(Chunk chunk) {
+        return chunk.getWorld().getName() + ":" + chunk.getX() + ":" + chunk.getZ();
     }
 
-    private void load() {
-        if (!dataFile.exists()) return;
-        FileConfiguration data = YamlConfiguration.loadConfiguration(dataFile);
-        ConfigurationSection factionsSection = data.getConfigurationSection("factions");
-        if (factionsSection == null) return;
-
-        for (String name : factionsSection.getKeys(false)) {
-            String path = "factions." + name;
-            String leaderStr = data.getString(path + ".leader");
-            if (leaderStr == null) continue;
-            UUID leader = UUID.fromString(leaderStr);
-
-            Faction f = new Faction(name, leader);
-            f.setTag(data.getString(path + ".tag", name.substring(0, Math.min(4, name.length())).toUpperCase()));
-            f.setDescription(data.getString(path + ".description", ""));
-            f.setMotd(data.getString(path + ".motd", null));
-            f.setOpen(data.getBoolean(path + ".open", false));
-            f.setPower(data.getDouble(path + ".power", 10.0));
-
-            ConfigurationSection membersSection = data.getConfigurationSection(path + ".members");
-            if (membersSection != null) {
-                f.getMembers().clear();
-                for (String uuidStr : membersSection.getKeys(false)) {
-                    try {
-                        UUID uuid = UUID.fromString(uuidStr);
-                        FactionRole role = FactionRole.valueOf(membersSection.getString(uuidStr, "MEMBER"));
-                        f.getMembers().put(uuid, role);
-                        playerFaction.put(uuid, name.toLowerCase());
-                    } catch (Exception ignored) {}
-                }
-            }
-
-            for (String ally : data.getStringList(path + ".allies")) f.getAllies().add(ally);
-            for (String enemy : data.getStringList(path + ".enemies")) f.getEnemies().add(enemy);
-            for (String claim : data.getStringList(path + ".claims")) f.getClaims().add(claim);
-
-            Location home = loadLocation(data, path + ".home");
-            if (home != null) f.setHome(home);
-
-            ConfigurationSection warpsSection = data.getConfigurationSection(path + ".warps");
-            if (warpsSection != null) {
-                for (String warpName : warpsSection.getKeys(false)) {
-                    String wp = path + ".warps." + warpName;
-                    String ww = data.getString(wp + ".world");
-                    if (ww == null) continue;
-                    World world = Bukkit.getWorld(ww);
-                    if (world == null) continue;
-                    Location wLoc = new Location(world,
-                        data.getDouble(wp + ".x"), data.getDouble(wp + ".y"), data.getDouble(wp + ".z"),
-                        (float) data.getDouble(wp + ".yaw"), (float) data.getDouble(wp + ".pitch"));
-                    f.getWarps().put(warpName, wLoc);
-                }
-            }
-
-            factions.put(name.toLowerCase(), f);
-        }
-    }
-
-    private void saveLocation(FileConfiguration cfg, String path, Location loc) {
-        cfg.set(path + ".world", loc.getWorld().getName());
-        cfg.set(path + ".x", loc.getX());
-        cfg.set(path + ".y", loc.getY());
-        cfg.set(path + ".z", loc.getZ());
-        cfg.set(path + ".yaw", (double) loc.getYaw());
-        cfg.set(path + ".pitch", (double) loc.getPitch());
-    }
-
-    private Location loadLocation(FileConfiguration cfg, String path) {
-        String w = cfg.getString(path + ".world");
-        if (w == null) return null;
-        World world = Bukkit.getWorld(w);
-        if (world == null) return null;
-        return new Location(world, cfg.getDouble(path + ".x"), cfg.getDouble(path + ".y"),
-                cfg.getDouble(path + ".z"), (float) cfg.getDouble(path + ".yaw"), (float) cfg.getDouble(path + ".pitch"));
-    }
+    // Compatibilité — appelé à l'arrêt du plugin (plus rien à faire, tout est déjà persisté)
+    public void saveAll() {}
 }

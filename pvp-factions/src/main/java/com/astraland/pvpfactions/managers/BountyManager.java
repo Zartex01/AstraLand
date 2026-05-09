@@ -1,46 +1,57 @@
 package com.astraland.pvpfactions.managers;
 
 import com.astraland.pvpfactions.PvpFactions;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import com.astraland.pvpfactions.database.DatabaseManager;
 
-import java.io.File;
-import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.*;
 
 public class BountyManager {
 
     private final PvpFactions plugin;
+    private final DatabaseManager db;
+
+    // Cache en mémoire : target -> (setter -> montant)
     private final Map<UUID, Map<UUID, Integer>> bountyDetails = new HashMap<>();
-    private File dataFile;
 
     public BountyManager(PvpFactions plugin) {
         this.plugin = plugin;
-        this.dataFile = new File(plugin.getDataFolder(), "bounties.yml");
-        load();
+        this.db = plugin.getDatabaseManager();
+        loadAll();
+    }
+
+    private void loadAll() {
+        try {
+            ResultSet rs = db.query("SELECT * FROM bounties");
+            while (rs.next()) {
+                UUID target = UUID.fromString(rs.getString("target_uuid"));
+                UUID setter = UUID.fromString(rs.getString("setter_uuid"));
+                int amount = rs.getInt("amount");
+                bountyDetails.computeIfAbsent(target, k -> new HashMap<>()).put(setter, amount);
+            }
+            rs.close();
+        } catch (Exception e) {
+            plugin.getLogger().severe("[DB] Erreur chargement bounties : " + e.getMessage());
+        }
     }
 
     public void placeBounty(UUID setter, UUID target, int amount) {
-        bountyDetails.computeIfAbsent(target, k -> new HashMap<>())
-            .merge(setter, amount, Integer::sum);
-        save();
+        bountyDetails.computeIfAbsent(target, k -> new HashMap<>()).merge(setter, amount, Integer::sum);
+        db.upsertBounty(target.toString(), setter.toString(), amount);
     }
 
     public int getTotalBounty(UUID target) {
         Map<UUID, Integer> map = bountyDetails.get(target);
-        if (map == null) return 0;
-        return map.values().stream().mapToInt(Integer::intValue).sum();
+        return map == null ? 0 : map.values().stream().mapToInt(Integer::intValue).sum();
     }
 
-    public boolean hasBounty(UUID target) {
-        return getTotalBounty(target) > 0;
-    }
+    public boolean hasBounty(UUID target) { return getTotalBounty(target) > 0; }
 
     public int claimBounty(UUID killer, UUID victim) {
         Map<UUID, Integer> map = bountyDetails.remove(victim);
         if (map == null) return 0;
         int total = map.values().stream().mapToInt(Integer::intValue).sum();
-        save();
+        db.deleteBountiesOnTarget(victim.toString());
         return total;
     }
 
@@ -57,36 +68,5 @@ public class BountyManager {
 
     public Map<UUID, Integer> getBountyDetails(UUID target) {
         return bountyDetails.getOrDefault(target, new HashMap<>());
-    }
-
-    private void save() {
-        if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
-        FileConfiguration cfg = new YamlConfiguration();
-        for (Map.Entry<UUID, Map<UUID, Integer>> e : bountyDetails.entrySet()) {
-            for (Map.Entry<UUID, Integer> s : e.getValue().entrySet()) {
-                cfg.set("bounties." + e.getKey() + "." + s.getKey(), s.getValue());
-            }
-        }
-        try { cfg.save(dataFile); } catch (IOException ex) { ex.printStackTrace(); }
-    }
-
-    private void load() {
-        if (!dataFile.exists()) return;
-        FileConfiguration cfg = YamlConfiguration.loadConfiguration(dataFile);
-        if (cfg.getConfigurationSection("bounties") == null) return;
-        for (String targetStr : cfg.getConfigurationSection("bounties").getKeys(false)) {
-            try {
-                UUID target = UUID.fromString(targetStr);
-                org.bukkit.configuration.ConfigurationSection sec = cfg.getConfigurationSection("bounties." + targetStr);
-                if (sec == null) continue;
-                for (String setterStr : sec.getKeys(false)) {
-                    try {
-                        UUID setter = UUID.fromString(setterStr);
-                        int amount = cfg.getInt("bounties." + targetStr + "." + setterStr, 0);
-                        bountyDetails.computeIfAbsent(target, k -> new HashMap<>()).put(setter, amount);
-                    } catch (Exception ignored) {}
-                }
-            } catch (Exception ignored) {}
-        }
     }
 }
