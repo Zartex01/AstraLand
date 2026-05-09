@@ -13,6 +13,8 @@ public class StatsManager {
     private final PvpFactions plugin;
     private final Map<UUID, Integer> kills = new HashMap<>();
     private final Map<UUID, Integer> deaths = new HashMap<>();
+    private final Map<UUID, Integer> currentStreak = new HashMap<>();
+    private final Map<UUID, Integer> bestStreak = new HashMap<>();
     private File dataFile;
 
     public StatsManager(PvpFactions plugin) {
@@ -21,14 +23,27 @@ public class StatsManager {
         load();
     }
 
-    public void addKill(UUID uuid) { kills.merge(uuid, 1, Integer::sum); }
-    public void addDeath(UUID uuid) { deaths.merge(uuid, 1, Integer::sum); }
+    public void addKill(UUID uuid) {
+        kills.merge(uuid, 1, Integer::sum);
+        int streak = currentStreak.merge(uuid, 1, Integer::sum);
+        int best = bestStreak.getOrDefault(uuid, 0);
+        if (streak > best) bestStreak.put(uuid, streak);
+    }
+
+    public void addDeath(UUID uuid) {
+        deaths.merge(uuid, 1, Integer::sum);
+        currentStreak.put(uuid, 0);
+    }
+
     public int getKills(UUID uuid) { return kills.getOrDefault(uuid, 0); }
     public int getDeaths(UUID uuid) { return deaths.getOrDefault(uuid, 0); }
+    public int getCurrentStreak(UUID uuid) { return currentStreak.getOrDefault(uuid, 0); }
+    public int getBestStreak(UUID uuid) { return bestStreak.getOrDefault(uuid, 0); }
 
     public double getKD(UUID uuid) {
         int d = getDeaths(uuid);
-        return d == 0 ? getKills(uuid) : (double) getKills(uuid) / d;
+        int k = getKills(uuid);
+        return d == 0 ? k : (double) k / d;
     }
 
     public List<Map.Entry<UUID, Integer>> getTopKills(int limit) {
@@ -37,12 +52,21 @@ public class StatsManager {
         return list.subList(0, Math.min(limit, list.size()));
     }
 
+    public List<Map.Entry<UUID, Integer>> getTopStreaks(int limit) {
+        List<Map.Entry<UUID, Integer>> list = new ArrayList<>(bestStreak.entrySet());
+        list.sort((a, b) -> b.getValue() - a.getValue());
+        return list.subList(0, Math.min(limit, list.size()));
+    }
+
     public void saveAll() {
         if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
         FileConfiguration cfg = new YamlConfiguration();
         for (UUID uuid : kills.keySet()) {
-            cfg.set("stats." + uuid + ".kills", kills.get(uuid));
-            cfg.set("stats." + uuid + ".deaths", deaths.getOrDefault(uuid, 0));
+            String path = "stats." + uuid;
+            cfg.set(path + ".kills", kills.get(uuid));
+            cfg.set(path + ".deaths", deaths.getOrDefault(uuid, 0));
+            cfg.set(path + ".streak", currentStreak.getOrDefault(uuid, 0));
+            cfg.set(path + ".bestStreak", bestStreak.getOrDefault(uuid, 0));
         }
         try { cfg.save(dataFile); } catch (IOException e) { e.printStackTrace(); }
     }
@@ -54,8 +78,11 @@ public class StatsManager {
         for (String uuidStr : cfg.getConfigurationSection("stats").getKeys(false)) {
             try {
                 UUID uuid = UUID.fromString(uuidStr);
-                kills.put(uuid, cfg.getInt("stats." + uuidStr + ".kills", 0));
-                deaths.put(uuid, cfg.getInt("stats." + uuidStr + ".deaths", 0));
+                String path = "stats." + uuidStr;
+                kills.put(uuid, cfg.getInt(path + ".kills", 0));
+                deaths.put(uuid, cfg.getInt(path + ".deaths", 0));
+                currentStreak.put(uuid, cfg.getInt(path + ".streak", 0));
+                bestStreak.put(uuid, cfg.getInt(path + ".bestStreak", 0));
             } catch (Exception ignored) {}
         }
     }

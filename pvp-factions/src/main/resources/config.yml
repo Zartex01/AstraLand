@@ -3,7 +3,9 @@ prefix: "&8[&c&lFactions&8] &r"
 faction:
   max-name-length: 20
   min-name-length: 3
+  max-tag-length: 5
   max-members: 30
+  max-warps: 5
   power-per-player: 10.0
   power-loss-on-death: 2.0
   max-claims-per-power: 1
@@ -22,3 +24,53 @@ messages:
   not-officer: "&cTu dois être officier ou chef pour faire ça."
   player-not-found: "&cJoueur introuvable."
   teleporting: "&aTéléportation dans &e3 secondes&a... Ne bouge pas !"
+
+kits:
+  ARCHER:
+    display: "&2Archer"
+    cooldown: 3600
+    permission: ""
+    items:
+      - BOW:1
+      - ARROW:64
+      - LEATHER_CHESTPLATE:1
+      - LEATHER_LEGGINGS:1
+    armor: []
+  GUERRIER:
+    display: "&cGuerrier"
+    cooldown: 3600
+    permission: ""
+    items:
+      - IRON_SWORD:1
+      - BREAD:16
+    armor:
+      - IRON_HELMET
+      - IRON_CHESTPLATE
+      - IRON_LEGGINGS
+      - IRON_BOOTS
+  MAGE:
+    display: "&5Mage"
+    cooldown: 7200
+    permission: "astraland.kit.mage"
+    items:
+      - BLAZE_ROD:1
+      - ENDER_PEARL:4
+      - GOLDEN_APPLE:4
+    armor:
+      - CHAINMAIL_HELMET
+      - CHAINMAIL_CHESTPLATE
+      - CHAINMAIL_LEGGINGS
+      - CHAINMAIL_BOOTS
+  VIP:
+    display: "&6&lVIP"
+    cooldown: 1800
+    permission: "astraland.kit.vip"
+    items:
+      - DIAMOND_SWORD:1
+      - GOLDEN_APPLE:8
+      - ENDER_PEARL:8
+    armor:
+      - DIAMOND_HELMET
+      - DIAMOND_CHESTPLATE
+      - DIAMOND_LEGGINGS
+      - DIAMOND_BOOTS

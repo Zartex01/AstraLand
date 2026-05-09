@@ -7,7 +7,10 @@ import java.util.*;
 public class Faction {
 
     private String name;
+    private String tag;
     private String description;
+    private String motd;
+    private boolean open;
     private UUID leader;
     private final Map<UUID, FactionRole> members = new LinkedHashMap<>();
     private final Set<String> allies = new HashSet<>();
@@ -15,10 +18,14 @@ public class Faction {
     private double power;
     private final Set<String> claims = new HashSet<>();
     private Location home;
+    private final Map<String, Location> warps = new LinkedHashMap<>();
 
     public Faction(String name, UUID leader) {
         this.name = name;
+        this.tag = name.length() >= 4 ? name.substring(0, 4).toUpperCase() : name.toUpperCase();
         this.description = "Une faction AstraLand.";
+        this.motd = null;
+        this.open = false;
         this.leader = leader;
         this.power = 10.0;
         this.members.put(leader, FactionRole.LEADER);
@@ -50,8 +57,14 @@ public class Faction {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getTag() { return tag; }
+    public void setTag(String tag) { this.tag = tag; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+    public String getMotd() { return motd; }
+    public void setMotd(String motd) { this.motd = motd; }
+    public boolean isOpen() { return open; }
+    public void setOpen(boolean open) { this.open = open; }
     public UUID getLeader() { return leader; }
     public void setLeader(UUID leader) { this.leader = leader; }
     public Map<UUID, FactionRole> getMembers() { return members; }
@@ -64,6 +77,6 @@ public class Faction {
     public Set<String> getClaims() { return claims; }
     public Location getHome() { return home; }
     public void setHome(Location home) { this.home = home; }
-
+    public Map<String, Location> getWarps() { return warps; }
     public int getMaxClaims() { return (int) Math.floor(power); }
 }

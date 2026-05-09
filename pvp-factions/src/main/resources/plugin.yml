@@ -9,8 +9,26 @@ commands:
   faction:
     description: Commandes de factions
     aliases: [f, factions]
-    usage: /faction <create|join|leave|invite|kick|info|list|claim|unclaim|sethome|home|ally|enemy|neutral|promote|demote|disband|chat|top>
+    usage: /faction <create|join|leave|invite|kick|info|list|top|claim|unclaim|unclaimall|sethome|home|ally|enemy|neutral|promote|demote|disband|chat|map|power|who|stuck|open|tag|desc|motd|autoclaim|setwarp|warp|warps|delwarp|setowner|announce|coords>
   kills:
     description: Voir ses statistiques PvP
     aliases: [stats, kd]
     usage: /kills [joueur]
+  topkills:
+    description: Classement des kills
+    aliases: [killstop, topk]
+    usage: /topkills [kills|streak]
+  killstreak:
+    description: Voir sa série de kills
+    aliases: [streak, ks]
+    usage: /killstreak [joueur]
+  bounty:
+    description: Gérer les primes
+    usage: /bounty <joueur> <montant> | list | info <joueur>
+  bountylist:
+    description: Liste des primes actives
+    aliases: [primes]
+    usage: /bountylist
+  kit:
+    description: Obtenir un kit
+    usage: /kit [nom]
