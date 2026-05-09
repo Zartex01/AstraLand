@@ -33,6 +33,7 @@ public class PlayerJoinListener implements Listener {
 
         if (player.getWorld().getName().equals(MAIN_WORLD)) {
             giveCompass(player);
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         } else {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (!player.isOnline()) return;
@@ -44,6 +45,7 @@ public class PlayerJoinListener implements Listener {
                 Location dest = plugin.getLocationManager().get(player.getUniqueId());
                 if (dest == null) dest = mainWorld.getSpawnLocation();
                 player.teleport(dest);
+                player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
             }, 5L);
         }
     }

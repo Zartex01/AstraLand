@@ -26,6 +26,7 @@ public class WorldChangeListener implements Listener {
 
         if (nowWorld.equals(MAIN_WORLD)) {
             plugin.getPlayerJoinListener().giveCompass(player);
+            player.setScoreboard(org.bukkit.Bukkit.getScoreboardManager().getMainScoreboard());
         } else if (beforeWorld.equals(MAIN_WORLD)) {
             removeCompass(player);
         }
