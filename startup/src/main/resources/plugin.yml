@@ -4,3 +4,18 @@ main: com.astraland.startup.AstraLandStartup
 api-version: "1.21"
 description: AstraLand - Module principal de démarrage
 authors: [AstraLand]
+
+commands:
+  setlobby:
+    description: Définir le spawn du lobby
+    usage: /setlobby
+    permission: astraland.setlobby
+    permission-message: "§cTu n'as pas la permission d'utiliser cette commande."
+  lobby:
+    description: Se téléporter au lobby
+    usage: /lobby
+
+permissions:
+  astraland.setlobby:
+    description: Permet de définir le spawn du lobby
+    default: op
