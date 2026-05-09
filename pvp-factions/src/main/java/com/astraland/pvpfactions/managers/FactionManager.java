@@ -19,6 +19,7 @@ public class FactionManager {
     private final Map<UUID, String> playerFaction = new HashMap<>();
     private final Map<UUID, Boolean> factionChat = new HashMap<>();
     private final Set<UUID> autoclaimPlayers = new HashSet<>();
+    private final Map<String, Set<UUID>> pendingInvites = new HashMap<>();
 
     public FactionManager(PvpFactions plugin) {
         this.plugin = plugin;
@@ -253,6 +254,20 @@ public class FactionManager {
 
     private String chunkKey(Chunk chunk) {
         return chunk.getWorld().getName() + ":" + chunk.getX() + ":" + chunk.getZ();
+    }
+
+    // ─── INVITATIONS ─────────────────────────────────────────────────────────
+
+    public void addInvite(String factionName, UUID uuid) {
+        pendingInvites.computeIfAbsent(factionName.toLowerCase(), k -> new HashSet<>()).add(uuid);
+    }
+    public boolean hasInvite(String factionName, UUID uuid) {
+        Set<UUID> set = pendingInvites.get(factionName.toLowerCase());
+        return set != null && set.contains(uuid);
+    }
+    public void removeInvite(String factionName, UUID uuid) {
+        Set<UUID> set = pendingInvites.get(factionName.toLowerCase());
+        if (set != null) set.remove(uuid);
     }
 
     // Compatibilité — appelé à l'arrêt du plugin (plus rien à faire, tout est déjà persisté)

@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class IslandCommand implements CommandExecutor, TabCompleter {
 
@@ -64,13 +65,21 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             case "join" -> {
                 if (args.length < 2) { player.sendMessage(pre() + c("&cUsage : /is join <propriétaire>")); return true; }
                 Player owner = Bukkit.getPlayerExact(args[1]);
-                if (owner == null) { player.sendMessage(pre() + c("&cProprietaire introuvable.")); return true; }
-                Island isl = im.getOwnedIsland(owner.getUniqueId());
+                UUID ownerId;
+                String ownerName;
+                if (owner != null) {
+                    ownerId = owner.getUniqueId(); ownerName = owner.getName();
+                } else {
+                    org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(args[1]);
+                    if (!op.hasPlayedBefore()) { player.sendMessage(pre() + c("&cProprietaire introuvable.")); return true; }
+                    ownerId = op.getUniqueId(); ownerName = op.getName() != null ? op.getName() : args[1];
+                }
+                Island isl = im.getOwnedIsland(ownerId);
                 if (isl == null || !isl.isInvited(player.getUniqueId())) { player.sendMessage(pre() + c("&cAucune invitation valide.")); return true; }
                 im.addMember(isl, player.getUniqueId());
                 player.teleport(isl.getHome());
-                player.sendMessage(pre() + c("&aRejoint l'île de &e" + owner.getName() + "&a !"));
-                owner.sendMessage(pre() + c("&e" + player.getName() + " &aa rejoint ton île."));
+                player.sendMessage(pre() + c("&aRejoint l'île de &e" + ownerName + "&a !"));
+                if (owner != null) owner.sendMessage(pre() + c("&e" + player.getName() + " &aa rejoint ton île."));
             }
             case "kick" -> {
                 if (args.length < 2) { player.sendMessage(pre() + c("&cUsage : /is kick <joueur>")); return true; }

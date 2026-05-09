@@ -7,6 +7,7 @@ faction:
   min-name-length: 3
   max-tag-length: 5
   max-members: 30
+  invite-expiry: 300
   max-warps: 5
   power-per-player: 10.0
   power-loss-on-death: 2.0

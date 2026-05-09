@@ -102,17 +102,22 @@ public class FactionCommand implements CommandExecutor, TabCompleter {
                 if (target == null) { player.sendMessage(pre() + c(plugin.getConfig().getString("messages.player-not-found", "&cJoueur introuvable."))); return true; }
                 if (fm.hasPlayerFaction(target.getUniqueId())) { player.sendMessage(pre() + c("&cCe joueur est déjà dans une faction.")); return true; }
                 if (f.getMembers().size() >= plugin.getConfig().getInt("faction.max-members", 30)) { player.sendMessage(pre() + c("&cFaction pleine.")); return true; }
+                fm.addInvite(f.getName(), target.getUniqueId());
                 target.sendMessage(pre() + c("&e" + player.getName() + " &at'invite dans &e[" + f.getTag() + "] " + f.getName() + "&a. Tape &e/f join " + f.getName()));
                 player.sendMessage(pre() + c("&aInvitation envoyée à &e" + target.getName() + "&a."));
                 broadcast(f, pre() + c("&7" + player.getName() + " a invité &e" + target.getName() + "&7."));
+                long expiryTicks = plugin.getConfig().getLong("faction.invite-expiry", 300) * 20L;
+                Bukkit.getScheduler().runTaskLater(plugin, () -> fm.removeInvite(f.getName(), target.getUniqueId()), expiryTicks);
             }
             case "join" -> {
                 if (args.length < 2) { player.sendMessage(pre() + c("&cUsage : /f join <faction>")); return true; }
                 if (fm.hasPlayerFaction(player.getUniqueId())) { player.sendMessage(pre() + c(plugin.getConfig().getString("messages.already-in-faction"))); return true; }
                 Faction f = fm.getFaction(args[1]);
                 if (f == null) { player.sendMessage(pre() + c("&cFaction introuvable.")); return true; }
-                if (!f.isOpen()) { player.sendMessage(pre() + c("&cCette faction est fermée (invitation requise).")); return true; }
+                boolean invited = fm.hasInvite(f.getName(), player.getUniqueId());
+                if (!f.isOpen() && !invited) { player.sendMessage(pre() + c("&cCette faction est fermée (invitation requise).")); return true; }
                 if (f.getMembers().size() >= plugin.getConfig().getInt("faction.max-members", 30)) { player.sendMessage(pre() + c("&cFaction pleine.")); return true; }
+                fm.removeInvite(f.getName(), player.getUniqueId());
                 fm.joinFaction(f, player.getUniqueId());
                 player.sendMessage(pre() + c("&aRejoint &e[" + f.getTag() + "] " + f.getName() + "&a !"));
                 if (f.getMotd() != null) player.sendMessage(pre() + c("&7[MOTD] &f" + f.getMotd()));
@@ -130,12 +135,21 @@ public class FactionCommand implements CommandExecutor, TabCompleter {
                 Faction f = needFaction(player, fm); if (f == null) return true;
                 if (!f.isOfficer(player.getUniqueId())) { player.sendMessage(pre() + c(plugin.getConfig().getString("messages.not-officer"))); return true; }
                 Player target = Bukkit.getPlayerExact(args[1]);
-                if (target == null || !f.isMember(target.getUniqueId())) { player.sendMessage(pre() + c("&cJoueur introuvable dans ta faction.")); return true; }
-                if (f.isLeader(target.getUniqueId())) { player.sendMessage(pre() + c("&cImpossible d'expulser le chef.")); return true; }
-                if (f.isOfficer(target.getUniqueId()) && !f.isLeader(player.getUniqueId())) { player.sendMessage(pre() + c("&cSeul le chef peut expulser un officier.")); return true; }
-                target.sendMessage(pre() + c("&cTu as été expulsé de &e" + f.getName() + "&c."));
-                broadcast(f, pre() + c("&e" + target.getName() + " &ca été expulsé par &e" + player.getName() + "&c."));
-                fm.leaveFaction(f, target.getUniqueId());
+                UUID targetId;
+                String targetName;
+                if (target != null) {
+                    targetId = target.getUniqueId(); targetName = target.getName();
+                } else {
+                    org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(args[1]);
+                    if (!op.hasPlayedBefore() || !f.isMember(op.getUniqueId())) { player.sendMessage(pre() + c("&cJoueur introuvable dans ta faction.")); return true; }
+                    targetId = op.getUniqueId(); targetName = op.getName() != null ? op.getName() : args[1];
+                }
+                if (!f.isMember(targetId)) { player.sendMessage(pre() + c("&cJoueur introuvable dans ta faction.")); return true; }
+                if (f.isLeader(targetId)) { player.sendMessage(pre() + c("&cImpossible d'expulser le chef.")); return true; }
+                if (f.isOfficer(targetId) && !f.isLeader(player.getUniqueId())) { player.sendMessage(pre() + c("&cSeul le chef peut expulser un officier.")); return true; }
+                if (target != null) target.sendMessage(pre() + c("&cTu as été expulsé de &e" + f.getName() + "&c."));
+                broadcast(f, pre() + c("&e" + targetName + " &ca été expulsé par &e" + player.getName() + "&c."));
+                fm.leaveFaction(f, targetId);
             }
             case "promote" -> {
                 if (args.length < 2) { player.sendMessage(pre() + c("&cUsage : /f promote <joueur>")); return true; }
@@ -313,16 +327,24 @@ public class FactionCommand implements CommandExecutor, TabCompleter {
             case "who" -> {
                 if (args.length < 2) { player.sendMessage(pre() + c("&cUsage : /f who <joueur>")); return true; }
                 Player target = Bukkit.getPlayerExact(args[1]);
-                if (target == null) { player.sendMessage(pre() + c(plugin.getConfig().getString("messages.player-not-found"))); return true; }
-                Faction f = fm.getPlayerFaction(target.getUniqueId());
-                int kills   = plugin.getStatsManager().getKills(target.getUniqueId());
-                int deaths  = plugin.getStatsManager().getDeaths(target.getUniqueId());
-                int streak  = plugin.getStatsManager().getCurrentStreak(target.getUniqueId());
-                int bounty  = plugin.getBountyManager().getTotalBounty(target.getUniqueId());
-                player.sendMessage(c("&8&m--- &7Profil de &e" + target.getName() + " &8&m---"));
+                UUID targetId;
+                String targetName;
+                if (target != null) {
+                    targetId = target.getUniqueId(); targetName = target.getName();
+                } else {
+                    org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(args[1]);
+                    if (!op.hasPlayedBefore()) { player.sendMessage(pre() + c(plugin.getConfig().getString("messages.player-not-found", "&cJoueur introuvable."))); return true; }
+                    targetId = op.getUniqueId(); targetName = op.getName() != null ? op.getName() : args[1];
+                }
+                Faction f = fm.getPlayerFaction(targetId);
+                int kills   = plugin.getStatsManager().getKills(targetId);
+                int deaths  = plugin.getStatsManager().getDeaths(targetId);
+                int streak  = plugin.getStatsManager().getCurrentStreak(targetId);
+                int bounty  = plugin.getBountyManager().getTotalBounty(targetId);
+                player.sendMessage(c("&8&m--- &7Profil de &e" + targetName + (target == null ? " &8(hors ligne)" : "") + " &8&m---"));
                 player.sendMessage(c("&7Faction : " + (f != null ? "&e[" + f.getTag() + "] " + f.getName() : "&8Aucune")));
-                if (f != null) player.sendMessage(c("&7Rôle : &e" + f.getMembers().getOrDefault(target.getUniqueId(), FactionRole.MEMBER).getDisplay()));
-                player.sendMessage(c("&7Kills : &a" + kills + " &7| Morts : &c" + deaths + " &7| K/D : &6" + String.format("%.2f", plugin.getStatsManager().getKD(target.getUniqueId()))));
+                if (f != null) player.sendMessage(c("&7Rôle : &e" + f.getMembers().getOrDefault(targetId, FactionRole.MEMBER).getDisplay()));
+                player.sendMessage(c("&7Kills : &a" + kills + " &7| Morts : &c" + deaths + " &7| K/D : &6" + String.format("%.2f", plugin.getStatsManager().getKD(targetId))));
                 player.sendMessage(c("&7Série actuelle : &6" + streak));
                 if (bounty > 0) player.sendMessage(c("&7Prime : &c" + bounty + " &7pièces"));
                 player.sendMessage(c("&8&m---------------------"));
