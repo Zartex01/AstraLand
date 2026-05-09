@@ -104,11 +104,15 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
+        String typed = args[args.length - 1].toLowerCase();
         if (args.length == 1) {
-            List<String> opts = new ArrayList<>(List.of("list", "info"));
+            List<String> opts = new ArrayList<>(List.of("list","info"));
             Bukkit.getOnlinePlayers().forEach(p -> opts.add(p.getName()));
-            return opts;
+            return opts.stream().filter(o -> o.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("info"))
+            return Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName).filter(n -> n.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

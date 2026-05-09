@@ -78,8 +78,13 @@ public class UHCCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("join", "leave", "start", "stop", "list", "scenario");
-        if (args.length == 2 && args[0].equalsIgnoreCase("scenario")) return Arrays.asList("VANILLA", "CUTCLEAN", "TIMEBOMB", "NOFALL");
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Arrays.asList("join","leave","start","stop","list","scenario").stream()
+                .filter(sub -> sub.startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && args[0].equalsIgnoreCase("scenario"))
+            return Arrays.asList("VANILLA","CUTCLEAN","TIMEBOMB","NOFALL").stream()
+                .filter(sc -> sc.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

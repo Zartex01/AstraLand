@@ -13,6 +13,7 @@ import org.bukkit.command.TabCompleter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.UUID;
 
@@ -67,7 +68,10 @@ public class TopKillsCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("kills", "streak");
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Arrays.asList("kills","streak").stream()
+                .filter(sub -> sub.startsWith(typed)).collect(Collectors.toList());
         return List.of();
     }
 }

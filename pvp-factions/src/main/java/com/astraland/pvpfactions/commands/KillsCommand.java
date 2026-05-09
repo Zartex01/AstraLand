@@ -10,9 +10,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class KillsCommand implements CommandExecutor {
+public class KillsCommand implements CommandExecutor, org.bukkit.command.TabCompleter {
 
     private final PvpFactions plugin;
 
@@ -48,5 +50,14 @@ public class KillsCommand implements CommandExecutor {
             "&7Morts : &c" + deaths + "\n" +
             "&7K/D : &e" + String.format("%.2f", kd)));
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command cmd, String alias, String[] args) {
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName).filter(n -> n.toLowerCase().startsWith(typed)).collect(Collectors.toList());
+        return List.of();
     }
 }

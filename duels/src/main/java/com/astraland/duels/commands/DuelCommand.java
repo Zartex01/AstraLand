@@ -78,12 +78,18 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
+        String typed = args[args.length - 1].toLowerCase();
         if (args.length == 1) {
-            List<String> opts = new java.util.ArrayList<>(Arrays.asList("accept", "deny", "kit", "leave", "list"));
+            List<String> opts = new java.util.ArrayList<>(Arrays.asList("accept","deny","kit","leave","list"));
             Bukkit.getOnlinePlayers().forEach(p -> opts.add(p.getName()));
-            return opts;
+            return opts.stream().filter(o -> o.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("kit")) return Arrays.asList("NODEBUFF", "SOUP", "ARCHER", "UHC");
+        if (args.length == 2 && args[0].equalsIgnoreCase("kit"))
+            return Arrays.asList("NODEBUFF","SOUP","ARCHER","UHC").stream()
+                .filter(k -> k.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2)
+            return Arrays.asList("NODEBUFF","SOUP","ARCHER","UHC").stream()
+                .filter(k -> k.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

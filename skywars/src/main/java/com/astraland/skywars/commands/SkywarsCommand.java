@@ -84,8 +84,17 @@ public class SkywarsCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("join", "leave", "kit", "list", "create", "setspawn");
-        if (args.length == 2 && args[0].equalsIgnoreCase("kit")) return Arrays.asList("WARRIOR", "ARCHER", "MAGE");
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Arrays.asList("join","leave","kit","list","create","setspawn").stream()
+                .filter(sub -> sub.startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && args[0].equalsIgnoreCase("kit"))
+            return Arrays.asList("WARRIOR","ARCHER","MAGE").stream()
+                .filter(k -> k.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && Arrays.asList("join","setspawn","create").contains(args[0].toLowerCase()))
+            return plugin.getSkywarsManager().getArenas().stream()
+                .map(com.astraland.skywars.models.SkywarsArena::getName)
+                .filter(n -> n.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

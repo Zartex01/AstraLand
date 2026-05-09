@@ -75,7 +75,14 @@ public class SpleefCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("join", "leave", "list", "create", "setspawn", "start");
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Arrays.asList("join","leave","list","create","setspawn","start").stream()
+                .filter(sub -> sub.startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && Arrays.asList("join","setspawn","start").contains(args[0].toLowerCase()))
+            return plugin.getSpleefManager().getGames().stream()
+                .map(com.astraland.spleef.models.SpleefGame::getName)
+                .filter(n -> n.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

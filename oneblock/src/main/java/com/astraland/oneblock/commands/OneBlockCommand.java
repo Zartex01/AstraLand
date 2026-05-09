@@ -89,7 +89,10 @@ public class OneBlockCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("create", "home", "info", "phase", "top");
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Arrays.asList("create","home","info","phase","top").stream()
+                .filter(sub -> sub.startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

@@ -96,7 +96,17 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("join", "leave", "list", "create", "setspawn", "setbed", "start");
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Arrays.asList("join","leave","list","create","setspawn","setbed","start").stream()
+                .filter(sub -> sub.startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && Arrays.asList("join","setspawn","setbed","start").contains(args[0].toLowerCase()))
+            return plugin.getArenaManager().getArenas().stream()
+                .map(com.astraland.bedwars.models.Arena::getName)
+                .filter(n -> n.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 3 && Arrays.asList("setspawn","setbed").contains(args[0].toLowerCase()))
+            return Arrays.asList("RED","BLUE","GREEN","YELLOW").stream()
+                .filter(t -> t.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

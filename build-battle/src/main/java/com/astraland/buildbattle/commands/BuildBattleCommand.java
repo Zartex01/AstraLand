@@ -71,8 +71,17 @@ public class BuildBattleCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("join", "leave", "vote", "list", "create");
-        if (args.length == 2 && args[0].equalsIgnoreCase("vote")) return Arrays.asList("1", "2", "3", "4", "5");
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Arrays.asList("join","leave","vote","list","create").stream()
+                .filter(sub -> sub.startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && args[0].equalsIgnoreCase("vote"))
+            return Arrays.asList("1","2","3","4","5").stream()
+                .filter(v -> v.startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && args[0].equalsIgnoreCase("join"))
+            return plugin.getBuildBattleManager().getGames().stream()
+                .map(com.astraland.buildbattle.models.BBGame::getName)
+                .filter(n -> n.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

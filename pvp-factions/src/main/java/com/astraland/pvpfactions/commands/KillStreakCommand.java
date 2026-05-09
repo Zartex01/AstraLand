@@ -10,9 +10,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class KillStreakCommand implements CommandExecutor {
+public class KillStreakCommand implements CommandExecutor, org.bukkit.command.TabCompleter {
 
     private final PvpFactions plugin;
 
@@ -54,5 +56,14 @@ public class KillStreakCommand implements CommandExecutor {
         if (streak >= 5) return "&6";
         if (streak >= 3) return "&e";
         return "&f";
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command cmd, String alias, String[] args) {
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName).filter(n -> n.toLowerCase().startsWith(typed)).collect(Collectors.toList());
+        return List.of();
     }
 }

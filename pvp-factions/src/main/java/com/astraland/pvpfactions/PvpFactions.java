@@ -39,12 +39,15 @@ public class PvpFactions extends JavaPlugin {
 
         KillsCommand killsCmd = new KillsCommand(this);
         getCommand("kills").setExecutor(killsCmd);
+        getCommand("kills").setTabCompleter(killsCmd);
 
         TopKillsCommand topCmd = new TopKillsCommand(this);
         getCommand("topkills").setExecutor(topCmd);
         getCommand("topkills").setTabCompleter(topCmd);
 
-        getCommand("killstreak").setExecutor(new KillStreakCommand(this));
+        KillStreakCommand streakCmd = new KillStreakCommand(this);
+        getCommand("killstreak").setExecutor(streakCmd);
+        getCommand("killstreak").setTabCompleter(streakCmd);
 
         BountyCommand bountyCmd = new BountyCommand(this);
         getCommand("bounty").setExecutor(bountyCmd);

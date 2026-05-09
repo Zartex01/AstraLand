@@ -83,7 +83,10 @@ public class KitCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return new ArrayList<>(plugin.getKitManager().getKitNames().stream().map(String::toLowerCase).toList());
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return plugin.getKitManager().getKitNames().stream()
+                .map(String::toLowerCase).filter(k -> k.startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

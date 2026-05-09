@@ -134,7 +134,16 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("create", "home", "sethome", "invite", "join", "kick", "info", "top", "leave");
+        String typed = args[args.length - 1].toLowerCase();
+        if (args.length == 1)
+            return Arrays.asList("create","home","sethome","invite","join","kick","info","top","leave").stream()
+                .filter(s -> s.startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && (args[0].equalsIgnoreCase("invite") || args[0].equalsIgnoreCase("kick")))
+            return Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName).filter(n -> n.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
+        if (args.length == 2 && args[0].equalsIgnoreCase("join"))
+            return Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName).filter(n -> n.toLowerCase().startsWith(typed)).collect(java.util.stream.Collectors.toList());
         return List.of();
     }
 }

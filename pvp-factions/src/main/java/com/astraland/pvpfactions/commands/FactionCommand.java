@@ -484,6 +484,7 @@ public class FactionCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
+        String typed = args[args.length - 1].toLowerCase();
         if (args.length == 1) return Arrays.asList(
             "create","disband","tag","desc","motd","open",
             "invite","join","leave","kick","promote","demote","setowner",
@@ -491,13 +492,16 @@ public class FactionCommand implements CommandExecutor, TabCompleter {
             "claim","unclaim","unclaimall","autoclaim",
             "ally","enemy","neutral",
             "info","who","list","top","power","map",
-            "chat","announce","coords","stuck");
+            "chat","announce","coords","stuck").stream()
+            .filter(s -> s.startsWith(typed)).collect(java.util.stream.Collectors.toList());
         if (args.length == 2) {
             String s = args[0].toLowerCase();
             if (List.of("info","ally","enemy","neutral","join","delwarp","warp").contains(s))
-                return plugin.getFactionManager().getAllFactions().stream().map(Faction::getName).toList();
+                return plugin.getFactionManager().getAllFactions().stream()
+                    .map(Faction::getName).filter(n -> n.toLowerCase().startsWith(typed)).toList();
             if (List.of("invite","kick","promote","demote","setowner","who","power").contains(s))
-                return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+                return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName).filter(n -> n.toLowerCase().startsWith(typed)).toList();
         }
         return new ArrayList<>();
     }
