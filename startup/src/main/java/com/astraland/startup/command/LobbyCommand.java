@@ -46,6 +46,11 @@ public class LobbyCommand implements CommandExecutor {
     }
 
     private void handleLobby(Player player) {
+        if (player.getWorld().getName().equals("world")) {
+            player.sendMessage(c("&cTu es déjà dans le lobby !"));
+            return;
+        }
+
         if (!plugin.getLobbyManager().hasLobby()) {
             player.sendMessage(c("&cAucun spawn de lobby n'a été défini. Utilise &e/setlobby&c d'abord."));
             return;
