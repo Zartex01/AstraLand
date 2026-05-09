@@ -58,14 +58,11 @@ public class WorldSelectorGUI implements Listener {
 
             ItemStack item = new ItemStack(worldConfig.getMaterial());
             ItemMeta meta = item.getItemMeta();
-
             meta.setDisplayName(color(worldConfig.getName()));
-
             List<String> lore = worldConfig.getLore().stream()
                 .map(this::color)
                 .collect(Collectors.toList());
             meta.setLore(lore);
-
             item.setItemMeta(meta);
             inv.setItem(slot, item);
             slotToWorldName.put(slot, worldConfig.getWorldName());
@@ -90,8 +87,12 @@ public class WorldSelectorGUI implements Listener {
         player.closeInventory();
 
         if (world == null) {
-            player.sendMessage(color("&cLe monde &e" + worldName + " &cn'est pas chargé. Vérifie que Multiverse-Core l'a bien créé."));
+            player.sendMessage(color("&cLe monde &e" + worldName + " &cn'est pas chargé."));
             return;
+        }
+
+        if (player.getWorld().getName().equals("world")) {
+            plugin.getLocationManager().save(player.getUniqueId(), player.getLocation());
         }
 
         player.teleport(world.getSpawnLocation());
