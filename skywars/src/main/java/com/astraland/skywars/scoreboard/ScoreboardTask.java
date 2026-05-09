@@ -110,7 +110,7 @@ public class ScoreboardTask implements Listener {
             kitLine = "&e" + kit;
         } else {
             arenaLine   = "&8Lobby";
-            stateLine   = "&7En attente d'une partie";
+            stateLine   = "&7En attente...";
             playersLine = "&8-";
             kitLine     = "&8-";
         }
@@ -118,18 +118,18 @@ public class ScoreboardTask implements Listener {
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&8──────────────");
+        setLine(board, 11, "&7─────────");
         setLine(board, 10, "&7Arène: " + arenaLine);
         setLine(board, 9,  "&7Joueurs: " + playersLine);
         setLine(board, 8,  "&7État: " + stateLine);
-        setLine(board, 7,  "&8──────────────");
+        setLine(board, 7,  "&7─────────");
         setLine(board, 6,  "&7Kit: " + kitLine);
         setLine(board, 5,  "&7Kills: " + killsLine);
-        setLine(board, 4,  "&8──────────────");
+        setLine(board, 4,  "&7─────────");
         setLine(board, 3,  "&7Mode: &eSkyWars");
         setLine(board, 2,  " ");
         setLine(board, 1,  "&bastraland-fr.com");
-        setLine(board, 0,  "&e    » /vote");
+        setLine(board, 0,  " ");
     }
 
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }

@@ -103,18 +103,18 @@ public class ScoreboardTask implements Listener {
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&8──────────────");
+        setLine(board, 11, "&7─────────");
         setLine(board, 10, "&7Faction: " + fLine);
         setLine(board, 9,  "&7Rôle: " + roleLine);
-        setLine(board, 8,  "&7Membres: " + membLine + "  &7| Puiss: " + powLine);
-        setLine(board, 7,  "&8──────────────");
-        setLine(board, 6,  "&7Kills: &a" + kills + "  &7Morts: &c" + deaths);
-        setLine(board, 5,  "&7K/D: &e" + String.format("%.2f", kd));
-        setLine(board, 4,  "&7Série: &6" + streak + " kill" + (streak > 1 ? "s" : ""));
-        setLine(board, 3,  "&8──────────────");
+        setLine(board, 8,  "&7Membres: " + membLine);
+        setLine(board, 7,  "&7Puiss: " + powLine);
+        setLine(board, 6,  "&7─────────");
+        setLine(board, 5,  "&7Kills: &a" + kills + "  &7Morts: &c" + deaths);
+        setLine(board, 4,  "&7K/D: &e" + String.format("%.2f", kd));
+        setLine(board, 3,  "&7Série: &6" + streak + " kill" + (streak > 1 ? "s" : ""));
         setLine(board, 2,  bounty > 0 ? "&7Prime: &c" + bounty + "$" : "&7Prime: &8aucune");
-        setLine(board, 1,  "&bastraland-fr.com");
-        setLine(board, 0,  "&e    » /vote");
+        setLine(board, 1,  "&bastraland.fr");
+        setLine(board, 0,  " ");
     }
 
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }

@@ -89,7 +89,7 @@ public class ScoreboardTask implements Listener {
         UUID uid = p.getUniqueId();
         Arena arena = plugin.getArenaManager().getPlayerArena(uid);
 
-        String arenaLine, stateLine, teamLine, playersLine, bedLine, countdownLine;
+        String arenaLine, stateLine, teamLine, playersLine, bedLine;
         if (arena != null) {
             arenaLine = "&e" + arena.getName();
             GameState gs = arena.getState();
@@ -103,31 +103,29 @@ public class ScoreboardTask implements Listener {
             teamLine = bt != null ? c(bt.getColor() + bt.getName()) : "&8Aucune";
             playersLine = "&f" + arena.getPlayerCount() + "&7/" + arena.getMaxPlayers();
             long aliveTeams = arena.getAliveTeams().size();
-            bedLine = "&f" + aliveTeams + " &7équipe(s) restante(s)";
-            countdownLine = gs == GameState.COUNTDOWN ? "&6" + arena.getCountdown() + "s" : "&8-";
+            bedLine = "&f" + aliveTeams + " &7équipe(s)";
         } else {
-            arenaLine    = "&8Lobby";
-            stateLine    = "&7En attente d'une partie";
-            teamLine     = "&8-";
-            playersLine  = "&8-";
-            bedLine      = "&8-";
-            countdownLine = "&8-";
+            arenaLine   = "&8Lobby";
+            stateLine   = "&7En attente...";
+            teamLine    = "&8-";
+            playersLine = "&8-";
+            bedLine     = "&8-";
         }
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&8──────────────");
+        setLine(board, 11, "&7─────────");
         setLine(board, 10, "&7Arène: " + arenaLine);
         setLine(board, 9,  "&7Équipe: " + teamLine);
         setLine(board, 8,  "&7Joueurs: " + playersLine);
         setLine(board, 7,  "&7État: " + stateLine);
-        setLine(board, 6,  "&8──────────────");
-        setLine(board, 5,  "&7Équipes restantes: " + bedLine);
-        setLine(board, 4,  "&8──────────────");
+        setLine(board, 6,  "&7─────────");
+        setLine(board, 5,  "&7Restantes: " + bedLine);
+        setLine(board, 4,  "&7─────────");
         setLine(board, 3,  "&7Mode: &eBedWars");
         setLine(board, 2,  " ");
         setLine(board, 1,  "&bastraland-fr.com");
-        setLine(board, 0,  "&e    » /vote");
+        setLine(board, 0,  " ");
     }
 
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }

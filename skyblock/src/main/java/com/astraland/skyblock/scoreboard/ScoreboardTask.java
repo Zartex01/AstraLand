@@ -106,18 +106,18 @@ public class ScoreboardTask implements Listener {
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&8──────────────");
+        setLine(board, 11, "&7─────────");
         setLine(board, 10, "&7Île de: " + ownerLine);
         setLine(board, 9,  "&7Membres: " + membLine);
-        setLine(board, 8,  "&7Niveau île: " + levelLine);
-        setLine(board, 7,  "&7Blocs cassés: " + blocksLine);
-        setLine(board, 6,  "&8──────────────");
+        setLine(board, 8,  "&7Niveau: " + levelLine);
+        setLine(board, 7,  "&7Blocs: " + blocksLine);
+        setLine(board, 6,  "&7─────────");
         setLine(board, 5,  "&7Mode: &aSkyBlock");
-        setLine(board, 4,  " ");
-        setLine(board, 3,  "&7» &e/is create &7- Créer");
-        setLine(board, 2,  "&7» &e/is home &7- Téléporter");
+        setLine(board, 4,  "&7» &e/is create");
+        setLine(board, 3,  "&7» &e/is home");
+        setLine(board, 2,  " ");
         setLine(board, 1,  "&bastraland-fr.com");
-        setLine(board, 0,  "&e    » /vote");
+        setLine(board, 0,  " ");
     }
 
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }

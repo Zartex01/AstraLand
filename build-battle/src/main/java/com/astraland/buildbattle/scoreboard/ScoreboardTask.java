@@ -94,12 +94,12 @@ public class ScoreboardTask implements Listener {
             stateLine = switch (game.getState()) {
                 case WAITING   -> "&7En attente...";
                 case COUNTDOWN -> "&6Départ imminent...";
-                case BUILDING  -> "&aConstruction en cours";
+                case BUILDING  -> "&aConstruction";
                 case VOTING    -> "&dVote en cours";
                 case FINISHED  -> "&cTerminé";
             };
             String theme = game.getCurrentTheme();
-            themeLine = theme != null ? "&d" + theme : "&8Non défini";
+            themeLine = theme != null ? "&d" + theme : "&8-";
             int myScore = game.getScores().getOrDefault(uid, 0);
             scoreLine = "&a" + myScore + " &7pt(s)";
             playersLine = "&f" + game.getPlayers().size() + "&7/" + game.getMaxPlayers();
@@ -113,7 +113,7 @@ public class ScoreboardTask implements Listener {
             }
         } else {
             gameLine    = "&8Lobby";
-            stateLine   = "&7En attente d'une partie";
+            stateLine   = "&7En attente...";
             themeLine   = "&8-";
             scoreLine   = "&80";
             playersLine = "&8-";
@@ -122,18 +122,18 @@ public class ScoreboardTask implements Listener {
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&8──────────────");
+        setLine(board, 11, "&7─────────");
         setLine(board, 10, "&7Partie: " + gameLine);
         setLine(board, 9,  "&7Joueurs: " + playersLine);
         setLine(board, 8,  "&7État: " + stateLine);
-        setLine(board, 7,  "&8──────────────");
+        setLine(board, 7,  "&7─────────");
         setLine(board, 6,  "&7Thème: " + themeLine);
-        setLine(board, 5,  "&7Constructeur: " + builderLine);
-        setLine(board, 4,  "&7Tes points: " + scoreLine);
-        setLine(board, 3,  "&8──────────────");
+        setLine(board, 5,  "&7Builder: " + builderLine);
+        setLine(board, 4,  "&7Points: " + scoreLine);
+        setLine(board, 3,  "&7─────────");
         setLine(board, 2,  "&7Mode: &eBuild Battle");
         setLine(board, 1,  "&bastraland-fr.com");
-        setLine(board, 0,  "&e    » /vote");
+        setLine(board, 0,  " ");
     }
 
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }

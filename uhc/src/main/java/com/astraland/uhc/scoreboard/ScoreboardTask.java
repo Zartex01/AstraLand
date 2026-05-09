@@ -89,7 +89,7 @@ public class ScoreboardTask implements Listener {
 
         UHCGame.State state = game.getState();
         String stateLine = switch (state) {
-            case WAITING    -> "&7En attente &8(" + game.getPlayers().size() + " joueur(s))";
+            case WAITING    -> "&7En attente &8(" + game.getPlayers().size() + ")";
             case STARTING   -> "&6Départ imminent...";
             case INGAME     -> "&aEn jeu";
             case DEATHMATCH -> "&cDEATHMATCH !";
@@ -105,24 +105,24 @@ public class ScoreboardTask implements Listener {
 
         String statusLine  = inGame ? (alive ? "&aVivant" : "&cÉliminé") : "&7Spectateur";
         String killsLine   = "&a" + myKills + " &7kill(s)";
-        String aliveLine   = "&f" + aliveCount + " &7joueur(s) restant(s)";
+        String aliveLine   = "&f" + aliveCount + " &7restant(s)";
         String heartLine   = "&c" + hearts + " &7❤";
         String graceLine   = game.isGracePeriod() && state == UHCGame.State.INGAME ? "&aPériode de grâce" : " ";
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&8──────────────");
+        setLine(board, 11, "&7─────────");
         setLine(board, 10, "&7Phase: " + stateLine);
         setLine(board, 9,  "&7Scénario: &e" + scenario);
-        setLine(board, 8,  "&8──────────────");
+        setLine(board, 8,  "&7─────────");
         setLine(board, 7,  "&7Statut: " + statusLine);
         setLine(board, 6,  "&7Cœurs: " + heartLine);
         setLine(board, 5,  "&7Kills: " + killsLine);
         setLine(board, 4,  aliveLine);
         setLine(board, 3,  graceLine);
-        setLine(board, 2,  "&8──────────────");
+        setLine(board, 2,  "&7─────────");
         setLine(board, 1,  "&bastraland-fr.com");
-        setLine(board, 0,  "&e    » /vote");
+        setLine(board, 0,  " ");
     }
 
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
