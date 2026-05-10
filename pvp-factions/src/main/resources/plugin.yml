@@ -45,4 +45,11 @@ commands:
   ah:
     description: Hôtel des ventes
     aliases: [auction, bazaar]
-    usage: /ah [sell <prix>]
+    usage: /ah | /ah sell
+  givemoney:
+    description: Donner de l'argent à un joueur (admin)
+    aliases: [addmoney, eco-give]
+    usage: /givemoney <joueur> <montant>
+    permission: astraland.admin
+    permission-message: "&cTu n'as pas la permission d'utiliser cette commande."
+    default: op

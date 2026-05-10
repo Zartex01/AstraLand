@@ -2,6 +2,7 @@ package com.astraland.uhc;
 
 import com.astraland.uhc.commands.AHCommand;
 import com.astraland.uhc.commands.EconomyCommand;
+import com.astraland.uhc.commands.GiveMoneyCommand;
 import com.astraland.uhc.commands.ShopCommand;
 import com.astraland.uhc.commands.UHCCommand;
 import com.astraland.uhc.listeners.AHListener;
@@ -39,6 +40,7 @@ public class UHC extends JavaPlugin {
 
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("ah").setExecutor(new AHCommand(this));
+        getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 
         getServer().getPluginManager().registerEvents(new UHCListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);

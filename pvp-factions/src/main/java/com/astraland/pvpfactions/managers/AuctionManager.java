@@ -54,8 +54,9 @@ public class AuctionManager {
                 String sellerName = data.getString(path + "sellerName", "?");
                 int price = data.getInt(path + "price");
                 long listedAt = data.getLong(path + "listedAt");
+                boolean boosted = data.getBoolean(path + "boosted", false);
                 ItemStack item = deserializeItem(data.getString(path + "item"));
-                if (item != null) listings.add(new AuctionListing(id, seller, sellerName, item, price, listedAt));
+                if (item != null) listings.add(new AuctionListing(id, seller, sellerName, item, price, listedAt, boosted));
             } catch (Exception e) { plugin.getLogger().warning("Erreur chargement AH: " + e.getMessage()); }
         }
     }
@@ -66,6 +67,7 @@ public class AuctionManager {
         data.set(path + "sellerName", l.getSellerName());
         data.set(path + "price", l.getPrice());
         data.set(path + "listedAt", l.getListedAt());
+        data.set(path + "boosted", l.isBoosted());
         data.set(path + "item", serializeItem(l.getItem()));
         save();
     }

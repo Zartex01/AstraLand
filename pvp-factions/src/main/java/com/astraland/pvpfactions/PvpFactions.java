@@ -30,16 +30,15 @@ public class PvpFactions extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
-        this.databaseManager    = new DatabaseManager(this);
+        this.databaseManager   = new DatabaseManager(this);
         this.databaseManager.connect();
-
-        this.factionManager     = new FactionManager(this);
-        this.statsManager       = new StatsManager(this);
-        this.bountyManager      = new BountyManager(this);
-        this.kitManager         = new KitManager(this);
-        this.economyManager     = new EconomyManager(this);
-        this.auctionManager     = new AuctionManager(this);
-        this.shopConfigManager  = new ShopConfigManager(this);
+        this.factionManager    = new FactionManager(this);
+        this.statsManager      = new StatsManager(this);
+        this.bountyManager     = new BountyManager(this);
+        this.kitManager        = new KitManager(this);
+        this.economyManager    = new EconomyManager(this);
+        this.auctionManager    = new AuctionManager(this);
+        this.shopConfigManager = new ShopConfigManager(this);
 
         FactionCommand fCmd = new FactionCommand(this);
         getCommand("faction").setExecutor(fCmd);
@@ -72,11 +71,12 @@ public class PvpFactions extends JavaPlugin {
 
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("ah").setExecutor(new AHCommand(this));
+        getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 
         getServer().getPluginManager().registerEvents(new PvpListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
-        getServer().getPluginManager().registerEvents(new AHListener(), this);
+        getServer().getPluginManager().registerEvents(new AHListener(this), this);
 
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();

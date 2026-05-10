@@ -2,6 +2,7 @@ package com.astraland.oneblock;
 
 import com.astraland.oneblock.commands.AHCommand;
 import com.astraland.oneblock.commands.EconomyCommand;
+import com.astraland.oneblock.commands.GiveMoneyCommand;
 import com.astraland.oneblock.commands.OneBlockCommand;
 import com.astraland.oneblock.commands.ShopCommand;
 import com.astraland.oneblock.listeners.AHListener;
@@ -39,6 +40,7 @@ public class OneBlock extends JavaPlugin {
 
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("ah").setExecutor(new AHCommand(this));
+        getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 
         getServer().getPluginManager().registerEvents(new OneBlockListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);

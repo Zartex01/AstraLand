@@ -2,6 +2,7 @@ package com.astraland.skyblock;
 
 import com.astraland.skyblock.commands.AHCommand;
 import com.astraland.skyblock.commands.EconomyCommand;
+import com.astraland.skyblock.commands.GiveMoneyCommand;
 import com.astraland.skyblock.commands.IslandCommand;
 import com.astraland.skyblock.commands.ShopCommand;
 import com.astraland.skyblock.listeners.AHListener;
@@ -39,6 +40,7 @@ public class Skyblock extends JavaPlugin {
 
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("ah").setExecutor(new AHCommand(this));
+        getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 
         getServer().getPluginManager().registerEvents(new IslandListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);

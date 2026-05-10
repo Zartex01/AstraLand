@@ -2,6 +2,7 @@ package com.astraland.skywars;
 
 import com.astraland.skywars.commands.AHCommand;
 import com.astraland.skywars.commands.EconomyCommand;
+import com.astraland.skywars.commands.GiveMoneyCommand;
 import com.astraland.skywars.commands.ShopCommand;
 import com.astraland.skywars.commands.SkywarsCommand;
 import com.astraland.skywars.listeners.AHListener;
@@ -39,6 +40,7 @@ public class Skywars extends JavaPlugin {
 
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("ah").setExecutor(new AHCommand(this));
+        getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 
         getServer().getPluginManager().registerEvents(new SkywarsListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);

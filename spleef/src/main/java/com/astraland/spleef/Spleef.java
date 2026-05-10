@@ -2,6 +2,7 @@ package com.astraland.spleef;
 
 import com.astraland.spleef.commands.AHCommand;
 import com.astraland.spleef.commands.EconomyCommand;
+import com.astraland.spleef.commands.GiveMoneyCommand;
 import com.astraland.spleef.commands.ShopCommand;
 import com.astraland.spleef.commands.SpleefCommand;
 import com.astraland.spleef.listeners.AHListener;
@@ -39,6 +40,7 @@ public class Spleef extends JavaPlugin {
 
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("ah").setExecutor(new AHCommand(this));
+        getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 
         getServer().getPluginManager().registerEvents(new SpleefListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);

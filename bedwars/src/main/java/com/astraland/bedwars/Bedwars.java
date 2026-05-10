@@ -3,6 +3,7 @@ package com.astraland.bedwars;
 import com.astraland.bedwars.commands.AHCommand;
 import com.astraland.bedwars.commands.BedwarsCommand;
 import com.astraland.bedwars.commands.EconomyCommand;
+import com.astraland.bedwars.commands.GiveMoneyCommand;
 import com.astraland.bedwars.commands.ShopCommand;
 import com.astraland.bedwars.listeners.AHListener;
 import com.astraland.bedwars.listeners.BedwarsListener;
@@ -39,6 +40,7 @@ public class Bedwars extends JavaPlugin {
 
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("ah").setExecutor(new AHCommand(this));
+        getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 
         getServer().getPluginManager().registerEvents(new BedwarsListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);

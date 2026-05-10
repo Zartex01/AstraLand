@@ -3,6 +3,7 @@ package com.astraland.duels;
 import com.astraland.duels.commands.AHCommand;
 import com.astraland.duels.commands.DuelCommand;
 import com.astraland.duels.commands.EconomyCommand;
+import com.astraland.duels.commands.GiveMoneyCommand;
 import com.astraland.duels.commands.ShopCommand;
 import com.astraland.duels.listeners.AHListener;
 import com.astraland.duels.listeners.DuelListener;
@@ -39,6 +40,7 @@ public class Duels extends JavaPlugin {
 
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("ah").setExecutor(new AHCommand(this));
+        getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 
         getServer().getPluginManager().registerEvents(new DuelListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);

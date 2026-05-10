@@ -71,11 +71,16 @@ public class AHGui implements InventoryHolder {
             am.removeListing(listing.getId()); clicker.getInventory().addItem(listing.getItem().clone());
             clicker.sendMessage(c("&a✔ Annonce annulée. Item récupéré.")); new AHGui(clicker, am, eco, page).open(clicker);
         } else {
-            if (!eco.removeBalance(clicker.getUniqueId(), listing.getPrice())) { clicker.sendMessage(c("&c✗ Fonds insuffisants ! Il te faut &e" + listing.getPrice() + " $&c.")); return; }
-            eco.addBalance(listing.getSeller(), listing.getPrice()); clicker.getInventory().addItem(listing.getItem().clone());
+            if (!eco.removeBalance(clicker.getUniqueId(), listing.getPrice())) {
+                clicker.sendMessage(c("&c✗ Fonds insuffisants ! Il te faut &e" + listing.getPrice() + " $&c.")); return;
+            }
+            int sellerReceives = listing.isBoosted() ? (int)(listing.getPrice() * 0.95) : listing.getPrice();
+            eco.addBalance(listing.getSeller(), sellerReceives);
+            clicker.getInventory().addItem(listing.getItem().clone());
             am.removeListing(listing.getId());
             Player seller = Bukkit.getPlayer(listing.getSeller());
-            if (seller != null) seller.sendMessage(c("&a💰 &e" + clicker.getName() + " &aa acheté ton item pour &6" + listing.getPrice() + " $ !"));
+            String pubNote = listing.isBoosted() ? c(" &8(frais pub: &c-" + (listing.getPrice() - sellerReceives) + " $&8)") : "";
+            if (seller != null) seller.sendMessage(c("&a💰 &e" + clicker.getName() + " &aa acheté ton item pour &6" + sellerReceives + " $" + pubNote + " &a!"));
             clicker.sendMessage(c("&a✔ Achat effectué pour &6" + listing.getPrice() + " $ !")); new AHGui(clicker, am, eco, page).open(clicker);
         }
     }
@@ -83,6 +88,7 @@ public class AHGui implements InventoryHolder {
     private ItemStack display(AuctionListing l) {
         ItemStack d = l.getItem().clone(); ItemMeta m = d.getItemMeta();
         List<String> lore = new ArrayList<>(m.hasLore() ? m.getLore() : List.of());
+        if (l.isBoosted()) lore.add(c("&6★ PUB"));
         lore.add(""); lore.add(c("&7Vendeur : &e" + l.getSellerName())); lore.add(c("&6Prix : &a" + l.getPrice() + " $"));
         lore.add(l.getSeller().equals(viewer.getUniqueId()) ? c("&c▶ Clic pour &lANNULER") : c("&a▶ Clic pour &lACHETER"));
         m.setLore(lore); m.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES); d.setItemMeta(m); return d;

@@ -10,10 +10,11 @@ public class AuctionListing {
     private final ItemStack item;
     private final int price;
     private final long listedAt;
+    private final boolean boosted;
 
-    public AuctionListing(String id, UUID seller, String sellerName, ItemStack item, int price, long listedAt) {
+    public AuctionListing(String id, UUID seller, String sellerName, ItemStack item, int price, long listedAt, boolean boosted) {
         this.id = id; this.seller = seller; this.sellerName = sellerName;
-        this.item = item; this.price = price; this.listedAt = listedAt;
+        this.item = item; this.price = price; this.listedAt = listedAt; this.boosted = boosted;
     }
 
     public String getId()        { return id; }
@@ -22,4 +23,5 @@ public class AuctionListing {
     public ItemStack getItem()   { return item; }
     public int getPrice()        { return price; }
     public long getListedAt()    { return listedAt; }
+    public boolean isBoosted()   { return boosted; }
 }
