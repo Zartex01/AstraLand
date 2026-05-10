@@ -23,6 +23,7 @@
         <module>skywars</module>
         <module>build-battle</module>
         <module>duels</module>
+        <module>admin-tools</module>
     </modules>
 
     <properties>

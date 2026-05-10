@@ -1,0 +1,19 @@
+name: AstraLand-AdminTools
+version: 1.0.0-SNAPSHOT
+main: com.astraland.admintools.AdminTools
+api-version: "1.21"
+description: AstraLand - Outils d'administration (gestion des joueurs)
+authors: [AstraLand]
+
+commands:
+  staff:
+    description: Ouvre le panneau de gestion des joueurs
+    aliases: [admin, gestion, playerlist]
+    usage: /staff
+    permission: astraland.staff
+    permission-message: "&cTu n'as pas la permission d'utiliser cette commande."
+
+permissions:
+  astraland.staff:
+    description: Accès aux outils d'administration
+    default: op

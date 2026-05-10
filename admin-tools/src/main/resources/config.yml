@@ -1,0 +1,6 @@
+discord:
+  lien: "discord.gg/astraland"
+  message-ecran-titre: "&6&lViens sur Discord !"
+  message-ecran-sous-titre: "&7{lien}"
+  message-chat: "&8[&6AstraLand&8] &fViens sur Discord ! &7{lien}"
+  particules: true
