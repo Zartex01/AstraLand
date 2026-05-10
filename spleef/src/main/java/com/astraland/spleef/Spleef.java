@@ -1,8 +1,13 @@
 package com.astraland.spleef;
 
+import com.astraland.spleef.commands.AHCommand;
 import com.astraland.spleef.commands.EconomyCommand;
+import com.astraland.spleef.commands.ShopCommand;
 import com.astraland.spleef.commands.SpleefCommand;
+import com.astraland.spleef.listeners.AHListener;
+import com.astraland.spleef.listeners.ShopListener;
 import com.astraland.spleef.listeners.SpleefListener;
+import com.astraland.spleef.managers.AuctionManager;
 import com.astraland.spleef.managers.EconomyManager;
 import com.astraland.spleef.managers.SpleefManager;
 import com.astraland.spleef.scoreboard.ScoreboardTask;
@@ -14,6 +19,7 @@ public class Spleef extends JavaPlugin {
     private static Spleef instance;
     private SpleefManager spleefManager;
     private EconomyManager economyManager;
+    private AuctionManager auctionManager;
     private ScoreboardTask scoreboardTask;
 
     @Override
@@ -22,6 +28,7 @@ public class Spleef extends JavaPlugin {
         saveDefaultConfig();
         this.spleefManager  = new SpleefManager(this);
         this.economyManager = new EconomyManager(this);
+        this.auctionManager = new AuctionManager(this);
 
         getCommand("spleef").setExecutor(new SpleefCommand(this));
         getCommand("spleef").setTabCompleter(new SpleefCommand(this));
@@ -30,7 +37,12 @@ public class Spleef extends JavaPlugin {
         getCommand("balance").setExecutor(ecoCmd);
         getCommand("pay").setExecutor(ecoCmd);
 
+        getCommand("shop").setExecutor(new ShopCommand(this));
+        getCommand("ah").setExecutor(new AHCommand(this));
+
         getServer().getPluginManager().registerEvents(new SpleefListener(this), this);
+        getServer().getPluginManager().registerEvents(new ShopListener(this), this);
+        getServer().getPluginManager().registerEvents(new AHListener(), this);
 
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();
@@ -48,6 +60,7 @@ public class Spleef extends JavaPlugin {
     public static Spleef getInstance()          { return instance; }
     public SpleefManager getSpleefManager()     { return spleefManager; }
     public EconomyManager getEconomyManager()   { return economyManager; }
+    public AuctionManager getAuctionManager()   { return auctionManager; }
 
     public String getPluginWorld() { return getConfig().getString("spleef.lobby-world", "world_spleef"); }
     public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }

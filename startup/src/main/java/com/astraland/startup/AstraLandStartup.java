@@ -1,5 +1,7 @@
 package com.astraland.startup;
 
+import com.astraland.startup.combat.CombatListener;
+import com.astraland.startup.combat.CombatManager;
 import com.astraland.startup.command.LobbyCommand;
 import com.astraland.startup.gui.WorldSelectorGUI;
 import com.astraland.startup.listener.CompassLockListener;
@@ -20,11 +22,11 @@ public class AstraLandStartup extends JavaPlugin {
     private LobbyManager lobbyManager;
     private WorldSelectorGUI worldSelectorGUI;
     private PlayerJoinListener playerJoinListener;
+    private CombatManager combatManager;
 
     @Override
     public void onEnable() {
         instance = this;
-
         saveDefaultConfig();
 
         this.configManager      = new ConfigManager(this);
@@ -32,6 +34,7 @@ public class AstraLandStartup extends JavaPlugin {
         this.lobbyManager       = new LobbyManager(this);
         this.worldSelectorGUI   = new WorldSelectorGUI(this);
         this.playerJoinListener = new PlayerJoinListener(this);
+        this.combatManager      = new CombatManager(this);
 
         getServer().getPluginManager().registerEvents(playerJoinListener, this);
         getServer().getPluginManager().registerEvents(new CompassListener(this), this);
@@ -39,6 +42,7 @@ public class AstraLandStartup extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CompassLockListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldChangeListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerVisibilityListener(this), this);
+        getServer().getPluginManager().registerEvents(new CombatListener(this), this);
 
         LobbyCommand lobbyCommand = new LobbyCommand(this);
         getCommand("setlobby").setExecutor(lobbyCommand);
@@ -46,8 +50,9 @@ public class AstraLandStartup extends JavaPlugin {
 
         getLogger().info("=================================");
         getLogger().info("   AstraLand - Startup chargé !  ");
-        getLogger().info("  Boussole activée sur le slot " + configManager.getCompassSlot());
-        getLogger().info("  Mondes chargés : " + configManager.getWorlds().size());
+        getLogger().info("  ⚔ Combat Tag activé (30s)     ");
+        getLogger().info("  Boussole : slot " + configManager.getCompassSlot());
+        getLogger().info("  Mondes : " + configManager.getWorlds().size());
         getLogger().info("=================================");
     }
 
@@ -56,10 +61,11 @@ public class AstraLandStartup extends JavaPlugin {
         getLogger().info("AstraLand - Startup désactivé.");
     }
 
-    public static AstraLandStartup getInstance()          { return instance; }
-    public ConfigManager getConfigManager()               { return configManager; }
-    public LocationManager getLocationManager()           { return locationManager; }
-    public LobbyManager getLobbyManager()                 { return lobbyManager; }
-    public WorldSelectorGUI getWorldSelectorGUI()         { return worldSelectorGUI; }
-    public PlayerJoinListener getPlayerJoinListener()     { return playerJoinListener; }
+    public static AstraLandStartup getInstance()      { return instance; }
+    public ConfigManager getConfigManager()           { return configManager; }
+    public LocationManager getLocationManager()       { return locationManager; }
+    public LobbyManager getLobbyManager()             { return lobbyManager; }
+    public WorldSelectorGUI getWorldSelectorGUI()     { return worldSelectorGUI; }
+    public PlayerJoinListener getPlayerJoinListener() { return playerJoinListener; }
+    public CombatManager getCombatManager()           { return combatManager; }
 }

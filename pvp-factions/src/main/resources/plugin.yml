@@ -39,3 +39,10 @@ commands:
   pay:
     description: Envoyer des pièces à un joueur
     usage: /pay <joueur> <montant>
+  shop:
+    description: Ouvre le shop du mode de jeu
+    usage: /shop
+  ah:
+    description: Hôtel des ventes
+    aliases: [auction, bazaar]
+    usage: /ah [sell <prix>]

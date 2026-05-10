@@ -2,8 +2,10 @@ package com.astraland.pvpfactions;
 
 import com.astraland.pvpfactions.commands.*;
 import com.astraland.pvpfactions.database.DatabaseManager;
+import com.astraland.pvpfactions.listeners.AHListener;
 import com.astraland.pvpfactions.listeners.ChatListener;
 import com.astraland.pvpfactions.listeners.PvpListener;
+import com.astraland.pvpfactions.listeners.ShopListener;
 import com.astraland.pvpfactions.managers.*;
 import com.astraland.pvpfactions.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
@@ -18,6 +20,7 @@ public class PvpFactions extends JavaPlugin {
     private BountyManager bountyManager;
     private KitManager kitManager;
     private EconomyManager economyManager;
+    private AuctionManager auctionManager;
     private ScoreboardTask scoreboardTask;
 
     @Override
@@ -33,6 +36,7 @@ public class PvpFactions extends JavaPlugin {
         this.bountyManager   = new BountyManager(this);
         this.kitManager      = new KitManager(this);
         this.economyManager  = new EconomyManager(this);
+        this.auctionManager  = new AuctionManager(this);
 
         FactionCommand fCmd = new FactionCommand(this);
         getCommand("faction").setExecutor(fCmd);
@@ -63,8 +67,13 @@ public class PvpFactions extends JavaPlugin {
         getCommand("balance").setExecutor(ecoCmd);
         getCommand("pay").setExecutor(ecoCmd);
 
+        getCommand("shop").setExecutor(new ShopCommand(this));
+        getCommand("ah").setExecutor(new AHCommand(this));
+
         getServer().getPluginManager().registerEvents(new PvpListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
+        getServer().getPluginManager().registerEvents(new ShopListener(this), this);
+        getServer().getPluginManager().registerEvents(new AHListener(), this);
 
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();
@@ -86,6 +95,7 @@ public class PvpFactions extends JavaPlugin {
     public BountyManager getBountyManager()        { return bountyManager; }
     public KitManager getKitManager()              { return kitManager; }
     public EconomyManager getEconomyManager()      { return economyManager; }
+    public AuctionManager getAuctionManager()      { return auctionManager; }
 
     public String getPluginWorld() { return getConfig().getString("world", "world_pvpfactions"); }
     public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
