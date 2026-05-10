@@ -10,3 +10,10 @@ commands:
     description: Commandes Build Battle
     aliases: [bb]
     usage: /buildbattle <join|leave|list|vote|create|setspawn|start>
+  balance:
+    description: Voir son solde de pièces
+    aliases: [bal, money]
+    usage: /balance [joueur]
+  pay:
+    description: Envoyer des pièces à un joueur
+    usage: /pay <joueur> <montant>

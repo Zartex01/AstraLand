@@ -10,3 +10,10 @@ commands:
     description: Commandes OneBlock
     aliases: [ob, one]
     usage: /oneblock <create|home|info|phase|top>
+  balance:
+    description: Voir son solde de pièces
+    aliases: [bal, money]
+    usage: /balance [joueur]
+  pay:
+    description: Envoyer des pièces à un joueur
+    usage: /pay <joueur> <montant>

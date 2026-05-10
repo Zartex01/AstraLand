@@ -44,6 +44,9 @@ public class OneBlockListener implements Listener {
             return;
         }
 
+        int reward = plugin.getConfig().getInt("economy.block-reward", 2);
+        plugin.getEconomyManager().addBalance(player.getUniqueId(), reward);
+
         Phase phaseBefore = island.getCurrentPhase();
         om.regenerateBlock(island);
         Phase phaseAfter = island.getCurrentPhase();

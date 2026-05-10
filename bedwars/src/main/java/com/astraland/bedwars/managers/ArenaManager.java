@@ -104,6 +104,15 @@ public class ArenaManager {
             arena.setState(GameState.FINISHED);
             String winner = alive.isEmpty() ? "&cPersonne" : alive.get(0).getColor() + alive.get(0).getName();
             broadcastToArena(arena, "&6Gagnant : " + winner + " &6!");
+            if (!alive.isEmpty()) {
+                int winReward = plugin.getConfig().getInt("economy.win-reward", 100);
+                for (java.util.UUID uuid : alive.get(0).getPlayers()) {
+                    plugin.getEconomyManager().addBalance(uuid, winReward);
+                    if (Bukkit.getPlayer(uuid) != null)
+                        Bukkit.getPlayer(uuid).sendMessage(ChatColor.translateAlternateColorCodes('&',
+                            "&a+" + winReward + " pièces &7pour la victoire !"));
+                }
+            }
             Bukkit.getScheduler().runTaskLater(plugin, () -> resetArena(arena), 100L);
         }
     }

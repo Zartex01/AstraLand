@@ -1,7 +1,9 @@
 package com.astraland.skywars;
 
+import com.astraland.skywars.commands.EconomyCommand;
 import com.astraland.skywars.commands.SkywarsCommand;
 import com.astraland.skywars.listeners.SkywarsListener;
+import com.astraland.skywars.managers.EconomyManager;
 import com.astraland.skywars.managers.SkywarsManager;
 import com.astraland.skywars.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
@@ -11,6 +13,7 @@ public class Skywars extends JavaPlugin {
 
     private static Skywars instance;
     private SkywarsManager skywarsManager;
+    private EconomyManager economyManager;
     private ScoreboardTask scoreboardTask;
 
     @Override
@@ -18,9 +21,14 @@ public class Skywars extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         this.skywarsManager = new SkywarsManager(this);
+        this.economyManager = new EconomyManager(this);
 
         getCommand("skywars").setExecutor(new SkywarsCommand(this));
         getCommand("skywars").setTabCompleter(new SkywarsCommand(this));
+
+        EconomyCommand ecoCmd = new EconomyCommand(this);
+        getCommand("balance").setExecutor(ecoCmd);
+        getCommand("pay").setExecutor(ecoCmd);
 
         getServer().getPluginManager().registerEvents(new SkywarsListener(this), this);
 
@@ -37,8 +45,9 @@ public class Skywars extends JavaPlugin {
         getLogger().info("AstraLand - Skywars désactivé.");
     }
 
-    public static Skywars getInstance() { return instance; }
-    public SkywarsManager getSkywarsManager() { return skywarsManager; }
+    public static Skywars getInstance()           { return instance; }
+    public SkywarsManager getSkywarsManager()     { return skywarsManager; }
+    public EconomyManager getEconomyManager()     { return economyManager; }
 
     public String getPluginWorld() { return getConfig().getString("skywars.lobby-world", "world_skywars"); }
     public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }

@@ -57,10 +57,21 @@ public class SkywarsManager {
     public void eliminatePlayer(SkywarsArena arena, Player player) {
         arena.removePlayer(player.getUniqueId());
         broadcast(arena, "&c" + player.getName() + " &aest éliminé ! &7(" + arena.getPlayers().size() + " restants)");
+
+        Player killer = player.getKiller();
+        if (killer != null && !killer.equals(player)) {
+            int killReward = plugin.getConfig().getInt("economy.kill-reward", 40);
+            plugin.getEconomyManager().addBalance(killer.getUniqueId(), killReward);
+            killer.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&a+" + killReward + " pièces &7pour le kill !"));
+        }
+
         UUID winner = arena.getWinner();
         if (winner != null) {
             Player w = Bukkit.getPlayer(winner);
             broadcast(arena, "&6" + (w != null ? w.getName() : "?") + " &agagne la partie !");
+            int winReward = plugin.getConfig().getInt("economy.win-reward", 150);
+            plugin.getEconomyManager().addBalance(winner, winReward);
+            if (w != null) w.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&a+" + winReward + " pièces &7pour la victoire !"));
             arena.setState(SkywarsArena.State.FINISHED);
             Bukkit.getScheduler().runTaskLater(plugin, () -> resetArena(arena), 100L);
         }

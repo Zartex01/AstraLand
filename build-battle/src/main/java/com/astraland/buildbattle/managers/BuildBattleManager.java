@@ -115,6 +115,9 @@ public class BuildBattleManager {
             int score = game.getScores().getOrDefault(top, 0);
             broadcast(game, plugin.getConfig().getString("messages.winner", "&6%player% gagne avec &e%score%/5 !")
                 .replace("%player%", name).replace("%score%", String.valueOf(score)));
+            int winReward = plugin.getConfig().getInt("economy.win-reward", 100);
+            plugin.getEconomyManager().addBalance(top, winReward);
+            if (p != null) p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a+" + winReward + " pièces &7pour la victoire !"));
         }
         Bukkit.getScheduler().runTaskLater(plugin, () -> { game.getPlayers().clear(); game.setState(BBGame.State.WAITING); }, 100L);
     }

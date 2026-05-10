@@ -9,3 +9,10 @@ commands:
   duel:
     description: Commandes Duels
     usage: /duel <joueur|accept|deny|kit|leave|list|create|setspawn>
+  balance:
+    description: Voir son solde de pièces
+    aliases: [bal, money]
+    usage: /balance [joueur]
+  pay:
+    description: Envoyer des pièces à un joueur
+    usage: /pay <joueur> <montant>

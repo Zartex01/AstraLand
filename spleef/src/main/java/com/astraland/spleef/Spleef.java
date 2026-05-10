@@ -1,7 +1,9 @@
 package com.astraland.spleef;
 
+import com.astraland.spleef.commands.EconomyCommand;
 import com.astraland.spleef.commands.SpleefCommand;
 import com.astraland.spleef.listeners.SpleefListener;
+import com.astraland.spleef.managers.EconomyManager;
 import com.astraland.spleef.managers.SpleefManager;
 import com.astraland.spleef.scoreboard.ScoreboardTask;
 import org.bukkit.entity.Player;
@@ -11,16 +13,22 @@ public class Spleef extends JavaPlugin {
 
     private static Spleef instance;
     private SpleefManager spleefManager;
+    private EconomyManager economyManager;
     private ScoreboardTask scoreboardTask;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
-        this.spleefManager = new SpleefManager(this);
+        this.spleefManager  = new SpleefManager(this);
+        this.economyManager = new EconomyManager(this);
 
         getCommand("spleef").setExecutor(new SpleefCommand(this));
         getCommand("spleef").setTabCompleter(new SpleefCommand(this));
+
+        EconomyCommand ecoCmd = new EconomyCommand(this);
+        getCommand("balance").setExecutor(ecoCmd);
+        getCommand("pay").setExecutor(ecoCmd);
 
         getServer().getPluginManager().registerEvents(new SpleefListener(this), this);
 
@@ -37,8 +45,9 @@ public class Spleef extends JavaPlugin {
         getLogger().info("AstraLand - Spleef désactivé.");
     }
 
-    public static Spleef getInstance() { return instance; }
-    public SpleefManager getSpleefManager() { return spleefManager; }
+    public static Spleef getInstance()          { return instance; }
+    public SpleefManager getSpleefManager()     { return spleefManager; }
+    public EconomyManager getEconomyManager()   { return economyManager; }
 
     public String getPluginWorld() { return getConfig().getString("spleef.lobby-world", "world_spleef"); }
     public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }

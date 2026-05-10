@@ -17,6 +17,7 @@ public class PvpFactions extends JavaPlugin {
     private StatsManager statsManager;
     private BountyManager bountyManager;
     private KitManager kitManager;
+    private EconomyManager economyManager;
     private ScoreboardTask scoreboardTask;
 
     @Override
@@ -24,17 +25,15 @@ public class PvpFactions extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
-        // Base de données — doit être initialisée EN PREMIER
         this.databaseManager = new DatabaseManager(this);
         this.databaseManager.connect();
 
-        // Managers (chargent leurs données depuis la DB)
-        this.factionManager = new FactionManager(this);
-        this.statsManager = new StatsManager(this);
-        this.bountyManager = new BountyManager(this);
-        this.kitManager = new KitManager(this);
+        this.factionManager  = new FactionManager(this);
+        this.statsManager    = new StatsManager(this);
+        this.bountyManager   = new BountyManager(this);
+        this.kitManager      = new KitManager(this);
+        this.economyManager  = new EconomyManager(this);
 
-        // Commandes
         FactionCommand fCmd = new FactionCommand(this);
         getCommand("faction").setExecutor(fCmd);
         getCommand("faction").setTabCompleter(fCmd);
@@ -60,11 +59,13 @@ public class PvpFactions extends JavaPlugin {
         getCommand("kit").setExecutor(kitCmd);
         getCommand("kit").setTabCompleter(kitCmd);
 
-        // Listeners
+        EconomyCommand ecoCmd = new EconomyCommand(this);
+        getCommand("balance").setExecutor(ecoCmd);
+        getCommand("pay").setExecutor(ecoCmd);
+
         getServer().getPluginManager().registerEvents(new PvpListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
 
-        // Scoreboard
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();
 
@@ -78,12 +79,13 @@ public class PvpFactions extends JavaPlugin {
         getLogger().info("AstraLand - PvP/Factions désactivé.");
     }
 
-    public static PvpFactions getInstance() { return instance; }
-    public DatabaseManager getDatabaseManager() { return databaseManager; }
-    public FactionManager getFactionManager() { return factionManager; }
-    public StatsManager getStatsManager() { return statsManager; }
-    public BountyManager getBountyManager() { return bountyManager; }
-    public KitManager getKitManager() { return kitManager; }
+    public static PvpFactions getInstance()        { return instance; }
+    public DatabaseManager getDatabaseManager()    { return databaseManager; }
+    public FactionManager getFactionManager()      { return factionManager; }
+    public StatsManager getStatsManager()          { return statsManager; }
+    public BountyManager getBountyManager()        { return bountyManager; }
+    public KitManager getKitManager()              { return kitManager; }
+    public EconomyManager getEconomyManager()      { return economyManager; }
 
     public String getPluginWorld() { return getConfig().getString("world", "world_pvpfactions"); }
     public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }

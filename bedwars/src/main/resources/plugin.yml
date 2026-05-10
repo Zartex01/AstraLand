@@ -10,3 +10,10 @@ commands:
     description: Commandes Bedwars
     aliases: [bw]
     usage: /bedwars <join|leave|list|create|setbed|setspawn|start>
+  balance:
+    description: Voir son solde de pièces
+    aliases: [bal, money]
+    usage: /balance [joueur]
+  pay:
+    description: Envoyer des pièces à un joueur
+    usage: /pay <joueur> <montant>

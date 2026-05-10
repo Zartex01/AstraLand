@@ -44,6 +44,13 @@ public class BedwarsListener implements Listener {
         BedwarsTeam team = arena.getPlayerTeam(victim.getUniqueId());
         if (team == null) return;
 
+        Player killer = victim.getKiller();
+        if (killer != null && !killer.equals(victim)) {
+            int killReward = plugin.getConfig().getInt("economy.kill-reward", 30);
+            plugin.getEconomyManager().addBalance(killer.getUniqueId(), killReward);
+            killer.sendMessage(c("&a+" + killReward + " pièces &7pour le kill !"));
+        }
+
         if (!team.isBedAlive()) {
             arena.removePlayer(victim.getUniqueId());
             victim.sendMessage(c("&cTon lit est détruit ! Tu es éliminé."));

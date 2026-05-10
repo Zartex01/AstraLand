@@ -36,10 +36,16 @@ public class IslandListener implements Listener {
                 player.sendMessage(c(plugin.getConfig().getString("messages.protected", "&cCette zone est protégée !")));
             } else {
                 island.addBlocksBroken(1);
+                int reward = plugin.getConfig().getInt("economy.block-reward", 1);
+                plugin.getEconomyManager().addBalance(player.getUniqueId(), reward);
             }
         } else {
             Island island = im.getIsland(player.getUniqueId());
-            if (island != null) island.addBlocksBroken(1);
+            if (island != null) {
+                island.addBlocksBroken(1);
+                int reward = plugin.getConfig().getInt("economy.block-reward", 1);
+                plugin.getEconomyManager().addBalance(player.getUniqueId(), reward);
+            }
         }
     }
 

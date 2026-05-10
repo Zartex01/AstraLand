@@ -52,6 +52,10 @@ public class PvpListener implements Listener {
             int killerStreak = sm.getCurrentStreak(killer.getUniqueId());
             int killerKills  = sm.getKills(killer.getUniqueId());
 
+            int reward = plugin.getConfig().getInt("economy.kill-reward", 50);
+            plugin.getEconomyManager().addBalance(killer.getUniqueId(), reward);
+            killer.sendMessage(c("&a+" + reward + " pièces &7pour le kill !"));
+
             // Annonces de séries
             String streakMsg = switch (killerStreak) {
                 case 5  -> "&e" + killer.getName() + " &6est en feu ! 5 kills consécutifs !";

@@ -128,6 +128,9 @@ public class DuelManager {
                 .replace("%player%", loser.getName())));
             winner.getInventory().clear();
             winner.setHealth(winner.getMaxHealth());
+            int winReward = plugin.getConfig().getInt("economy.win-reward", 75);
+            plugin.getEconomyManager().addBalance(winnerId, winReward);
+            winner.sendMessage(color("&a+" + winReward + " pièces &7pour la victoire !"));
         }
         loser.sendMessage(color(plugin.getConfig().getString("messages.duel-lost", "&cTu as perdu le duel contre &e%player%&c.")
             .replace("%player%", winner != null ? winner.getName() : "?")));

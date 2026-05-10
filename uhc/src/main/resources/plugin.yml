@@ -9,3 +9,10 @@ commands:
   uhc:
     description: Commandes UHC
     usage: /uhc <start|stop|join|leave|list|setworld|scenario>
+  balance:
+    description: Voir son solde de pièces
+    aliases: [bal, money]
+    usage: /balance [joueur]
+  pay:
+    description: Envoyer des pièces à un joueur
+    usage: /pay <joueur> <montant>

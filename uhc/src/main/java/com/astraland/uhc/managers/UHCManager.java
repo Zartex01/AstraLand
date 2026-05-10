@@ -113,10 +113,14 @@ public class UHCManager {
         game.killPlayer(victim, killer);
         Player vp = Bukkit.getPlayer(victim);
         Player kp = killer != null ? Bukkit.getPlayer(killer) : null;
-        if (vp != null && kp != null)
+        if (vp != null && kp != null) {
             broadcastAll("&c" + vp.getName() + " &7a été tué par &e" + kp.getName() + " &7[" + game.getKills(killer) + " kills]");
-        else if (vp != null)
+            int killReward = plugin.getConfig().getInt("economy.kill-reward", 75);
+            plugin.getEconomyManager().addBalance(killer, killReward);
+            kp.sendMessage(color("&a+" + killReward + " pièces &7pour le kill !"));
+        } else if (vp != null) {
             broadcastAll("&c" + vp.getName() + " &7est mort.");
+        }
 
         checkWin();
     }
@@ -128,6 +132,9 @@ public class UHCManager {
             String name = p != null ? p.getName() : winner.toString();
             broadcastAll(plugin.getConfig().getString("messages.winner", "&6%player% gagne le UHC !").replace("%player%", name));
             game.setState(UHCGame.State.FINISHED);
+            int winReward = plugin.getConfig().getInt("economy.win-reward", 200);
+            plugin.getEconomyManager().addBalance(winner, winReward);
+            if (p != null) p.sendMessage(color("&a+" + winReward + " pièces &7pour la victoire !"));
         }
     }
 

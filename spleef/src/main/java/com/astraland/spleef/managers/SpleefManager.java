@@ -104,6 +104,10 @@ public class SpleefManager {
             game.setState(SpleefGame.State.FINISHED);
             broadcast(game, plugin.getConfig().getString("messages.winner", "&6%player% gagne !")
                 .replace("%player%", name));
+            int winReward = plugin.getConfig().getInt("economy.win-reward", 100);
+            plugin.getEconomyManager().addBalance(winner, winReward);
+            if (p != null) p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                "&a+" + winReward + " pièces &7pour la victoire !"));
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 game.getPlayers().clear();
                 game.getEliminated().clear();
