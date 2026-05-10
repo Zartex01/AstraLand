@@ -1,7 +1,10 @@
 package com.astraland.skywars.listeners;
 
 import com.astraland.skywars.Skywars;
-import com.astraland.skywars.shop.ShopGUI;
+import com.astraland.skywars.shop.ShopCategoryData;
+import com.astraland.skywars.shop.ShopCategoryGUI;
+import com.astraland.skywars.shop.ShopMenuGUI;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -12,7 +15,22 @@ public class ShopListener implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (!(event.getInventory().getHolder() instanceof ShopGUI shopGUI)) return;
-        shopGUI.handleClick(event, plugin.getEconomyManager());
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        if (event.getInventory().getHolder() instanceof ShopMenuGUI menu) {
+            event.setCancelled(true);
+            if (event.getRawSlot() >= event.getInventory().getSize()) return;
+            ShopCategoryData cat = menu.getCategoryAt(event.getRawSlot());
+            if (cat != null) {
+                Runnable back = () -> new ShopMenuGUI(player, menu.getEconomyManager()).open(player);
+                new ShopCategoryGUI(cat, 0, player, menu.getEconomyManager(), back).open(player);
+            }
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof ShopCategoryGUI catGUI) {
+            if (event.getRawSlot() >= event.getInventory().getSize()) { event.setCancelled(true); return; }
+            catGUI.handleClick(event, plugin.getEconomyManager(), player);
+        }
     }
 }
