@@ -1,0 +1,641 @@
+categories:
+
+  blocs:
+    display: "&6&l🧱 Blocs"
+    icon: BRICKS
+    description: "&7Blocs de construction et décoratifs"
+    items:
+      - name: "&fBois de Chêne &7x64"
+        material: OAK_LOG
+        amount: 64
+        buy: 20
+        sell: 8
+        lore:
+          - "&764 bûches de chêne"
+      - name: "&fBois de Bouleau &7x64"
+        material: BIRCH_LOG
+        amount: 64
+        buy: 20
+        sell: 8
+        lore:
+          - "&764 bûches de bouleau"
+      - name: "&fPlanches de Chêne &7x64"
+        material: OAK_PLANKS
+        amount: 64
+        buy: 25
+        sell: 10
+        lore:
+          - "&764 planches de chêne"
+      - name: "&7Cobblestone &7x64"
+        material: COBBLESTONE
+        amount: 64
+        buy: 10
+        sell: 3
+        lore:
+          - "&764 blocs de cobblestone"
+      - name: "&fPierre &7x64"
+        material: STONE
+        amount: 64
+        buy: 15
+        sell: 5
+        lore:
+          - "&764 blocs de pierre"
+      - name: "&eSable &7x32"
+        material: SAND
+        amount: 32
+        buy: 15
+        sell: 5
+        lore:
+          - "&732 blocs de sable"
+      - name: "&7Gravier &7x32"
+        material: GRAVEL
+        amount: 32
+        buy: 15
+        sell: 5
+        lore:
+          - "&732 blocs de gravier"
+      - name: "&6Terre &7x64"
+        material: DIRT
+        amount: 64
+        buy: 8
+        sell: 2
+        lore:
+          - "&764 blocs de terre"
+      - name: "&eGlowstone &7x16"
+        material: GLOWSTONE
+        amount: 16
+        buy: 60
+        sell: 25
+        lore:
+          - "&716 blocs de glowstone"
+      - name: "&fLaine Blanche &7x64"
+        material: WHITE_WOOL
+        amount: 64
+        buy: 40
+        sell: 15
+        lore:
+          - "&764 blocs de laine blanche"
+      - name: "&bVerre &7x32"
+        material: GLASS
+        amount: 32
+        buy: 20
+        sell: 8
+        lore:
+          - "&732 blocs de verre"
+      - name: "&8Obsidienne &7x8"
+        material: OBSIDIAN
+        amount: 8
+        buy: 50
+        sell: 30
+        lore:
+          - "&78 blocs d'obsidienne"
+      - name: "&cTNT &7x4"
+        material: TNT
+        amount: 4
+        buy: 80
+        sell: 0
+        lore:
+          - "&74 TNT"
+      - name: "&eTorche &7x64"
+        material: TORCH
+        amount: 64
+        buy: 10
+        sell: 3
+        lore:
+          - "&764 torches"
+      - name: "&6Coffre &7x8"
+        material: CHEST
+        amount: 8
+        buy: 30
+        sell: 10
+        lore:
+          - "&78 coffres"
+      - name: "&cNetherack &7x64"
+        material: NETHERRACK
+        amount: 64
+        buy: 10
+        sell: 2
+        lore:
+          - "&764 blocs de netherack"
+      - name: "&8Sable des Âmes &7x32"
+        material: SOUL_SAND
+        amount: 32
+        buy: 20
+        sell: 8
+        lore:
+          - "&732 blocs de sable des âmes"
+      - name: "&fBloc de Quartz &7x32"
+        material: QUARTZ_BLOCK
+        amount: 32
+        buy: 40
+        sell: 15
+        lore:
+          - "&732 blocs de quartz"
+
+  minerais:
+    display: "&b&l⛏ Minerais"
+    icon: DIAMOND
+    description: "&7Lingots, minerais et ressources précieuses"
+    items:
+      - name: "&8Charbon &7x64"
+        material: COAL
+        amount: 64
+        buy: 15
+        sell: 6
+        lore:
+          - "&764 charbons"
+      - name: "&fLingots de Fer &7x16"
+        material: IRON_INGOT
+        amount: 16
+        buy: 60
+        sell: 25
+        lore:
+          - "&716 lingots de fer"
+      - name: "&fLingots de Fer &7x64"
+        material: IRON_INGOT
+        amount: 64
+        buy: 220
+        sell: 90
+        lore:
+          - "&764 lingots de fer"
+      - name: "&6Lingots d'Or &7x8"
+        material: GOLD_INGOT
+        amount: 8
+        buy: 80
+        sell: 35
+        lore:
+          - "&78 lingots d'or"
+      - name: "&6Pépites d'Or &7x64"
+        material: GOLD_NUGGET
+        amount: 64
+        buy: 40
+        sell: 15
+        lore:
+          - "&764 pépites d'or"
+      - name: "&bDiamants &7x4"
+        material: DIAMOND
+        amount: 4
+        buy: 200
+        sell: 90
+        lore:
+          - "&74 diamants"
+      - name: "&bDiamants &7x16"
+        material: DIAMOND
+        amount: 16
+        buy: 750
+        sell: 340
+        lore:
+          - "&716 diamants"
+      - name: "&aLapis-Lazuli &7x32"
+        material: LAPIS_LAZULI
+        amount: 32
+        buy: 30
+        sell: 12
+        lore:
+          - "&732 lapis-lazuli"
+      - name: "&cRedstone &7x32"
+        material: REDSTONE
+        amount: 32
+        buy: 40
+        sell: 16
+        lore:
+          - "&732 redstone"
+      - name: "&aÉmeraudes &7x8"
+        material: EMERALD
+        amount: 8
+        buy: 120
+        sell: 55
+        lore:
+          - "&78 émeraudes"
+      - name: "&fQuartz du Nether &7x32"
+        material: QUARTZ
+        amount: 32
+        buy: 25
+        sell: 10
+        lore:
+          - "&732 quartz du nether"
+      - name: "&6Lingots de Cuivre &7x16"
+        material: COPPER_INGOT
+        amount: 16
+        buy: 30
+        sell: 10
+        lore:
+          - "&716 lingots de cuivre"
+      - name: "&4Ancient Debris"
+        material: ANCIENT_DEBRIS
+        amount: 1
+        buy: 400
+        sell: 200
+        lore:
+          - "&71 ancient debris"
+          - "&7Nécessaire pour le Nétherite !"
+      - name: "&5Netherite Scrap"
+        material: NETHERITE_SCRAP
+        amount: 1
+        buy: 150
+        sell: 70
+        lore:
+          - "&71 netherite scrap"
+      - name: "&5Lingot de Nétherite"
+        material: NETHERITE_INGOT
+        amount: 1
+        buy: 600
+        sell: 300
+        lore:
+          - "&71 lingot de nétherite"
+          - "&7Le matériau le plus résistant !"
+
+  nourriture:
+    display: "&e&l🍖 Nourriture"
+    icon: COOKED_BEEF
+    description: "&7Aliments et pommes dorées"
+    items:
+      - name: "&eSteak &7x16"
+        material: COOKED_BEEF
+        amount: 16
+        buy: 30
+        sell: 10
+        lore:
+          - "&716 steaks cuits"
+      - name: "&ePain &7x32"
+        material: BREAD
+        amount: 32
+        buy: 20
+        sell: 7
+        lore:
+          - "&732 pains"
+      - name: "&ePorc Cuit &7x16"
+        material: COOKED_PORKCHOP
+        amount: 16
+        buy: 25
+        sell: 9
+        lore:
+          - "&716 côtelettes cuites"
+      - name: "&ePoulet Cuit &7x16"
+        material: COOKED_CHICKEN
+        amount: 16
+        buy: 20
+        sell: 7
+        lore:
+          - "&716 poulets cuits"
+      - name: "&6Pomme Dorée"
+        material: GOLDEN_APPLE
+        amount: 1
+        buy: 150
+        sell: 60
+        lore:
+          - "&7Absorption + Régénération II"
+      - name: "&6Pommes Dorées &7x4"
+        material: GOLDEN_APPLE
+        amount: 4
+        buy: 500
+        sell: 220
+        lore:
+          - "&74 pommes dorées"
+      - name: "&dPomme Enchantée"
+        material: ENCHANTED_GOLDEN_APPLE
+        amount: 1
+        buy: 800
+        sell: 0
+        lore:
+          - "&7Régénération V + Résistance"
+      - name: "&aCarotte Dorée &7x8"
+        material: GOLDEN_CARROT
+        amount: 8
+        buy: 60
+        sell: 25
+        lore:
+          - "&78 carottes dorées"
+      - name: "&bMelon &7x32"
+        material: MELON_SLICE
+        amount: 32
+        buy: 15
+        sell: 5
+        lore:
+          - "&732 tranches de melon"
+      - name: "&5Fruit du Chorus &7x8"
+        material: CHORUS_FRUIT
+        amount: 8
+        buy: 60
+        sell: 20
+        lore:
+          - "&78 fruits du chorus"
+          - "&7Téléportation aléatoire !"
+
+  potions:
+    display: "&d&l🧪 Potions"
+    icon: SPLASH_POTION
+    description: "&7Potions de combat et de survie"
+    items:
+      - name: "&aPotion de Vitesse II"
+        type: POTION
+        splash: false
+        effect: SPEED
+        duration: 3600
+        amplifier: 1
+        buy: 60
+        sell: 0
+        lore:
+          - "&7Vitesse II - 3 minutes"
+      - name: "&cPotion de Force I"
+        type: POTION
+        splash: false
+        effect: STRENGTH
+        duration: 3600
+        amplifier: 0
+        buy: 80
+        sell: 0
+        lore:
+          - "&7Force I - 3 minutes"
+      - name: "&4Potion de Force II"
+        type: POTION
+        splash: false
+        effect: STRENGTH
+        duration: 1800
+        amplifier: 1
+        buy: 150
+        sell: 0
+        lore:
+          - "&7Force II - 1 minute 30"
+      - name: "&bPotion de Soin II"
+        type: POTION
+        splash: false
+        effect: INSTANT_HEALTH
+        duration: 1
+        amplifier: 1
+        buy: 40
+        sell: 0
+        lore:
+          - "&7Soin instantané II"
+      - name: "&5Potion de Régénération"
+        type: POTION
+        splash: false
+        effect: REGENERATION
+        duration: 900
+        amplifier: 1
+        buy: 100
+        sell: 0
+        lore:
+          - "&7Régénération II - 45 secondes"
+      - name: "&7Potion de Résistance"
+        type: POTION
+        splash: false
+        effect: RESISTANCE
+        duration: 3600
+        amplifier: 0
+        buy: 120
+        sell: 0
+        lore:
+          - "&7Résistance I - 3 minutes"
+      - name: "&fPotion d'Invisibilité"
+        type: POTION
+        splash: false
+        effect: INVISIBILITY
+        duration: 3600
+        amplifier: 0
+        buy: 80
+        sell: 0
+        lore:
+          - "&7Invisibilité - 3 minutes"
+      - name: "&ePotion de Sauts II"
+        type: POTION
+        splash: false
+        effect: JUMP_BOOST
+        duration: 3600
+        amplifier: 1
+        buy: 60
+        sell: 0
+        lore:
+          - "&7Sauts II - 3 minutes"
+      - name: "&2Splash Poison"
+        type: POTION
+        splash: true
+        effect: POISON
+        duration: 900
+        amplifier: 1
+        buy: 50
+        sell: 0
+        lore:
+          - "&7Poison II - 45 secondes"
+          - "&7À lancer sur l'ennemi !"
+      - name: "&8Splash Lenteur"
+        type: POTION
+        splash: true
+        effect: SLOWNESS
+        duration: 300
+        amplifier: 3
+        buy: 50
+        sell: 0
+        lore:
+          - "&7Lenteur IV - 15 secondes"
+          - "&7À lancer sur l'ennemi !"
+      - name: "&6Splash Faiblesse"
+        type: POTION
+        splash: true
+        effect: WEAKNESS
+        duration: 1800
+        amplifier: 0
+        buy: 70
+        sell: 0
+        lore:
+          - "&7Faiblesse I - 1 minute 30"
+          - "&7Réduit les dégâts ennemis !"
+      - name: "&dTotem de Résurrection"
+        material: TOTEM_OF_UNDYING
+        amount: 1
+        buy: 500
+        sell: 0
+        lore:
+          - "&7Te protège de la mort une fois !"
+
+  utilitaires:
+    display: "&a&l🔧 Utilitaires"
+    icon: CHEST
+    description: "&7Perles, outils et divers"
+    items:
+      - name: "&bEnder Pearl &7x4"
+        material: ENDER_PEARL
+        amount: 4
+        buy: 100
+        sell: 30
+        lore:
+          - "&74 perles d'ender"
+      - name: "&bEnder Pearl &7x16"
+        material: ENDER_PEARL
+        amount: 16
+        buy: 350
+        sell: 110
+        lore:
+          - "&716 perles d'ender"
+      - name: "&aCorde &7x16"
+        material: STRING
+        amount: 16
+        buy: 30
+        sell: 10
+        lore:
+          - "&716 fils de corde"
+      - name: "&bPioche Diamant &7[Eff III]"
+        material: DIAMOND_PICKAXE
+        amount: 1
+        buy: 200
+        sell: 0
+        enchants:
+          EFFICIENCY: 3
+          UNBREAKING: 2
+        lore:
+          - "&7Efficacité III + Solidité II"
+      - name: "&bPelle Diamant &7[Eff III]"
+        material: DIAMOND_SHOVEL
+        amount: 1
+        buy: 150
+        sell: 0
+        enchants:
+          EFFICIENCY: 3
+        lore:
+          - "&7Efficacité III"
+      - name: "&6Hache Dorée &7[Eff V]"
+        material: GOLDEN_AXE
+        amount: 1
+        buy: 100
+        sell: 0
+        enchants:
+          EFFICIENCY: 5
+        lore:
+          - "&7Efficacité V (couper vite)"
+      - name: "&ePierre à Aiguiser"
+        material: GRINDSTONE
+        amount: 1
+        buy: 30
+        sell: 10
+        lore:
+          - "&7Retire les enchantements"
+      - name: "&7Boussole"
+        material: COMPASS
+        amount: 1
+        buy: 20
+        sell: 8
+        lore:
+          - "&7Indique la direction du spawn"
+      - name: "&6Seau d'Eau"
+        material: WATER_BUCKET
+        amount: 1
+        buy: 30
+        sell: 10
+        lore:
+          - "&7Un seau rempli d'eau"
+      - name: "&cSeau de Lave"
+        material: LAVA_BUCKET
+        amount: 1
+        buy: 50
+        sell: 20
+        lore:
+          - "&7Un seau rempli de lave"
+      - name: "&fPapier &7x16"
+        material: PAPER
+        amount: 16
+        buy: 10
+        sell: 3
+        lore:
+          - "&716 feuilles de papier"
+
+  enchantements:
+    display: "&3&l✨ Enchantements"
+    icon: ENCHANTED_BOOK
+    description: "&7Livres enchantés pour ton équipement"
+    items:
+      - name: "&cTranchant III"
+        type: BOOK
+        enchantment: SHARPNESS
+        level: 3
+        buy: 200
+        sell: 80
+        lore:
+          - "&7Tranchant III"
+      - name: "&7Protection III"
+        type: BOOK
+        enchantment: PROTECTION
+        level: 3
+        buy: 200
+        sell: 80
+        lore:
+          - "&7Protection III"
+      - name: "&bProtection Proj. III"
+        type: BOOK
+        enchantment: PROJECTILE_PROTECTION
+        level: 3
+        buy: 180
+        sell: 70
+        lore:
+          - "&7Protection Projectiles III"
+      - name: "&5Solidité III"
+        type: BOOK
+        enchantment: UNBREAKING
+        level: 3
+        buy: 180
+        sell: 70
+        lore:
+          - "&7Solidité III"
+      - name: "&aInfini"
+        type: BOOK
+        enchantment: INFINITY
+        level: 1
+        buy: 150
+        sell: 60
+        lore:
+          - "&7Infini I"
+      - name: "&eChute de Plumes IV"
+        type: BOOK
+        enchantment: FEATHER_FALLING
+        level: 4
+        buy: 120
+        sell: 50
+        lore:
+          - "&7Chute de Plumes IV"
+      - name: "&6Efficacité IV"
+        type: BOOK
+        enchantment: EFFICIENCY
+        level: 4
+        buy: 160
+        sell: 65
+        lore:
+          - "&7Efficacité IV"
+      - name: "&dFortune III"
+        type: BOOK
+        enchantment: FORTUNE
+        level: 3
+        buy: 250
+        sell: 100
+        lore:
+          - "&7Fortune III"
+      - name: "&bSoie Touchante"
+        type: BOOK
+        enchantment: SILK_TOUCH
+        level: 1
+        buy: 200
+        sell: 80
+        lore:
+          - "&7Soie Touchante I"
+      - name: "&aRéparation"
+        type: BOOK
+        enchantment: MENDING
+        level: 1
+        buy: 300
+        sell: 130
+        lore:
+          - "&7Réparation I"
+      - name: "&cAspect de Feu II"
+        type: BOOK
+        enchantment: FIRE_ASPECT
+        level: 2
+        buy: 150
+        sell: 60
+        lore:
+          - "&7Aspect de Feu II"
+      - name: "&ePillage III"
+        type: BOOK
+        enchantment: LOOTING
+        level: 3
+        buy: 180
+        sell: 70
+        lore:
+          - "&7Pillage III"

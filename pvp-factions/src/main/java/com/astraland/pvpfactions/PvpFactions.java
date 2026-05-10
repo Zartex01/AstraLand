@@ -5,10 +5,10 @@ import com.astraland.pvpfactions.database.DatabaseManager;
 import com.astraland.pvpfactions.listeners.AHListener;
 import com.astraland.pvpfactions.listeners.ChatListener;
 import com.astraland.pvpfactions.listeners.PvpListener;
-import com.astraland.pvpfactions.listeners.SellListener;
 import com.astraland.pvpfactions.listeners.ShopListener;
 import com.astraland.pvpfactions.managers.*;
 import com.astraland.pvpfactions.scoreboard.ScoreboardTask;
+import com.astraland.pvpfactions.shop.ShopConfigManager;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,7 +22,7 @@ public class PvpFactions extends JavaPlugin {
     private KitManager kitManager;
     private EconomyManager economyManager;
     private AuctionManager auctionManager;
-    private SellManager sellManager;
+    private ShopConfigManager shopConfigManager;
     private ScoreboardTask scoreboardTask;
 
     @Override
@@ -30,16 +30,16 @@ public class PvpFactions extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
-        this.databaseManager = new DatabaseManager(this);
+        this.databaseManager    = new DatabaseManager(this);
         this.databaseManager.connect();
 
-        this.factionManager  = new FactionManager(this);
-        this.statsManager    = new StatsManager(this);
-        this.bountyManager   = new BountyManager(this);
-        this.kitManager      = new KitManager(this);
-        this.economyManager  = new EconomyManager(this);
-        this.auctionManager  = new AuctionManager(this);
-        this.sellManager     = new SellManager();
+        this.factionManager     = new FactionManager(this);
+        this.statsManager       = new StatsManager(this);
+        this.bountyManager      = new BountyManager(this);
+        this.kitManager         = new KitManager(this);
+        this.economyManager     = new EconomyManager(this);
+        this.auctionManager     = new AuctionManager(this);
+        this.shopConfigManager  = new ShopConfigManager(this);
 
         FactionCommand fCmd = new FactionCommand(this);
         getCommand("faction").setExecutor(fCmd);
@@ -77,12 +77,11 @@ public class PvpFactions extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
         getServer().getPluginManager().registerEvents(new AHListener(), this);
-        getServer().getPluginManager().registerEvents(new SellListener(this), this);
 
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();
 
-        getLogger().info("AstraLand - PvP/Factions chargé avec SQLite !");
+        getLogger().info("AstraLand - PvP/Factions chargé !");
     }
 
     @Override
@@ -92,17 +91,17 @@ public class PvpFactions extends JavaPlugin {
         getLogger().info("AstraLand - PvP/Factions désactivé.");
     }
 
-    public static PvpFactions getInstance()        { return instance; }
-    public DatabaseManager getDatabaseManager()    { return databaseManager; }
-    public FactionManager getFactionManager()      { return factionManager; }
-    public StatsManager getStatsManager()          { return statsManager; }
-    public BountyManager getBountyManager()        { return bountyManager; }
-    public KitManager getKitManager()              { return kitManager; }
-    public EconomyManager getEconomyManager()      { return economyManager; }
-    public AuctionManager getAuctionManager()      { return auctionManager; }
-    public SellManager getSellManager()            { return sellManager; }
+    public static PvpFactions getInstance()           { return instance; }
+    public DatabaseManager getDatabaseManager()       { return databaseManager; }
+    public FactionManager getFactionManager()         { return factionManager; }
+    public StatsManager getStatsManager()             { return statsManager; }
+    public BountyManager getBountyManager()           { return bountyManager; }
+    public KitManager getKitManager()                 { return kitManager; }
+    public EconomyManager getEconomyManager()         { return economyManager; }
+    public AuctionManager getAuctionManager()         { return auctionManager; }
+    public ShopConfigManager getShopConfigManager()   { return shopConfigManager; }
 
-    public String getPluginWorld() { return getConfig().getString("world", "world_pvpfactions"); }
-    public boolean isInPluginWorld(Player player)  { return player.getWorld().getName().equals(getPluginWorld()); }
-    public String wrongWorldMsg()  { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
+    public String getPluginWorld()                    { return getConfig().getString("world", "world_pvpfactions"); }
+    public boolean isInPluginWorld(Player player)     { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg()                     { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

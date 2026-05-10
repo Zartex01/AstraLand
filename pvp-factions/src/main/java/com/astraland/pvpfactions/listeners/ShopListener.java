@@ -2,8 +2,8 @@ package com.astraland.pvpfactions.listeners;
 
 import com.astraland.pvpfactions.PvpFactions;
 import com.astraland.pvpfactions.shop.KitGUI;
+import com.astraland.pvpfactions.shop.ShopCategoryData;
 import com.astraland.pvpfactions.shop.ShopCategoryGUI;
-import com.astraland.pvpfactions.shop.ShopCategory;
 import com.astraland.pvpfactions.shop.ShopMenuGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,7 +25,7 @@ public class ShopListener implements Listener {
         if (event.getInventory().getHolder() instanceof ShopMenuGUI menu) {
             event.setCancelled(true);
             if (event.getRawSlot() >= event.getInventory().getSize()) return;
-            ShopCategory cat = menu.getCategoryAt(event.getRawSlot());
+            ShopCategoryData cat = menu.getCategoryAt(event.getRawSlot());
             if (cat != null) {
                 new ShopCategoryGUI(cat, 0, player, plugin.getEconomyManager()).open(player);
             }

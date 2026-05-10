@@ -25,7 +25,7 @@ public class ShopCommand implements CommandExecutor {
             player.sendMessage(plugin.wrongWorldMsg());
             return true;
         }
-        new ShopMenuGUI(player, plugin.getEconomyManager()).open(player);
+        new ShopMenuGUI(player, plugin.getEconomyManager(), plugin.getShopConfigManager()).open(player);
         return true;
     }
 }
