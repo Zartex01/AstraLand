@@ -37,9 +37,11 @@ public class ShopCategoryGUI implements InventoryHolder {
     private final Map<Integer, ShopItemData> itemSlots = new HashMap<>();
     private final int page;
     private final int totalPages;
+    private final Runnable backAction;
 
-    public ShopCategoryGUI(ShopCategoryData category, int page, Player player, EconomyManager eco) {
+    public ShopCategoryGUI(ShopCategoryData category, int page, Player player, EconomyManager eco, Runnable backAction) {
         this.category = category;
+        this.backAction = backAction;
         List<ShopItemData> items = category.items();
         int perPage = ITEM_SLOTS.length;
         this.totalPages = Math.max(1, (int) Math.ceil((double) items.size() / perPage));
@@ -82,15 +84,15 @@ public class ShopCategoryGUI implements InventoryHolder {
         int slot = e.getRawSlot();
 
         if (slot == BACK_SLOT) {
-            player.closeInventory();
+            backAction.run();
             return;
         }
         if (slot == PREV_SLOT && page > 0) {
-            new ShopCategoryGUI(category, page - 1, player, eco).open(player);
+            new ShopCategoryGUI(category, page - 1, player, eco, backAction).open(player);
             return;
         }
         if (slot == NEXT_SLOT && page < totalPages - 1) {
-            new ShopCategoryGUI(category, page + 1, player, eco).open(player);
+            new ShopCategoryGUI(category, page + 1, player, eco, backAction).open(player);
             return;
         }
 

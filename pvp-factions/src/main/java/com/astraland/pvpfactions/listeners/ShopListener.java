@@ -27,7 +27,8 @@ public class ShopListener implements Listener {
             if (event.getRawSlot() >= event.getInventory().getSize()) return;
             ShopCategoryData cat = menu.getCategoryAt(event.getRawSlot());
             if (cat != null) {
-                new ShopCategoryGUI(cat, 0, player, plugin.getEconomyManager()).open(player);
+                Runnable back = () -> new ShopMenuGUI(player, plugin.getEconomyManager(), plugin.getShopConfigManager()).open(player);
+                new ShopCategoryGUI(cat, 0, player, plugin.getEconomyManager(), back).open(player);
             }
             return;
         }
