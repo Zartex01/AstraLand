@@ -24,6 +24,7 @@
         <module>build-battle</module>
         <module>duels</module>
         <module>admin-tools</module>
+        <module>cosmetics</module>
     </modules>
 
     <properties>

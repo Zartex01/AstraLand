@@ -1,0 +1,89 @@
+# ============================================================
+#   AstraLand - Cosmétiques
+# ============================================================
+# Ajoute tes cosmétiques ici. Chaque clé est un identifiant unique.
+#
+# Champs disponibles :
+#   nom         : Nom affiché dans le GUI (codes couleur avec &)
+#   description : Liste de lignes de lore (codes couleur avec &)
+#   item        : Matériau Minecraft (ex: FEATHER, RED_WOOL, DIAMOND...)
+#   enchante    : true pour ajouter l'effet enchanté sur l'item (optionnel)
+#   slot        : Slot dans le GUI (0-53). Laisser vide = placement automatique
+#   permission  : Permission requise pour voir/utiliser ce cosmétique (vide = tout le monde)
+#   commande-joueur  : Commande exécutée par le joueur au clic (sans /)
+#   commande-console : Commande exécutée par la console ({joueur} = pseudo du joueur)
+# ============================================================
+
+cosmetiques:
+
+  exemple-particules:
+    nom: "&d&l✦ Particules Magiques"
+    description:
+      - "&7Des particules magiques apparaissent"
+      - "&7autour de toi en permanence."
+      - ""
+      - "&ePermission : &fastraland.cosmetique.particules"
+      - ""
+      - "&aCliquez pour équiper"
+    item: BLAZE_POWDER
+    enchante: false
+    slot: 10
+    permission: ""
+    commande-joueur: ""
+    commande-console: ""
+
+  exemple-chapeau:
+    nom: "&c&l❤ Chapeau de Cœur"
+    description:
+      - "&7Un magnifique chapeau en forme de cœur"
+      - "&7qui attire tous les regards."
+      - ""
+      - "&aCliquez pour équiper"
+    item: RED_WOOL
+    enchante: false
+    slot: 11
+    permission: ""
+    commande-joueur: ""
+    commande-console: ""
+
+  exemple-ailes:
+    nom: "&f&l☁ Ailes d'Ange"
+    description:
+      - "&7De majestueuses ailes blanches."
+      - ""
+      - "&aCliquez pour équiper"
+    item: FEATHER
+    enchante: true
+    slot: 12
+    permission: ""
+    commande-joueur: ""
+    commande-console: ""
+
+  exemple-trail:
+    nom: "&b&l~ Traînée Aquatique"
+    description:
+      - "&7Laisse une traînée d'eau derrière toi."
+      - ""
+      - "&aCliquez pour équiper"
+    item: WATER_BUCKET
+    enchante: false
+    slot: 13
+    permission: ""
+    commande-joueur: ""
+    commande-console: ""
+
+  exemple-premium:
+    nom: "&6&l★ Pack Premium"
+    description:
+      - "&7Accès à tous les cosmétiques"
+      - "&7exclusifs du rang Premium."
+      - ""
+      - "&eRequiert : &6Rang Premium"
+      - ""
+      - "&aCliquez pour équiper"
+    item: NETHER_STAR
+    enchante: true
+    slot: 14
+    permission: "astraland.rang.premium"
+    commande-joueur: ""
+    commande-console: ""

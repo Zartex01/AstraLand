@@ -18,6 +18,7 @@ Chaque module produit un `.jar` indépendant à déployer sur le serveur.
 | `build-battle/` | AstraLand-BuildBattle.jar | Mode Build Battle |
 | `duels/` | AstraLand-Duels.jar | Mode Duels |
 | `admin-tools/` | AstraLand-AdminTools.jar | Outils d'administration (gestion joueurs) |
+| `cosmetics/` | AstraLand-Cosmetics.jar | Skins et Cosmétiques |
 
 ## Commandes
 

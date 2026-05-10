@@ -1,0 +1,27 @@
+name: AstraLand-Cosmetics
+version: 1.0.0-SNAPSHOT
+main: com.astraland.cosmetics.Cosmetics
+api-version: "1.21"
+description: AstraLand - Skins et Cosmétiques
+authors: [AstraLand]
+
+commands:
+  skin:
+    description: Changer son skin Minecraft
+    usage: /skin <pseudo>
+    permission: astraland.skin
+    permission-message: "&cTu n'as pas la permission d'utiliser cette commande."
+  cosmetique:
+    description: Ouvre le menu des cosmétiques
+    aliases: [cosmetiques, cosmetic, shop-cosmetique]
+    usage: /cosmetique
+    permission: astraland.cosmetique
+    permission-message: "&cTu n'as pas la permission d'utiliser cette commande."
+
+permissions:
+  astraland.skin:
+    description: Permet de changer son skin avec /skin
+    default: true
+  astraland.cosmetique:
+    description: Accès au menu des cosmétiques
+    default: true
