@@ -20,7 +20,6 @@ public class Cosmetics extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        saveDefaultConfig();
 
         this.skinManager         = new SkinManager(this);
         this.cosmetiquesManager  = new CosmetiquesManager(this);

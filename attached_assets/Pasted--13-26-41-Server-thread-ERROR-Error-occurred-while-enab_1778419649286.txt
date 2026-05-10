@@ -1,0 +1,16 @@
+[13:26:41] [Server thread/ERROR]: Error occurred while enabling AstraLand-Cosmetics v1.0.0-SNAPSHOT (Is it up to date?)
+java.lang.IllegalArgumentException: The embedded resource 'config.yml' cannot be found in plugins/AstraLand-Cosmetics1.jar
+        at org.bukkit.plugin.java.JavaPlugin.saveResource(JavaPlugin.java:196) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.plugin.java.JavaPlugin.saveDefaultConfig(JavaPlugin.java:183) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at com.astraland.cosmetics.Cosmetics.onEnable(Cosmetics.java:23) ~[?:?]
+        at org.bukkit.plugin.java.JavaPlugin.setEnabled(JavaPlugin.java:267) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.plugin.java.JavaPluginLoader.enablePlugin(JavaPluginLoader.java:342) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.plugin.SimplePluginManager.enablePlugin(SimplePluginManager.java:492) ~[spigot-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+        at org.bukkit.craftbukkit.v1_21_R3.CraftServer.enablePlugin(CraftServer.java:578) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at org.bukkit.craftbukkit.v1_21_R3.CraftServer.enablePlugins(CraftServer.java:492) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.MinecraftServer.loadWorld0(MinecraftServer.java:656) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.MinecraftServer.loadLevel(MinecraftServer.java:441) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.dedicated.DedicatedServer.e(DedicatedServer.java:268) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.MinecraftServer.y(MinecraftServer.java:1032) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:329) ~[spigot-1.21.4-R0.1-SNAPSHOT.jar:4458-Spigot-73860e0-fb3f2b6]
+        at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
