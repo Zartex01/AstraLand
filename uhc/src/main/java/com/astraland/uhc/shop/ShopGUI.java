@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -25,7 +26,7 @@ public class ShopGUI implements InventoryHolder {
 
     private final Inventory inv;
     private final Map<Integer, ShopEntry> entries = new HashMap<>();
-    private record ShopEntry(int price, ItemStack[] reward) {}
+    private record ShopEntry(int price, int sellPrice, ItemStack[] reward) {}
 
     public ShopGUI() {
         inv = Bukkit.createInventory(this, 54,
@@ -38,24 +39,24 @@ public class ShopGUI implements InventoryHolder {
         for (int i = 0; i < 9; i++) inv.setItem(i, border);
         for (int i = 45; i < 54; i++) inv.setItem(i, border);
         for (int r = 1; r <= 4; r++) { inv.setItem(r * 9, border); inv.setItem(r * 9 + 8, border); }
-        inv.setItem(4, header(Material.GOLDEN_APPLE, "&e&lUHC Shop", "&7Survie hardcore — aucune regen naturelle"));
+        inv.setItem(4, header(Material.GOLDEN_APPLE, "&e&lUHC Shop", "&7Survie hardcore — aucune regen naturelle | &aClic gauche &7: Acheter | &6Clic droit &7: Vendre"));
 
         /* ── Soins ── */
         inv.setItem(10, section("&6&lSOINS"));
-        set(11, d(Material.GOLDEN_APPLE, "&6Pomme Dorée", 200, "&7Régénération II 5s + Absorption"), 200, new ItemStack(Material.GOLDEN_APPLE));
-        set(12, d(Material.ENCHANTED_GOLDEN_APPLE, "&dPomme Enchantée (Notch)", 800, "&7Régén IV + Absorption IV + Résistance I"), 800, new ItemStack(Material.ENCHANTED_GOLDEN_APPLE));
-        set(13, regenDisplay(150), 150, regenPot());
-        set(14, healDisplay(120), 120, healPot());
-        set(15, d(Material.POTION, "&bPotion de Soin II", 100, "&7Soin instantané II"), 100, healPot2());
+        set(11, d(Material.GOLDEN_APPLE, "&6Pomme Dorée", 200, 0, "&7Régénération II 5s + Absorption"), 200, 0, new ItemStack(Material.GOLDEN_APPLE));
+        set(12, d(Material.ENCHANTED_GOLDEN_APPLE, "&dPomme Enchantée (Notch)", 800, 0, "&7Régén IV + Absorption IV + Résistance I"), 800, 0, new ItemStack(Material.ENCHANTED_GOLDEN_APPLE));
+        set(13, regenDisplay(150), 150, 0, regenPot());
+        set(14, healDisplay(120), 120, 0, healPot());
+        set(15, d(Material.POTION, "&bPotion de Soin II", 100, 0, "&7Soin instantané II"), 100, 0, healPot2());
 
         /* ── Armures ── */
         inv.setItem(19, section("&6&lARMURES"));
-        set(20, d(Material.IRON_CHESTPLATE, "&fKit Fer Prot.II", 200, "&7Protection II"), 200,
+        set(20, d(Material.IRON_CHESTPLATE, "&fKit Fer Prot.II", 200, 0, "&7Protection II"), 200, 0,
             ench(new ItemStack(Material.IRON_HELMET), Enchantment.PROTECTION, 2),
             ench(new ItemStack(Material.IRON_CHESTPLATE), Enchantment.PROTECTION, 2),
             ench(new ItemStack(Material.IRON_LEGGINGS), Enchantment.PROTECTION, 2),
             ench(new ItemStack(Material.IRON_BOOTS), Enchantment.PROTECTION, 2));
-        set(21, d(Material.DIAMOND_CHESTPLATE, "&bKit Diamant Prot.III", 500, "&7Protection III"), 500,
+        set(21, d(Material.DIAMOND_CHESTPLATE, "&bKit Diamant Prot.III", 500, 0, "&7Protection III"), 500, 0,
             ench(new ItemStack(Material.DIAMOND_HELMET), Enchantment.PROTECTION, 3),
             ench(new ItemStack(Material.DIAMOND_CHESTPLATE), Enchantment.PROTECTION, 3),
             ench(new ItemStack(Material.DIAMOND_LEGGINGS), Enchantment.PROTECTION, 3),
@@ -63,18 +64,18 @@ public class ShopGUI implements InventoryHolder {
 
         /* ── Armes ── */
         inv.setItem(28, section("&6&lARMES"));
-        set(29, d(Material.DIAMOND_SWORD, "&bÉpée Diamant Sharp.III", 300, "&7Tranchant III"), 300,
+        set(29, d(Material.DIAMOND_SWORD, "&bÉpée Diamant Sharp.III", 300, 0, "&7Tranchant III"), 300, 0,
             ench(new ItemStack(Material.DIAMOND_SWORD), Enchantment.SHARPNESS, 3));
-        set(30, d(Material.BOW, "&aArc Puissance III", 200, "&7Puissance III + Infini"), 200,
+        set(30, d(Material.BOW, "&aArc Puissance III", 200, 0, "&7Puissance III + Infini"), 200, 0,
             ench(ench(new ItemStack(Material.BOW), Enchantment.POWER, 3), Enchantment.INFINITY, 1));
-        set(31, d(Material.ARROW, "&eFlèche", 20), 20, new ItemStack(Material.ARROW, 1));
+        set(31, d(Material.ARROW, "&eFlèche", 20, 10), 20, 10, new ItemStack(Material.ARROW, 1));
 
         /* ── Utilitaires ── */
         inv.setItem(37, section("&6&lUTILITAIRES"));
-        set(38, d(Material.ENDER_PEARL, "&5Perle d'Ender ×4", 100), 100, new ItemStack(Material.ENDER_PEARL, 4));
-        set(39, d(Material.COOKED_BEEF, "&eSteak ×16", 50), 50, new ItemStack(Material.COOKED_BEEF, 16));
-        set(40, d(Material.EXPERIENCE_BOTTLE, "&aFlacon d'XP ×8", 80, "&7Répare l'équipement"), 80, new ItemStack(Material.EXPERIENCE_BOTTLE, 8));
-        set(41, d(Material.TOTEM_OF_UNDYING, "&dTotem de Résurrection", 1000, "&7UHC — précieux !"), 1000, new ItemStack(Material.TOTEM_OF_UNDYING));
+        set(38, d(Material.ENDER_PEARL, "&5Perle d'Ender ×4", 100, 50), 100, 50, new ItemStack(Material.ENDER_PEARL, 4));
+        set(39, d(Material.COOKED_BEEF, "&eSteak ×16", 50, 25), 50, 25, new ItemStack(Material.COOKED_BEEF, 16));
+        set(40, d(Material.EXPERIENCE_BOTTLE, "&aFlacon d'XP ×8", 80, 40, "&7Répare l'équipement"), 80, 40, new ItemStack(Material.EXPERIENCE_BOTTLE, 8));
+        set(41, d(Material.TOTEM_OF_UNDYING, "&dTotem de Résurrection", 1000, 0, "&7UHC — précieux !"), 1000, 0, new ItemStack(Material.TOTEM_OF_UNDYING));
     }
 
     private ItemStack regenPot() {
@@ -82,40 +83,95 @@ public class ShopGUI implements InventoryHolder {
         org.bukkit.inventory.meta.PotionMeta m = (org.bukkit.inventory.meta.PotionMeta) pot.getItemMeta();
         m.addCustomEffect(new PotionEffect(PotionEffectType.REGENERATION, 1200, 1), true); pot.setItemMeta(m); return pot;
     }
-    private ItemStack regenDisplay(int price) { return d(Material.POTION, "&dPotion de Régén II", price, "&7Régén II 1min"); }
+    private ItemStack regenDisplay(int price) { return d(Material.POTION, "&dPotion de Régén II", price, 0, "&7Régén II 1min"); }
     private ItemStack healPot() {
         ItemStack pot = new ItemStack(Material.POTION);
         org.bukkit.inventory.meta.PotionMeta m = (org.bukkit.inventory.meta.PotionMeta) pot.getItemMeta();
         m.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 0), true); pot.setItemMeta(m); return pot;
     }
-    private ItemStack healDisplay(int price) { return d(Material.POTION, "&bPotion de Soin I", price, "&7Soin instantané I"); }
+    private ItemStack healDisplay(int price) { return d(Material.POTION, "&bPotion de Soin I", price, 0, "&7Soin instantané I"); }
     private ItemStack healPot2() {
         ItemStack pot = new ItemStack(Material.POTION);
         org.bukkit.inventory.meta.PotionMeta m = (org.bukkit.inventory.meta.PotionMeta) pot.getItemMeta();
         m.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 1), true); pot.setItemMeta(m); return pot;
     }
 
-    private void set(int slot, ItemStack display, int price, ItemStack... reward) {
-        inv.setItem(slot, display); entries.put(slot, new ShopEntry(price, reward));
+    private void set(int slot, ItemStack display, int price, int sellPrice, ItemStack... reward) {
+        inv.setItem(slot, display); entries.put(slot, new ShopEntry(price, sellPrice, reward));
     }
+
     public void handleClick(InventoryClickEvent e, EconomyManager eco) {
         e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player player)) return;
         ShopEntry entry = entries.get(e.getSlot());
         if (entry == null) return;
+
+        if (e.getClick() == ClickType.RIGHT || e.getClick() == ClickType.SHIFT_RIGHT) {
+            handleSell(player, eco, entry);
+        } else {
+            handleBuy(player, eco, entry);
+        }
+    }
+
+    private void handleBuy(Player player, EconomyManager eco, ShopEntry entry) {
         if (!eco.removeBalance(player.getUniqueId(), entry.price())) {
             player.sendMessage(c("&c✗ Fonds insuffisants ! Il te faut &e" + entry.price() + " $&c.")); return;
         }
         for (ItemStack item : entry.reward()) if (item != null) player.getInventory().addItem(item.clone());
-        player.sendMessage(c("&a✔ Achat pour &6" + entry.price() + " $&a."));
+        player.sendMessage(c("&a✔ Achat pour &6" + entry.price() + " $&a. &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
     }
+
+    private void handleSell(Player player, EconomyManager eco, ShopEntry entry) {
+        if (entry.sellPrice() <= 0 || entry.reward().length != 1) {
+            player.sendMessage(c("&c✗ Cet item n'est pas vendable.")); return;
+        }
+        ItemStack ref = entry.reward()[0];
+        Material mat = ref.getType();
+        int needed = ref.getAmount();
+        int inInv = countInInventory(player, mat);
+        if (inInv == 0) {
+            player.sendMessage(c("&c✗ Tu n'as pas de &f" + mat.name().toLowerCase().replace('_', ' ') + " &cà vendre.")); return;
+        }
+        int toSell = Math.min(inInv, needed);
+        int gained = (int) Math.floor((double) entry.sellPrice() / needed * toSell);
+        removeFromInventory(player, mat, toSell);
+        eco.addBalance(player.getUniqueId(), gained);
+        player.sendMessage(c("&e💰 Vendu : &f" + toSell + "x &7pour &6" + gained + " $ &8| &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
+    }
+
+    private int countInInventory(Player player, Material mat) {
+        int count = 0;
+        for (ItemStack item : player.getInventory().getContents())
+            if (item != null && item.getType() == mat) count += item.getAmount();
+        return count;
+    }
+
+    private void removeFromInventory(Player player, Material mat, int amount) {
+        int remaining = amount;
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length && remaining > 0; i++) {
+            ItemStack item = contents[i];
+            if (item == null || item.getType() != mat) continue;
+            if (item.getAmount() <= remaining) { remaining -= item.getAmount(); player.getInventory().setItem(i, null); }
+            else { item.setAmount(item.getAmount() - remaining); remaining = 0; }
+        }
+    }
+
     @Override public Inventory getInventory() { return inv; }
     public void open(Player p) { p.openInventory(inv); }
-    private ItemStack d(Material mat, String name, int price, String... desc) {
-        ItemStack item = new ItemStack(mat); ItemMeta meta = item.getItemMeta(); meta.setDisplayName(c(name));
+
+    private ItemStack d(Material mat, String name, int price, int sellPrice, String... desc) {
+        ItemStack item = new ItemStack(mat); ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(c(name));
         List<String> lore = new ArrayList<>(Arrays.stream(desc).map(this::c).toList());
-        lore.add(""); lore.add(c("&6Prix : &e" + price + " $")); lore.add(c("&7▶ &fClic pour acheter"));
-        meta.setLore(lore); meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES); item.setItemMeta(meta); return item;
+        lore.add("");
+        lore.add(c("&a🛒 Achat : &e" + price + " $"));
+        if (sellPrice > 0) lore.add(c("&6💰 Vente : &e" + sellPrice + " $"));
+        lore.add("");
+        lore.add(c("&a▶ Clic gauche &fpour acheter"));
+        if (sellPrice > 0) lore.add(c("&6▶ Clic droit &fpour vendre"));
+        meta.setLore(lore); meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+        item.setItemMeta(meta); return item;
     }
     private ItemStack section(String name) { ItemStack i = new ItemStack(Material.GRAY_STAINED_GLASS_PANE); ItemMeta m = i.getItemMeta(); m.setDisplayName(c(name)); i.setItemMeta(m); return i; }
     private ItemStack header(Material mat, String name, String desc) { ItemStack i = new ItemStack(mat); ItemMeta m = i.getItemMeta(); m.setDisplayName(c(name)); m.setLore(List.of(c(desc))); m.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES); i.setItemMeta(m); return i; }
