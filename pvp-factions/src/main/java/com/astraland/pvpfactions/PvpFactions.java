@@ -5,6 +5,7 @@ import com.astraland.pvpfactions.database.DatabaseManager;
 import com.astraland.pvpfactions.listeners.AHListener;
 import com.astraland.pvpfactions.listeners.ChatListener;
 import com.astraland.pvpfactions.listeners.PvpListener;
+import com.astraland.pvpfactions.listeners.SellListener;
 import com.astraland.pvpfactions.listeners.ShopListener;
 import com.astraland.pvpfactions.managers.*;
 import com.astraland.pvpfactions.scoreboard.ScoreboardTask;
@@ -21,6 +22,7 @@ public class PvpFactions extends JavaPlugin {
     private KitManager kitManager;
     private EconomyManager economyManager;
     private AuctionManager auctionManager;
+    private SellManager sellManager;
     private ScoreboardTask scoreboardTask;
 
     @Override
@@ -37,6 +39,7 @@ public class PvpFactions extends JavaPlugin {
         this.kitManager      = new KitManager(this);
         this.economyManager  = new EconomyManager(this);
         this.auctionManager  = new AuctionManager(this);
+        this.sellManager     = new SellManager();
 
         FactionCommand fCmd = new FactionCommand(this);
         getCommand("faction").setExecutor(fCmd);
@@ -74,6 +77,7 @@ public class PvpFactions extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
         getServer().getPluginManager().registerEvents(new AHListener(), this);
+        getServer().getPluginManager().registerEvents(new SellListener(this), this);
 
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();
@@ -96,8 +100,9 @@ public class PvpFactions extends JavaPlugin {
     public KitManager getKitManager()              { return kitManager; }
     public EconomyManager getEconomyManager()      { return economyManager; }
     public AuctionManager getAuctionManager()      { return auctionManager; }
+    public SellManager getSellManager()            { return sellManager; }
 
     public String getPluginWorld() { return getConfig().getString("world", "world_pvpfactions"); }
-    public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }
-    public String wrongWorldMsg() { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
+    public boolean isInPluginWorld(Player player)  { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg()  { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }
