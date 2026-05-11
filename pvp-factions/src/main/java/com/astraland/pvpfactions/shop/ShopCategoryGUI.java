@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -99,26 +98,15 @@ public class ShopCategoryGUI implements InventoryHolder {
         ShopItemData data = itemSlots.get(slot);
         if (data == null) return;
 
-        ClickType click = e.getClick();
-
-        // LEFT or SHIFT+LEFT → achat (compatible Bedrock et Java)
-        if (click == ClickType.LEFT || click == ClickType.SHIFT_LEFT) {
-            if (data.buyPrice() <= 0) {
-                player.sendMessage(c("&c✗ Cet item n'est pas en vente."));
-                return;
-            }
-            Runnable back = () -> new ShopCategoryGUI(category, page, player, eco, backAction).open(player);
-            new ShopQuantityGUI(data, eco, ShopQuantityGUI.Mode.BUY, player, back).open(player);
-
-        // RIGHT ou SHIFT+RIGHT → vente (Java seulement, mais SHIFT_LEFT = sell aussi pour Bedrock)
-        } else if (click == ClickType.RIGHT || click == ClickType.SHIFT_RIGHT) {
-            if (!data.isSellable()) {
-                player.sendMessage(c("&c✗ Cet item n'est pas vendable."));
-                return;
-            }
-            Runnable back = () -> new ShopCategoryGUI(category, page, player, eco, backAction).open(player);
-            new ShopQuantityGUI(data, eco, ShopQuantityGUI.Mode.SELL, player, back).open(player);
+        // N'importe quel clic → ouvre le GUI quantité avec onglets Acheter/Vendre
+        // Compatible PC (clic gauche/droit) et consoles Bedrock (bouton A)
+        if (!data.isSellable() && data.buyPrice() <= 0) {
+            player.sendMessage(c("&c✗ Cet item n'est ni en vente ni vendable."));
+            return;
         }
+        Runnable back = () -> new ShopCategoryGUI(category, page, player, eco, backAction).open(player);
+        ShopQuantityGUI.Mode defaultMode = data.buyPrice() > 0 ? ShopQuantityGUI.Mode.BUY : ShopQuantityGUI.Mode.SELL;
+        new ShopQuantityGUI(data, eco, defaultMode, player, back).open(player);
     }
 
     private void refreshInfo(Player player, EconomyManager eco) {
@@ -136,8 +124,7 @@ public class ShopCategoryGUI implements InventoryHolder {
         lore.add(c("&a🛒 Achat : &e" + (data.buyPrice() > 0 ? data.buyPrice() + " $" : "Non disponible")));
         lore.add(c("&6💰 Vente : &e" + (data.isSellable() ? data.sellPrice() + " $" : "Non vendable")));
         lore.add("");
-        lore.add(c("&a▶ Clic gauche &fpour acheter"));
-        if (data.isSellable()) lore.add(c("&6▶ Clic droit &f(PC) &7/ &6Maj+Gauche &f(Bedrock) &fpour vendre"));
+        lore.add(c("&f▶ Cliquer &7pour ouvrir le menu Acheter / Vendre"));
 
         m.setLore(lore);
         m.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES,
@@ -153,8 +140,7 @@ public class ShopCategoryGUI implements InventoryHolder {
         m.setLore(List.of(
             c(category.description()),
             c(""),
-            c("&a▶ Clic gauche &f: Acheter"),
-            c("&6▶ Clic droit &f(PC) &7/ &6Maj+Gauche &f(Bedrock) &f: Vendre"),
+            c("&f▶ Cliquer sur un item &7pour Acheter / Vendre"),
             c(""),
             c("&7Page &f" + (page + 1) + " &7/ &f" + totalPages)
         ));
