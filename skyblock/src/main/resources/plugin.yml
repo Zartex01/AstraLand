@@ -9,7 +9,7 @@ commands:
   island:
     description: Commandes Skyblock
     aliases: [is, sb, skyblock]
-    usage: /island <create|home|sethome|invite|kick|info|top|warp|leave|expand>
+    usage: /island <create|home|sethome|invite|join|kick|leave|delete|info|top|visit|warp|warps|setwarp|delwarp|lock|unlock|pvp|ban|unban|banlist|coop|uncoop|chat|level|scan|setname|expel|settings|generator|help>
   balance:
     description: Voir son solde de pièces
     aliases: [bal, money]
@@ -24,6 +24,16 @@ commands:
     description: Hôtel des ventes
     aliases: [auction, bazaar]
     usage: /ah [sell <prix>]
+  sell:
+    description: Vendre des items du shop
+    aliases: [sellall]
+    usage: /sell all
+  isadmin:
+    description: Administration des îles Skyblock
+    aliases: [sbadmin, islandadmin]
+    usage: /isadmin <setlevel|reset|visit|info|setbalance> <joueur> [valeur]
+    permission: astraland.admin
+    default: op
   givemoney:
     description: Donner de l'argent à un joueur (admin)
     aliases: [addmoney, eco-give]

@@ -5,12 +5,29 @@ island:
   size: 100
   spawn-distance: 200
   default-level: 0
+  delete-confirm-seconds: 30
+
+economy:
+  block-reward: 1
+  starting-balance: 500
+
+generator:
+  upgrade-costs:
+    1: 1000
+    2: 3000
+    3: 7000
+    4: 15000
+    5: 30000
+    6: 60000
+    7: 100000
 
 messages:
-  island-created: "&aIle créée ! Utilise &e/is home &apour t'y téléporter."
+  island-created: "&aÎle créée ! Utilise &e/is home &apour t'y téléporter."
   island-exists: "&cTu as déjà une île !"
   no-island: "&cTu n'as pas d'île. Utilise &e/is create&c."
   teleporting: "&aTéléportation vers ton île..."
   invited: "&a%player% t'a invité sur son île !"
   kicked: "&cTu as été expulsé de l'île."
   protected: "&cCette zone est protégée !"
+  locked: "&cCette île est verrouillée aux visiteurs."
+  banned: "&cTu es banni de cette île."

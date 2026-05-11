@@ -32,6 +32,8 @@ public class ShopMenuGUI implements InventoryHolder {
         build(player);
     }
 
+    public static List<ShopCategoryData> getShopCategories() { return buildCategories(); }
+
     private void build(Player player) {
         ItemStack border = glass(Material.BLACK_STAINED_GLASS_PANE, " ");
         ItemStack accent = glass(Material.LIME_STAINED_GLASS_PANE, " ");
@@ -47,7 +49,7 @@ public class ShopMenuGUI implements InventoryHolder {
         }
     }
 
-    private List<ShopCategoryData> buildCategories() {
+    private static List<ShopCategoryData> buildCategories() {
         return List.of(
             new ShopCategoryData("cultures", "&a&l🌾 Graines & Cultures", Material.WHEAT,
                 "&7Semences, récoltes et engrais", List.of(
@@ -141,6 +143,7 @@ public class ShopMenuGUI implements InventoryHolder {
     }
 
     public ShopCategoryData getCategoryAt(int slot) { return categorySlots.get(slot); }
+    public List<ShopCategoryData> getCategories() { return categories; }
     public EconomyManager getEconomyManager() { return eco; }
     public void open(Player p) { p.openInventory(inv); }
     @Override public Inventory getInventory() { return inv; }

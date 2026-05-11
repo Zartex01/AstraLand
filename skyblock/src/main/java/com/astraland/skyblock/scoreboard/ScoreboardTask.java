@@ -14,6 +14,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
 
+import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,7 +23,7 @@ import java.util.UUID;
 public class ScoreboardTask implements Listener {
 
     private static final String[] E = {
-        "§0","§1","§2","§3","§4","§5","§6","§7","§8","§9","§a","§b","§c","§d"
+        "§0","§1","§2","§3","§4","§5","§6","§7","§8","§9","§a","§b","§c","§d","§e"
     };
 
     private final Skyblock plugin;
@@ -63,7 +65,9 @@ public class ScoreboardTask implements Listener {
         for (int i = 0; i < E.length; i++) {
             Team t = board.registerNewTeam("l" + i);
             t.addEntry(E[i]);
-            obj.getScore(E[i]).setScore(i);
+            Score score = obj.getScore(E[i]);
+            score.setScore(i);
+            applyBlankFormat(score);
         }
         boards.put(p.getUniqueId(), board);
         p.setScoreboard(board);
@@ -89,38 +93,58 @@ public class ScoreboardTask implements Listener {
     private void update(Player p, Scoreboard board) {
         UUID uid = p.getUniqueId();
         Island isl = plugin.getIslandManager().getIsland(uid);
+        int balance = plugin.getEconomyManager().getBalance(uid);
 
-        String ownerLine, membLine, levelLine, blocksLine;
+        String islName, ownerLine, levelLine, valueStr, membLine, genLine, warpLine;
         if (isl != null) {
             OfflinePlayer owner = Bukkit.getOfflinePlayer(isl.getOwner());
             String ownerName = owner.getName() != null ? owner.getName() : "?";
-            boolean isOwner = isl.isOwner(uid);
+            boolean isOwner  = isl.isOwner(uid);
+            islName   = "&f" + isl.getName();
             ownerLine = "&e" + ownerName + (isOwner ? " &7(toi)" : "");
-            membLine  = "&f" + (isl.getMembers().size() + 1) + " &7membre(s)";
-            levelLine = "&a" + isl.getLevel();
-            blocksLine = "&f" + isl.getBlocksBroken() + " &7blocs";
+            levelLine = "&a" + isl.getLevel() + " &8| &7" + fmt(isl.getValue()) + " pts";
+            valueStr  = "&6" + fmt(isl.getValue()) + " pts";
+            membLine  = "&f" + (isl.getMemberCount() + 1) + " &8/ &f" + (isl.getMemberSlots() + 1);
+            genLine   = "&b" + isl.getGeneratorLevel() + " &8/ &b7";
+            warpLine  = isl.isWarpEnabled() ? "&aOuvert" : "&7Fermé";
         } else {
-            ownerLine  = "&8Aucune île";
-            membLine   = "&8-";
-            levelLine  = "&80";
-            blocksLine = "&8-";
+            islName   = "&8Aucune île";
+            ownerLine = "&8-";
+            levelLine = "&80";
+            valueStr  = "&80 pts";
+            membLine  = "&8-";
+            genLine   = "&80";
+            warpLine  = "&8-";
         }
 
-        setLine(board, 13, " ");
-        setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&7─────────");
-        setLine(board, 10, "&7Île de: " + ownerLine);
-        setLine(board, 9,  "&7Membres: " + membLine);
-        setLine(board, 8,  "&7Niveau: " + levelLine);
-        setLine(board, 7,  "&7Blocs: " + blocksLine);
-        setLine(board, 6,  "&7─────────");
-        setLine(board, 5,  "&7Mode: &aSkyBlock");
-        setLine(board, 4,  "&7» &e/is create");
-        setLine(board, 3,  "&7» &e/is home");
-        setLine(board, 2,  " ");
-        setLine(board, 1,  "&bastraland-fr.com");
+        setLine(board, 14, " ");
+        setLine(board, 13, "&f" + p.getName());
+        setLine(board, 12, "&7─────────────────");
+        setLine(board, 11, "&7Île : " + islName);
+        setLine(board, 10, "&7Proprio : " + ownerLine);
+        setLine(board, 9,  "&7Membres : " + membLine);
+        setLine(board, 8,  "&7Niveau : " + levelLine);
+        setLine(board, 7,  "&7Générateur : " + genLine);
+        setLine(board, 6,  "&7Warp : " + warpLine);
+        setLine(board, 5,  "&7─────────────────");
+        setLine(board, 4,  "&7Argent : &6" + fmt(balance) + " $");
+        setLine(board, 3,  "&7─────────────────");
+        setLine(board, 2,  isl == null ? "&e/is create" : "&7Skyblock");
+        setLine(board, 1,  "&bastraland.fr");
         setLine(board, 0,  " ");
     }
 
+    private void applyBlankFormat(Score score) {
+        try {
+            Class<?> nfClass = Class.forName("io.papermc.paper.scoreboard.numbers.NumberFormat");
+            Method blankMethod = nfClass.getMethod("blank");
+            Object blank = blankMethod.invoke(null);
+            Method apply = score.getClass().getMethod("numberFormat", nfClass);
+            apply.invoke(score, blank);
+        } catch (Exception ignored) {}
+    }
+
+    private String fmt(long v) { return NumberFormat.getInstance().format(v); }
+    private String fmt(int v)  { return NumberFormat.getInstance().format(v); }
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
 }
