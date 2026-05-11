@@ -35,26 +35,33 @@ public class Skyblock extends JavaPlugin {
         this.auctionManager   = new AuctionManager(this);
         this.challengeManager = new ChallengeManager(this);
 
-        // /island
+        // /island (alias /is /sb /skyblock)
         IslandCommand islandCmd = new IslandCommand(this);
         getCommand("island").setExecutor(islandCmd);
         getCommand("island").setTabCompleter(islandCmd);
 
-        // /balance /pay
+        // /balance /baltop
         EconomyCommand ecoCmd = new EconomyCommand(this);
         getCommand("balance").setExecutor(ecoCmd);
+        getCommand("balance").setTabCompleter(ecoCmd);
+        getCommand("baltop").setExecutor(ecoCmd);
+
+        // /pay
         getCommand("pay").setExecutor(ecoCmd);
+        getCommand("pay").setTabCompleter(ecoCmd);
 
         // /shop
         getCommand("shop").setExecutor(new ShopCommand(this));
 
-        // /sell all
+        // /sell all | /sell hand
         SellAllCommand sellCmd = new SellAllCommand(this);
         getCommand("sell").setExecutor(sellCmd);
         getCommand("sell").setTabCompleter(sellCmd);
 
         // /ah
-        getCommand("ah").setExecutor(new AHCommand(this));
+        AHCommand ahCmd = new AHCommand(this);
+        getCommand("ah").setExecutor(ahCmd);
+        getCommand("ah").setTabCompleter(ahCmd);
 
         // /givemoney
         getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
@@ -73,7 +80,8 @@ public class Skyblock extends JavaPlugin {
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();
 
-        getLogger().info("AstraLand - Skyblock chargé avec " + challengeManager.getAllChallenges().size() + " défis !");
+        getLogger().info("AstraLand - Skyblock chargé avec "
+            + challengeManager.getAllChallenges().size() + " défis !");
     }
 
     @Override
@@ -83,17 +91,19 @@ public class Skyblock extends JavaPlugin {
         getLogger().info("AstraLand - Skyblock désactivé.");
     }
 
-    public static Skyblock getInstance()              { return instance; }
-    public IslandManager getIslandManager()           { return islandManager; }
-    public IslandLevelManager getLevelManager()       { return levelManager; }
-    public EconomyManager getEconomyManager()         { return economyManager; }
-    public AuctionManager getAuctionManager()         { return auctionManager; }
-    public ChallengeManager getChallengeManager()     { return challengeManager; }
+    public static Skyblock getInstance()           { return instance; }
+    public IslandManager getIslandManager()        { return islandManager; }
+    public IslandLevelManager getLevelManager()    { return levelManager; }
+    public EconomyManager getEconomyManager()      { return economyManager; }
+    public AuctionManager getAuctionManager()      { return auctionManager; }
+    public ChallengeManager getChallengeManager()  { return challengeManager; }
 
-    public ShopMenuGUI newShopMenuGUI(Player player)  { return new ShopMenuGUI(player, economyManager); }
+    public ShopMenuGUI newShopMenuGUI(Player player) { return new ShopMenuGUI(player, economyManager); }
 
-    public String getPluginWorld()                    { return getConfig().getString("island.world", "world_skyblock"); }
-    public boolean isInPluginWorld(Player player)     { return player.getWorld().getName().equals(getPluginWorld()); }
-    public String wrongWorldMsg()                     { return org.bukkit.ChatColor.translateAlternateColorCodes('&',
-        "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
+    public String getPluginWorld()               { return getConfig().getString("island.world", "world_skyblock"); }
+    public boolean isInPluginWorld(Player player){ return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg()                {
+        return org.bukkit.ChatColor.translateAlternateColorCodes('&',
+            "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c.");
+    }
 }

@@ -15,10 +15,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SellAllCommand implements CommandExecutor, TabCompleter {
 
@@ -31,11 +28,22 @@ public class SellAllCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) { sender.sendMessage("§cJoueurs uniquement."); return true; }
         if (!plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
-        if (args.length == 0 || !args[0].equalsIgnoreCase("all")) {
-            player.sendMessage(c("&8[&aSkyblock&8] &7Usage : &e/sell all"));
+
+        if (args.length == 0) {
+            player.sendMessage(c("&8[&aSkyblock&8] &7Usage : &e/sell all &7ou &e/sell hand"));
             return true;
         }
 
+        return switch (args[0].toLowerCase()) {
+            case "all"  -> { sellAll(player);  yield true; }
+            case "hand" -> { sellHand(player); yield true; }
+            default     -> { player.sendMessage(c("&8[&aSkyblock&8] &7Usage : &e/sell all &7ou &e/sell hand")); yield true; }
+        };
+    }
+
+    // ─── /sell all ────────────────────────────────────────────────────────────
+
+    private void sellAll(Player player) {
         Map<Material, Integer> prices = getPriceMap();
         EconomyManager eco = plugin.getEconomyManager();
         ItemStack[] contents = player.getInventory().getContents();
@@ -47,7 +55,7 @@ public class SellAllCommand implements CommandExecutor, TabCompleter {
             if (item == null || item.getType() == Material.AIR) continue;
             Integer ppi = prices.get(item.getType());
             if (ppi == null || ppi <= 0) continue;
-            int qty = item.getAmount();
+            int qty  = item.getAmount();
             int gain = qty * ppi;
             sold.computeIfAbsent(item.getType(), k -> new int[]{0, 0});
             sold.get(item.getType())[0] += qty;
@@ -56,7 +64,7 @@ public class SellAllCommand implements CommandExecutor, TabCompleter {
             player.getInventory().setItem(i, null);
         }
 
-        if (totalGain == 0) { player.sendMessage(c("&7Aucun item vendable dans ton inventaire.")); return true; }
+        if (totalGain == 0) { player.sendMessage(c("&7Aucun item vendable dans ton inventaire.")); return; }
 
         eco.addBalance(player.getUniqueId(), totalGain);
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.0f);
@@ -65,15 +73,39 @@ public class SellAllCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(c("  &a&l💰 Vente automatique — résumé"));
         player.sendMessage(c("&8&m                                    "));
         for (Map.Entry<Material, int[]> e : sold.entrySet()) {
-            String name = formatMat(e.getKey());
-            player.sendMessage(c("  &7" + name + " &8×" + e.getValue()[0] + " &8→ &6+" + e.getValue()[1] + " $"));
+            player.sendMessage(c("  &7" + formatMat(e.getKey()) + " &8×" + e.getValue()[0] + " &8→ &6+" + e.getValue()[1] + " $"));
         }
         player.sendMessage(c("&8&m                                    "));
         player.sendMessage(c("  &a✔ Total gagné : &6&l+" + totalGain + " $"));
         player.sendMessage(c("  &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
         player.sendMessage(c("&8&m                                    "));
-        return true;
     }
+
+    // ─── /sell hand ───────────────────────────────────────────────────────────
+
+    private void sellHand(Player player) {
+        ItemStack hand = player.getInventory().getItemInMainHand();
+        if (hand.getType() == Material.AIR) {
+            player.sendMessage(c("&c✗ Tu ne tiens rien en main.")); return;
+        }
+
+        Map<Material, Integer> prices = getPriceMap();
+        Integer ppi = prices.get(hand.getType());
+        if (ppi == null || ppi <= 0) {
+            player.sendMessage(c("&c✗ &f" + formatMat(hand.getType()) + " &cn'est pas vendable.")); return;
+        }
+
+        int qty   = hand.getAmount();
+        int gain  = qty * ppi;
+        player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        plugin.getEconomyManager().addBalance(player.getUniqueId(), gain);
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.1f);
+        player.sendMessage(c("&e💰 Vendu en main : &f" + qty + "x " + formatMat(hand.getType())
+            + " &epour &6+" + gain + " $ &8| &7Solde : &e"
+            + plugin.getEconomyManager().getBalance(player.getUniqueId()) + " $"));
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private Map<Material, Integer> getPriceMap() {
         if (priceCache != null) return priceCache;
@@ -102,7 +134,7 @@ public class SellAllCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 1) return List.of("all");
+        if (args.length == 1) return List.of("all", "hand");
         return List.of();
     }
 }

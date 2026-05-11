@@ -60,7 +60,7 @@ public class IslandMenuGUI implements InventoryHolder {
 
         // ── Boutons principaux ──
         // Home
-        inv.setItem(19, btn(Material.BED,           "&a🏠 Téléportation",      "&7/is home",      "&7Retourner à ton île"));
+        inv.setItem(19, btn(Material.RED_BED,        "&a🏠 Téléportation",      "&7/is home",      "&7Retourner à ton île"));
         // Info
         inv.setItem(20, btn(Material.MAP,            "&7📋 Informations",       "&7/is info",      "&7Voir les stats de l'île"));
         // Membres

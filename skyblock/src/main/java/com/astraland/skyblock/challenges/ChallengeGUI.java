@@ -233,18 +233,6 @@ public class ChallengeGUI implements InventoryHolder {
         new ChallengeGUI(plugin, player, island, cat, 0).open(player);
     }
 
-    private String conditionText(Challenge ch) {
-        return switch (ch.getType()) {
-            case ISLAND_LEVEL     -> "Niveau d'île >= " + ch.getRequiredValue();
-            case GENERATOR_LEVEL  -> "Générateur >= niveau " + ch.getRequiredValue();
-            case BLOCKS_BROKEN    -> fmt(ch.getRequiredValue()) + " blocs cassés";
-            case BALANCE          -> fmt(ch.getRequiredValue()) + " pièces";
-            case ISLAND_VALUE     -> fmt(ch.getRequiredValue()) + " pts de valeur";
-            case MEMBER_COUNT     -> ch.getRequiredValue() + " membre(s)";
-            case BANK_BALANCE     -> fmt(ch.getRequiredValue()) + " $ en banque";
-        };
-    }
-
     private String categoryLabel() {
         if (filter == null) return "Tous";
         return switch (filter) {

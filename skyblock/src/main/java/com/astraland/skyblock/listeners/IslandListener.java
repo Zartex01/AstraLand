@@ -26,6 +26,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 
+import java.util.UUID;
+
 import java.util.Random;
 
 public class IslandListener implements Listener {

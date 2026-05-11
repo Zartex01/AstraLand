@@ -18,7 +18,8 @@ import java.util.Map;
 
 public class ShopMenuGUI implements InventoryHolder {
 
-    private static final int[] CAT_SLOTS = {20, 22, 24, 29, 31, 33};
+    // 8 catégories → 2 rangées de 4 centrées
+    private static final int[] CAT_SLOTS = {19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34};
 
     private final Inventory inv;
     private final Map<Integer, ShopCategoryData> categorySlots = new HashMap<>();
@@ -38,7 +39,7 @@ public class ShopMenuGUI implements InventoryHolder {
         ItemStack border = glass(Material.BLACK_STAINED_GLASS_PANE, " ");
         ItemStack accent = glass(Material.LIME_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 54; i++) inv.setItem(i, border);
-        for (int i = 0; i < 9; i++) inv.setItem(i, accent);
+        for (int i = 0; i < 9; i++)  inv.setItem(i, accent);
         for (int i = 45; i < 54; i++) inv.setItem(i, accent);
         inv.setItem(4, makeHeader());
         inv.setItem(49, makeBalance(eco.getBalance(player.getUniqueId())));
@@ -51,71 +52,109 @@ public class ShopMenuGUI implements InventoryHolder {
 
     private static List<ShopCategoryData> buildCategories() {
         return List.of(
+            // ── Cultures ─────────────────────────────────────────────────────────
             new ShopCategoryData("cultures", "&a&l🌾 Graines & Cultures", Material.WHEAT,
                 "&7Semences, récoltes et engrais", List.of(
-                new ShopItemData("&aGraines de Blé ×16", Material.WHEAT_SEEDS, 5, 2, new String[]{"&7Cultivez du blé"}, it(Material.WHEAT_SEEDS, 16)),
-                new ShopItemData("&6Carottes ×8", Material.CARROT, 8, 4, new String[]{"&7Récoltez des carottes"}, it(Material.CARROT, 8)),
-                new ShopItemData("&ePommes de Terre ×8", Material.POTATO, 8, 4, new String[]{"&7Récoltez des pommes de terre"}, it(Material.POTATO, 8)),
-                new ShopItemData("&aSem. de Melon ×8", Material.MELON_SEEDS, 15, 7, new String[]{"&7Poussent sur des blocs d'herbe"}, it(Material.MELON_SEEDS, 8)),
-                new ShopItemData("&eSem. de Citrouille ×8", Material.PUMPKIN_SEEDS, 15, 7, new String[]{"&7Décoration et utilité"}, it(Material.PUMPKIN_SEEDS, 8)),
-                new ShopItemData("&aCanne à Sucre ×16", Material.SUGAR_CANE, 10, 5, new String[]{"&7Besoin d'eau à proximité"}, it(Material.SUGAR_CANE, 16)),
-                new ShopItemData("&aCacao ×8", Material.COCOA_BEANS, 10, 5, new String[]{"&7Pousse sur les bûches de jungle"}, it(Material.COCOA_BEANS, 8)),
-                new ShopItemData("&cGraines de Betterave ×16", Material.BEETROOT_SEEDS, 8, 4, new String[]{"&7Potager coloré"}, it(Material.BEETROOT_SEEDS, 16)),
-                new ShopItemData("&fFarine d'Os ×16", Material.BONE_MEAL, 25, 12, new String[]{"&7Accélère toutes les cultures"}, it(Material.BONE_MEAL, 16))
+                new ShopItemData("&aGraines de Blé ×16",      Material.WHEAT_SEEDS,    5,  2,  new String[]{"&7Cultivez du blé"},                     it(Material.WHEAT_SEEDS,    16)),
+                new ShopItemData("&6Carottes ×8",             Material.CARROT,         8,  4,  new String[]{"&7Récoltez des carottes"},               it(Material.CARROT,          8)),
+                new ShopItemData("&ePommes de Terre ×8",      Material.POTATO,         8,  4,  new String[]{"&7Récoltez des pommes de terre"},        it(Material.POTATO,          8)),
+                new ShopItemData("&aSem. de Melon ×8",        Material.MELON_SEEDS,   15,  7,  new String[]{"&7Poussent sur des blocs d'herbe"},      it(Material.MELON_SEEDS,     8)),
+                new ShopItemData("&eSem. de Citrouille ×8",   Material.PUMPKIN_SEEDS, 15,  7,  new String[]{"&7Décoration et utilité"},               it(Material.PUMPKIN_SEEDS,   8)),
+                new ShopItemData("&aCanne à Sucre ×16",       Material.SUGAR_CANE,    10,  5,  new String[]{"&7Besoin d'eau à proximité"},            it(Material.SUGAR_CANE,     16)),
+                new ShopItemData("&aCacao ×8",                Material.COCOA_BEANS,   10,  5,  new String[]{"&7Pousse sur les bûches de jungle"},     it(Material.COCOA_BEANS,     8)),
+                new ShopItemData("&cGraines de Betterave ×16",Material.BEETROOT_SEEDS, 8,  4,  new String[]{"&7Potager coloré"},                      it(Material.BEETROOT_SEEDS, 16)),
+                new ShopItemData("&fFarine d'Os ×16",         Material.BONE_MEAL,     25, 12,  new String[]{"&7Accélère toutes les cultures"},        it(Material.BONE_MEAL,      16))
             )),
+            // ── Outils ───────────────────────────────────────────────────────────
             new ShopCategoryData("outils", "&7&l⛏ Outils", Material.DIAMOND_PICKAXE,
                 "&7Pioches, haches, houes et cannes à pêche", List.of(
-                new ShopItemData("&fHoue de Fer", Material.IRON_HOE, 30, 15, new String[]{"&7Efficacité I"}, e(it(Material.IRON_HOE, 1), Enchantment.EFFICIENCY, 1)),
-                new ShopItemData("&fPelle de Fer", Material.IRON_SHOVEL, 30, 15, new String[]{"&7Outil polyvalent"}, it(Material.IRON_SHOVEL, 1)),
-                new ShopItemData("&fPioche de Fer Eff.I", Material.IRON_PICKAXE, 60, 25, new String[]{"&7Efficacité I"}, e(it(Material.IRON_PICKAXE, 1), Enchantment.EFFICIENCY, 1)),
-                new ShopItemData("&fHache de Fer", Material.IRON_AXE, 50, 20, new String[]{"&7Bucheronnage efficace"}, it(Material.IRON_AXE, 1)),
-                new ShopItemData("&bCanne à Pêche LdM II", Material.FISHING_ROD, 40, 15, new String[]{"&7Chance de la Mer II"}, e(it(Material.FISHING_ROD, 1), Enchantment.LUCK_OF_THE_SEA, 2)),
-                new ShopItemData("&bPioche Diamant Eff.III", Material.DIAMOND_PICKAXE, 200, 80, new String[]{"&7Eff. III, Sans Brisure II"}, e(e(it(Material.DIAMOND_PICKAXE, 1), Enchantment.EFFICIENCY, 3), Enchantment.UNBREAKING, 2)),
-                new ShopItemData("&bHache Diamant Tr.II", Material.DIAMOND_AXE, 180, 70, new String[]{"&7Tranchant II"}, e(it(Material.DIAMOND_AXE, 1), Enchantment.SHARPNESS, 2)),
-                new ShopItemData("&5Pioche Nétherite Eff.V", Material.NETHERITE_PICKAXE, 500, 200, new String[]{"&7Eff. V, Fortune III"}, e(e(it(Material.NETHERITE_PICKAXE, 1), Enchantment.EFFICIENCY, 5), Enchantment.FORTUNE, 3))
+                new ShopItemData("&fHoue de Fer",              Material.IRON_HOE,         30,  15, new String[]{"&7Efficacité I"},                     e(it(Material.IRON_HOE,        1), Enchantment.EFFICIENCY, 1)),
+                new ShopItemData("&fPelle de Fer",             Material.IRON_SHOVEL,      30,  15, new String[]{"&7Outil polyvalent"},                 it(Material.IRON_SHOVEL,       1)),
+                new ShopItemData("&fPioche de Fer Eff.I",      Material.IRON_PICKAXE,     60,  25, new String[]{"&7Efficacité I"},                     e(it(Material.IRON_PICKAXE,    1), Enchantment.EFFICIENCY, 1)),
+                new ShopItemData("&fHache de Fer",             Material.IRON_AXE,         50,  20, new String[]{"&7Bucheronnage efficace"},             it(Material.IRON_AXE,          1)),
+                new ShopItemData("&bCanne à Pêche LdM II",     Material.FISHING_ROD,      40,  15, new String[]{"&7Chance de la Mer II"},              e(it(Material.FISHING_ROD,     1), Enchantment.LUCK_OF_THE_SEA, 2)),
+                new ShopItemData("&bPioche Diamant Eff.III",   Material.DIAMOND_PICKAXE, 200,  80, new String[]{"&7Eff. III, Sans Brisure II"},        e(e(it(Material.DIAMOND_PICKAXE,1), Enchantment.EFFICIENCY, 3), Enchantment.UNBREAKING, 2)),
+                new ShopItemData("&bHache Diamant Tr.II",      Material.DIAMOND_AXE,     180,  70, new String[]{"&7Tranchant II"},                     e(it(Material.DIAMOND_AXE,     1), Enchantment.SHARPNESS, 2)),
+                new ShopItemData("&5Pioche Nétherite Eff.V",   Material.NETHERITE_PICKAXE,500,200, new String[]{"&7Eff. V, Fortune III"},              e(e(it(Material.NETHERITE_PICKAXE,1), Enchantment.EFFICIENCY, 5), Enchantment.FORTUNE, 3))
             )),
+            // ── Blocs ────────────────────────────────────────────────────────────
             new ShopCategoryData("blocs", "&7&l🪨 Blocs", Material.COBBLESTONE,
                 "&7Matériaux de construction pour votre île", List.of(
-                new ShopItemData("&7Cobblestone ×64", Material.COBBLESTONE, 40, 20, new String[]{"&7Base de toute construction"}, it(Material.COBBLESTONE, 64)),
-                new ShopItemData("&6Terre ×64", Material.DIRT, 30, 15, new String[]{"&7Idéale pour les cultures"}, it(Material.DIRT, 64)),
-                new ShopItemData("&eSable ×64", Material.SAND, 35, 17, new String[]{"&7Fabrication du verre"}, it(Material.SAND, 64)),
-                new ShopItemData("&7Gravier ×64", Material.GRAVEL, 30, 15, new String[]{"&7Chance de silex"}, it(Material.GRAVEL, 64)),
-                new ShopItemData("&6Bûche de Chêne ×32", Material.OAK_LOG, 50, 25, new String[]{"&7Construction et craft"}, it(Material.OAK_LOG, 32)),
-                new ShopItemData("&7Pierre ×64", Material.STONE, 45, 22, new String[]{"&7Plus solide que la cobblestone"}, it(Material.STONE, 64)),
-                new ShopItemData("&fVerre ×32", Material.GLASS, 35, 17, new String[]{"&7Transparent et décoratif"}, it(Material.GLASS, 32)),
-                new ShopItemData("&8Obsidienne ×4", Material.OBSIDIAN, 80, 40, new String[]{"&7Très résistante"}, it(Material.OBSIDIAN, 4))
+                new ShopItemData("&7Cobblestone ×64",  Material.COBBLESTONE, 40, 20, new String[]{"&7Base de toute construction"},  it(Material.COBBLESTONE, 64)),
+                new ShopItemData("&6Terre ×64",        Material.DIRT,        30, 15, new String[]{"&7Idéale pour les cultures"},    it(Material.DIRT,        64)),
+                new ShopItemData("&eSable ×64",        Material.SAND,        35, 17, new String[]{"&7Fabrication du verre"},         it(Material.SAND,        64)),
+                new ShopItemData("&7Gravier ×64",      Material.GRAVEL,      30, 15, new String[]{"&7Chance de silex"},             it(Material.GRAVEL,      64)),
+                new ShopItemData("&6Bûche de Chêne ×32",Material.OAK_LOG,   50, 25, new String[]{"&7Construction et craft"},        it(Material.OAK_LOG,     32)),
+                new ShopItemData("&7Pierre ×64",       Material.STONE,       45, 22, new String[]{"&7Plus solide que la cobblestone"},it(Material.STONE,      64)),
+                new ShopItemData("&fVerre ×32",        Material.GLASS,       35, 17, new String[]{"&7Transparent et décoratif"},    it(Material.GLASS,       32)),
+                new ShopItemData("&8Obsidienne ×4",    Material.OBSIDIAN,    80, 40, new String[]{"&7Très résistante"},             it(Material.OBSIDIAN,     4))
             )),
+            // ── Ressources ────────────────────────────────────────────────────────
             new ShopCategoryData("ressources", "&b&l💎 Ressources", Material.DIAMOND,
                 "&7Minerais et matériaux précieux", List.of(
-                new ShopItemData("&7Lingot de Fer ×8", Material.IRON_INGOT, 50, 25, new String[]{"&7Craft d'outils et d'armures"}, it(Material.IRON_INGOT, 8)),
-                new ShopItemData("&6Lingot d'Or ×4", Material.GOLD_INGOT, 60, 30, new String[]{"&7Or précieux"}, it(Material.GOLD_INGOT, 4)),
-                new ShopItemData("&bDiamant", Material.DIAMOND, 100, 50, new String[]{"&7Pierre précieuse"}, it(Material.DIAMOND, 1)),
-                new ShopItemData("&aÉmeraude", Material.EMERALD, 90, 45, new String[]{"&7Commerce avec les villageois"}, it(Material.EMERALD, 1)),
-                new ShopItemData("&5Nétherite", Material.NETHERITE_INGOT, 400, 200, new String[]{"&7Matériau ultime"}, it(Material.NETHERITE_INGOT, 1)),
-                new ShopItemData("&9Lapis-Lazuli ×16", Material.LAPIS_LAZULI, 20, 10, new String[]{"&7Teinture et enchantement"}, it(Material.LAPIS_LAZULI, 16)),
-                new ShopItemData("&cPoudre de Redstone ×16", Material.REDSTONE, 15, 7, new String[]{"&7Mécanismes et craft"}, it(Material.REDSTONE, 16)),
-                new ShopItemData("&fQuartz ×16", Material.QUARTZ, 20, 10, new String[]{"&7Décoration et craft"}, it(Material.QUARTZ, 16))
+                new ShopItemData("&7Lingot de Fer ×8",  Material.IRON_INGOT,    50,  25, new String[]{"&7Craft d'outils et d'armures"},  it(Material.IRON_INGOT,     8)),
+                new ShopItemData("&6Lingot d'Or ×4",    Material.GOLD_INGOT,    60,  30, new String[]{"&7Or précieux"},                   it(Material.GOLD_INGOT,     4)),
+                new ShopItemData("&bDiamant",           Material.DIAMOND,      100,  50, new String[]{"&7Pierre précieuse"},              it(Material.DIAMOND,        1)),
+                new ShopItemData("&aÉmeraude",          Material.EMERALD,       90,  45, new String[]{"&7Commerce avec les villageois"},  it(Material.EMERALD,        1)),
+                new ShopItemData("&5Nétherite",         Material.NETHERITE_INGOT,400,200,new String[]{"&7Matériau ultime"},               it(Material.NETHERITE_INGOT,1)),
+                new ShopItemData("&9Lapis-Lazuli ×16",  Material.LAPIS_LAZULI,  20,  10, new String[]{"&7Teinture et enchantement"},      it(Material.LAPIS_LAZULI,  16)),
+                new ShopItemData("&cPoudre de Redstone ×16",Material.REDSTONE,  15,   7, new String[]{"&7Mécanismes et craft"},           it(Material.REDSTONE,      16)),
+                new ShopItemData("&fQuartz ×16",        Material.QUARTZ,        20,  10, new String[]{"&7Décoration et craft"},           it(Material.QUARTZ,        16))
             )),
+            // ── Armures ───────────────────────────────────────────────────────────
             new ShopCategoryData("armures", "&f&l🛡 Armures", Material.IRON_CHESTPLATE,
                 "&7Pièces d'armure individuelles — toutes vendables", List.of(
-                new ShopItemData("&fCasque de Fer", Material.IRON_HELMET, 40, 20, new String[]{"&7Protection de base"}, it(Material.IRON_HELMET, 1)),
-                new ShopItemData("&fPlastron de Fer", Material.IRON_CHESTPLATE, 60, 30, new String[]{"&7Protection de base"}, it(Material.IRON_CHESTPLATE, 1)),
-                new ShopItemData("&fJambières de Fer", Material.IRON_LEGGINGS, 50, 25, new String[]{"&7Protection de base"}, it(Material.IRON_LEGGINGS, 1)),
-                new ShopItemData("&fBottes de Fer", Material.IRON_BOOTS, 40, 20, new String[]{"&7Protection de base"}, it(Material.IRON_BOOTS, 1)),
-                new ShopItemData("&bCasque Diamant", Material.DIAMOND_HELMET, 120, 60, new String[]{"&7Protection solide"}, it(Material.DIAMOND_HELMET, 1)),
-                new ShopItemData("&bPlastron Diamant", Material.DIAMOND_CHESTPLATE, 180, 90, new String[]{"&7Protection solide"}, it(Material.DIAMOND_CHESTPLATE, 1)),
-                new ShopItemData("&bJambières Diamant", Material.DIAMOND_LEGGINGS, 150, 75, new String[]{"&7Protection solide"}, it(Material.DIAMOND_LEGGINGS, 1)),
-                new ShopItemData("&bBottes Diamant", Material.DIAMOND_BOOTS, 120, 60, new String[]{"&7Protection solide"}, it(Material.DIAMOND_BOOTS, 1)),
-                new ShopItemData("&dÉlytre", Material.ELYTRA, 600, 300, new String[]{"&7Volez au-dessus de votre île !"}, it(Material.ELYTRA, 1))
+                new ShopItemData("&fCasque de Fer",      Material.IRON_HELMET,       40,  20, new String[]{"&7Protection de base"},  it(Material.IRON_HELMET,      1)),
+                new ShopItemData("&fPlastron de Fer",    Material.IRON_CHESTPLATE,   60,  30, new String[]{"&7Protection de base"},  it(Material.IRON_CHESTPLATE,  1)),
+                new ShopItemData("&fJambières de Fer",   Material.IRON_LEGGINGS,     50,  25, new String[]{"&7Protection de base"},  it(Material.IRON_LEGGINGS,    1)),
+                new ShopItemData("&fBottes de Fer",      Material.IRON_BOOTS,        40,  20, new String[]{"&7Protection de base"},  it(Material.IRON_BOOTS,       1)),
+                new ShopItemData("&bCasque Diamant",     Material.DIAMOND_HELMET,   120,  60, new String[]{"&7Protection solide"},   it(Material.DIAMOND_HELMET,   1)),
+                new ShopItemData("&bPlastron Diamant",   Material.DIAMOND_CHESTPLATE,180, 90, new String[]{"&7Protection solide"},   it(Material.DIAMOND_CHESTPLATE,1)),
+                new ShopItemData("&bJambières Diamant",  Material.DIAMOND_LEGGINGS, 150,  75, new String[]{"&7Protection solide"},   it(Material.DIAMOND_LEGGINGS, 1)),
+                new ShopItemData("&bBottes Diamant",     Material.DIAMOND_BOOTS,    120,  60, new String[]{"&7Protection solide"},   it(Material.DIAMOND_BOOTS,    1)),
+                new ShopItemData("&dÉlytre",             Material.ELYTRA,           600, 300, new String[]{"&7Volez au-dessus !"},   it(Material.ELYTRA,           1))
             )),
+            // ── Mob Drops ─────────────────────────────────────────────────────────
+            new ShopCategoryData("mob-drops", "&c&l⚔ Mob Drops", Material.BONE,
+                "&7Butin des monstres — achat & vente", List.of(
+                new ShopItemData("&fOs ×16",              Material.BONE,             12,   6, new String[]{"&7Drop de squelette"},          it(Material.BONE,             16)),
+                new ShopItemData("&fPlume ×16",           Material.FEATHER,          10,   5, new String[]{"&7Drop de poulet"},             it(Material.FEATHER,          16)),
+                new ShopItemData("&7Ficelle ×16",         Material.STRING,           12,   6, new String[]{"&7Drop d'araignée"},            it(Material.STRING,           16)),
+                new ShopItemData("&aCrème de Slime ×8",   Material.SLIME_BALL,       20,  10, new String[]{"&7Drop de slime"},              it(Material.SLIME_BALL,        8)),
+                new ShopItemData("&6Chair Pourrie ×16",   Material.ROTTEN_FLESH,      5,   2, new String[]{"&7Drop de zombie"},             it(Material.ROTTEN_FLESH,     16)),
+                new ShopItemData("&7Flèche ×16",          Material.ARROW,            15,   7, new String[]{"&7Munitions de base"},          it(Material.ARROW,            16)),
+                new ShopItemData("&6Poudre de Blaze ×8",  Material.BLAZE_POWDER,     40,  20, new String[]{"&7Drop de blaze"},              it(Material.BLAZE_POWDER,      8)),
+                new ShopItemData("&5Perle d'Ender ×4",    Material.ENDER_PEARL,      80,  40, new String[]{"&7Drop d'enderman"},            it(Material.ENDER_PEARL,       4)),
+                new ShopItemData("&eÉtoile du Nether",    Material.NETHER_STAR,    2000, 800, new String[]{"&7Drop du Wither"},             it(Material.NETHER_STAR,       1)),
+                new ShopItemData("&cDent de Requin",      Material.RABBIT_FOOT,      50,  25, new String[]{"&7Drop de lapin", "&7Chance+"},  it(Material.RABBIT_FOOT,       1)),
+                new ShopItemData("&6Poison de Araignée ×4",Material.SPIDER_EYE,     15,   7, new String[]{"&7Brassage de potions"},         it(Material.SPIDER_EYE,        4)),
+                new ShopItemData("&7Poudre à Canon ×16",  Material.GUNPOWDER,        18,   9, new String[]{"&7Drop de creeper"},            it(Material.GUNPOWDER,        16))
+            )),
+            // ── Nether ────────────────────────────────────────────────────────────
+            new ShopCategoryData("nether", "&4&l🔥 Nether", Material.NETHERRACK,
+                "&7Ressources du Nether", List.of(
+                new ShopItemData("&cNetherrack ×64",          Material.NETHERRACK,      20,  10, new String[]{"&7Brûle indéfiniment"},         it(Material.NETHERRACK,      64)),
+                new ShopItemData("&4Verrues du Nether ×8",    Material.NETHER_WART,     30,  15, new String[]{"&7Essentielle pour les potions"},it(Material.NETHER_WART,      8)),
+                new ShopItemData("&7Quartz du Nether ×16",    Material.QUARTZ,          20,  10, new String[]{"&7Décoration haut de gamme"},    it(Material.QUARTZ,          16)),
+                new ShopItemData("&6Brique du Nether ×16",    Material.NETHER_BRICK,    25,  12, new String[]{"&7Matériau de forteresse"},      it(Material.NETHER_BRICK,    16)),
+                new ShopItemData("&cBlaze Rod ×4",            Material.BLAZE_ROD,       60,  30, new String[]{"&7Source de poudre de blaze"},   it(Material.BLAZE_ROD,        4)),
+                new ShopItemData("&5Âme de Sable ×32",        Material.SOUL_SAND,       25,  12, new String[]{"&7Retarde les mouvements"},      it(Material.SOUL_SAND,       32)),
+                new ShopItemData("&7Pierre de Basalte ×32",   Material.BASALT,          18,   8, new String[]{"&7Bloc décoratif du Nether"},    it(Material.BASALT,          32)),
+                new ShopItemData("&4Terre Âme ×32",           Material.SOUL_SOIL,       20,  10, new String[]{"&7Base pour flamme âme"},        it(Material.SOUL_SOIL,       32)),
+                new ShopItemData("&bÉcaille de Tortue ×4", Material.TURTLE_SCUTE,      35,  15, new String[]{"&7Craft de casque de tortue"},   it(Material.TURTLE_SCUTE,     4)),
+                new ShopItemData("&6Lingot de Dorée ×4",      Material.GOLD_INGOT,      60,  30, new String[]{"&7Échangé avec les Piglins"},    it(Material.GOLD_INGOT,       4)),
+                new ShopItemData("&5Magma ×16",               Material.MAGMA_BLOCK,     30,  15, new String[]{"&7Blesse les marcheurs"},        it(Material.MAGMA_BLOCK,     16)),
+                new ShopItemData("&6Ancien Débris",            Material.ANCIENT_DEBRIS, 600, 250, new String[]{"&7Précurseur de la Nétherite"},  it(Material.ANCIENT_DEBRIS,   1))
+            )),
+            // ── Spéciaux ─────────────────────────────────────────────────────────
             new ShopCategoryData("speciaux", "&e&l⭐ Spéciaux", Material.NETHER_STAR,
                 "&7Articles rares et très utiles", List.of(
-                new ShopItemData("&5Perle d'Ender ×4", Material.ENDER_PEARL, 80, 40, new String[]{"&7Téléportation instantanée"}, it(Material.ENDER_PEARL, 4)),
-                new ShopItemData("&6Pomme Dorée", Material.GOLDEN_APPLE, 150, 60, new String[]{"&7Régénération II + Absorption"}, it(Material.GOLDEN_APPLE, 1)),
-                new ShopItemData("&dPomme Enchantée", Material.ENCHANTED_GOLDEN_APPLE, 800, 200, new String[]{"&7Régén IV + Absorption IV"}, it(Material.ENCHANTED_GOLDEN_APPLE, 1)),
-                new ShopItemData("&cTNT ×2", Material.TNT, 75, 35, new String[]{"&7Explosif puissant"}, it(Material.TNT, 2)),
-                new ShopItemData("&dBoîte Shulker", Material.SHULKER_BOX, 300, 150, new String[]{"&7Stockage transportable"}, it(Material.SHULKER_BOX, 1)),
-                new ShopItemData("&dTotem de Résurrection", Material.TOTEM_OF_UNDYING, 500, 250, new String[]{"&7Survie garantie !"}, it(Material.TOTEM_OF_UNDYING, 1))
+                new ShopItemData("&5Perle d'Ender ×4",         Material.ENDER_PEARL,           80,  40, new String[]{"&7Téléportation instantanée"},   it(Material.ENDER_PEARL,          4)),
+                new ShopItemData("&6Pomme Dorée",              Material.GOLDEN_APPLE,         150,  60, new String[]{"&7Régénération II + Absorption"}, it(Material.GOLDEN_APPLE,         1)),
+                new ShopItemData("&dPomme Enchantée",          Material.ENCHANTED_GOLDEN_APPLE,800, 200, new String[]{"&7Régén IV + Absorption IV"},     it(Material.ENCHANTED_GOLDEN_APPLE,1)),
+                new ShopItemData("&cTNT ×2",                   Material.TNT,                   75,  35, new String[]{"&7Explosif puissant"},            it(Material.TNT,                  2)),
+                new ShopItemData("&dBoîte Shulker",            Material.SHULKER_BOX,          300, 150, new String[]{"&7Stockage transportable"},       it(Material.SHULKER_BOX,          1)),
+                new ShopItemData("&dTotem de Résurrection",    Material.TOTEM_OF_UNDYING,     500, 250, new String[]{"&7Survie garantie !"},            it(Material.TOTEM_OF_UNDYING,     1))
             ))
         );
     }
@@ -123,8 +162,18 @@ public class ShopMenuGUI implements InventoryHolder {
     private ItemStack makeHeader() {
         ItemStack item = new ItemStack(Material.GRASS_BLOCK); ItemMeta m = item.getItemMeta();
         m.setDisplayName(c("&a&l✦ Shop Skyblock ✦"));
-        m.setLore(List.of(c("&7Bienvenue dans le shop de ton île !"), c("&7Clique sur une catégorie pour explorer."), c(""), c("&a▶ Clic gauche &f: Acheter un item"), c("&6▶ Clic droit &f: Vendre un item"), c(""), c("&eGagne de l'argent en développant ton île.")));
-        m.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES); item.setItemMeta(m); return item;
+        m.setLore(List.of(
+            c("&7Bienvenue dans le shop de ton île !"),
+            c("&7Clique sur une catégorie pour explorer."),
+            c(""),
+            c("&a▶ Clic gauche &f: Acheter ×1"),
+            c("&2▶ Shift + Clic &f: Acheter ×64"),
+            c("&6▶ Clic droit &f: Vendre ×1"),
+            c(""),
+            c("&eGagne de l'argent en développant ton île.")
+        ));
+        m.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+        item.setItemMeta(m); return item;
     }
 
     private ItemStack makeBalance(int balance) {
@@ -143,13 +192,15 @@ public class ShopMenuGUI implements InventoryHolder {
     }
 
     public ShopCategoryData getCategoryAt(int slot) { return categorySlots.get(slot); }
-    public List<ShopCategoryData> getCategories() { return categories; }
-    public EconomyManager getEconomyManager() { return eco; }
+    public List<ShopCategoryData> getCategories()   { return categories; }
+    public EconomyManager getEconomyManager()        { return eco; }
     public void open(Player p) { p.openInventory(inv); }
     @Override public Inventory getInventory() { return inv; }
 
-    private ItemStack glass(Material mat, String name) { ItemStack i = new ItemStack(mat); ItemMeta m = i.getItemMeta(); m.setDisplayName(name); i.setItemMeta(m); return i; }
-    private static ItemStack it(Material mat, int amt) { return new ItemStack(mat, amt); }
+    private ItemStack glass(Material mat, String name) {
+        ItemStack i = new ItemStack(mat); ItemMeta m = i.getItemMeta(); m.setDisplayName(name); i.setItemMeta(m); return i;
+    }
+    private static ItemStack it(Material mat, int amt)               { return new ItemStack(mat, amt); }
     private static ItemStack e(ItemStack item, Enchantment ench, int lvl) { item.addUnsafeEnchantment(ench, lvl); return item; }
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
 }

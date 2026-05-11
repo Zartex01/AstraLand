@@ -4,6 +4,7 @@ import com.astraland.skyblock.managers.EconomyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -29,7 +30,7 @@ public class ShopCategoryGUI implements InventoryHolder {
     private static final int BACK_SLOT = 49;
     private static final int PREV_SLOT = 45;
     private static final int NEXT_SLOT = 53;
-    private static final int INFO_SLOT = 4;
+    private static final int INFO_SLOT  = 4;
 
     private final Inventory inv;
     private final ShopCategoryData category;
@@ -39,11 +40,11 @@ public class ShopCategoryGUI implements InventoryHolder {
     private final Runnable backAction;
 
     public ShopCategoryGUI(ShopCategoryData category, int page, Player player, EconomyManager eco, Runnable backAction) {
-        this.category = category;
+        this.category   = category;
         this.backAction = backAction;
         List<ShopItemData> items = category.items();
         this.totalPages = Math.max(1, (int) Math.ceil((double) items.size() / ITEM_SLOTS.length));
-        this.page = Math.max(0, Math.min(page, totalPages - 1));
+        this.page       = Math.max(0, Math.min(page, totalPages - 1));
         inv = Bukkit.createInventory(this, 54, c("&8&l« &r" + c(category.displayName()) + " &8&l»"));
         build(items, player, eco);
     }
@@ -52,12 +53,12 @@ public class ShopCategoryGUI implements InventoryHolder {
         ItemStack border = glass(Material.BLACK_STAINED_GLASS_PANE, " ");
         ItemStack accent = glass(Material.LIME_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 54; i++) inv.setItem(i, border);
-        for (int i = 0; i < 9; i++) inv.setItem(i, accent);
+        for (int i = 0; i < 9; i++)  inv.setItem(i, accent);
         for (int i = 45; i < 54; i++) inv.setItem(i, accent);
 
         inv.setItem(INFO_SLOT, makeInfo(eco.getBalance(player.getUniqueId())));
         inv.setItem(BACK_SLOT, makeBack());
-        if (page > 0) inv.setItem(PREV_SLOT, makeNav(false));
+        if (page > 0)             inv.setItem(PREV_SLOT, makeNav(false));
         if (page < totalPages - 1) inv.setItem(NEXT_SLOT, makeNav(true));
 
         int start = page * ITEM_SLOTS.length;
@@ -73,42 +74,65 @@ public class ShopCategoryGUI implements InventoryHolder {
     public void handleClick(InventoryClickEvent e, EconomyManager eco, Player player) {
         e.setCancelled(true);
         int slot = e.getRawSlot();
-        if (slot == BACK_SLOT) { backAction.run(); return; }
-        if (slot == PREV_SLOT && page > 0) { new ShopCategoryGUI(category, page - 1, player, eco, backAction).open(player); return; }
-        if (slot == NEXT_SLOT && page < totalPages - 1) { new ShopCategoryGUI(category, page + 1, player, eco, backAction).open(player); return; }
+        if (slot == BACK_SLOT)                         { backAction.run(); return; }
+        if (slot == PREV_SLOT && page > 0)             { new ShopCategoryGUI(category, page - 1, player, eco, backAction).open(player); return; }
+        if (slot == NEXT_SLOT && page < totalPages - 1){ new ShopCategoryGUI(category, page + 1, player, eco, backAction).open(player); return; }
         ShopItemData data = itemSlots.get(slot);
         if (data == null) return;
         ClickType click = e.getClick();
-        if (click == ClickType.LEFT || click == ClickType.SHIFT_LEFT) handleBuy(player, eco, data);
+        if (click == ClickType.LEFT)       handleBuy(player, eco, data, 1);
+        else if (click == ClickType.SHIFT_LEFT)  handleBuy(player, eco, data, 64);
         else if (click == ClickType.RIGHT || click == ClickType.SHIFT_RIGHT) handleSell(player, eco, data);
     }
 
-    private void handleBuy(Player player, EconomyManager eco, ShopItemData data) {
+    // ─── Achat ────────────────────────────────────────────────────────────────
+
+    private void handleBuy(Player player, EconomyManager eco, ShopItemData data, int multiplier) {
         if (data.buyPrice() <= 0) { player.sendMessage(c("&c✗ Cet item n'est pas en vente.")); return; }
-        if (!eco.removeBalance(player.getUniqueId(), data.buyPrice())) {
-            player.sendMessage(c("&c✗ Fonds insuffisants ! &7Il te faut &e" + data.buyPrice() + " $ &8| &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $")); return;
+
+        // Calculer la quantité réelle : multiplier porte sur les packs (si 1 pack = 64 items, shift achète 64×64 = trop)
+        // On limite à des packs raisonnables : multiplier = 1 ou 64 diviseurs
+        int packs = multiplier == 64 ? Math.min(64, 64 / Math.max(1, data.reward().getAmount())) + 1 : 1;
+        int totalCost = data.buyPrice() * packs;
+
+        if (!eco.removeBalance(player.getUniqueId(), totalCost)) {
+            player.sendMessage(c("&c✗ Fonds insuffisants ! &7Il te faut &e" + totalCost + " $"
+                + (packs > 1 ? " &7(×" + packs + " packs)" : "")
+                + " &8| &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
+            return;
         }
-        Map<Integer, ItemStack> leftover = player.getInventory().addItem(data.reward().clone());
-        leftover.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
-        player.sendMessage(c("&a✔ Acheté : &f" + c(data.name()) + " &apour &e" + data.buyPrice() + " $ &8| &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
-        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.2f);
+
+        for (int i = 0; i < packs; i++) {
+            Map<Integer, ItemStack> leftover = player.getInventory().addItem(data.reward().clone());
+            leftover.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+        }
+
+        String quantityStr = packs > 1 ? " &8×" + packs : "";
+        player.sendMessage(c("&a✔ Acheté : &f" + c(data.name()) + quantityStr
+            + " &apour &e" + totalCost + " $ &8| &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.2f);
         refreshInfo(player, eco);
     }
 
+    // ─── Vente ────────────────────────────────────────────────────────────────
+
     private void handleSell(Player player, EconomyManager eco, ShopItemData data) {
         if (!data.isSellable()) { player.sendMessage(c("&c✗ Cet item n'est pas vendable.")); return; }
-        Material mat = data.reward().getType();
-        int needed = data.reward().getAmount();
-        int inInv = countInInventory(player, mat);
+        Material mat  = data.reward().getType();
+        int needed    = data.reward().getAmount();
+        int inInv     = countInInventory(player, mat);
         if (inInv == 0) { player.sendMessage(c("&c✗ Tu n'as pas de &f" + c(data.name()) + " &cà vendre.")); return; }
         int toSell = Math.min(inInv, needed);
         int gained = (int) Math.floor((double) data.sellPrice() / needed * toSell);
         removeFromInventory(player, mat, toSell);
         eco.addBalance(player.getUniqueId(), gained);
-        player.sendMessage(c("&e💰 Vendu : &f" + toSell + "x " + c(data.name()) + " &epour &6" + gained + " $ &8| &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
-        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 0.8f);
+        player.sendMessage(c("&e💰 Vendu : &f" + toSell + "x " + c(data.name())
+            + " &epour &6" + gained + " $ &8| &7Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 0.8f);
         refreshInfo(player, eco);
     }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private int countInInventory(Player player, Material mat) {
         int count = 0;
@@ -128,25 +152,40 @@ public class ShopCategoryGUI implements InventoryHolder {
         }
     }
 
-    private void refreshInfo(Player player, EconomyManager eco) { inv.setItem(INFO_SLOT, makeInfo(eco.getBalance(player.getUniqueId()))); }
+    private void refreshInfo(Player player, EconomyManager eco) {
+        inv.setItem(INFO_SLOT, makeInfo(eco.getBalance(player.getUniqueId())));
+    }
+
+    // ─── Builders d'items GUI ─────────────────────────────────────────────────
 
     private ItemStack makeDisplay(ShopItemData data) {
         ItemStack display = new ItemStack(data.icon()); ItemMeta m = display.getItemMeta();
         m.setDisplayName(c(data.name()));
         List<String> lore = new ArrayList<>();
         for (String l : data.lore()) lore.add(c(l));
-        lore.add(""); lore.add(c("&a🛒 Achat : &e" + (data.buyPrice() > 0 ? data.buyPrice() + " $" : "Non disponible")));
+        lore.add("");
+        lore.add(c("&a🛒 Achat ×1 : &e" + (data.buyPrice() > 0 ? data.buyPrice() + " $" : "Non disponible")));
+        if (data.buyPrice() > 0) lore.add(c("&2🛒 Achat ×64 : &e~ " + (data.buyPrice() * Math.max(1, 64 / Math.max(1, data.reward().getAmount()) + 1)) + " $"));
         lore.add(c("&6💰 Vente : &e" + (data.isSellable() ? data.sellPrice() + " $" : "Non vendable")));
-        lore.add(""); lore.add(c("&a▶ Clic gauche &fpour acheter"));
+        lore.add("");
+        lore.add(c("&a▶ Clic gauche &fpour acheter ×1"));
+        lore.add(c("&2▶ Shift+Clic &fpour acheter ×64"));
         if (data.isSellable()) lore.add(c("&6▶ Clic droit &fpour vendre"));
-        m.setLore(lore); m.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_ARMOR_TRIM);
+        m.setLore(lore);
+        m.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_ARMOR_TRIM);
         display.setItemMeta(m); return display;
     }
 
     private ItemStack makeInfo(int balance) {
         ItemStack item = new ItemStack(Material.SUNFLOWER); ItemMeta m = item.getItemMeta();
         m.setDisplayName(c("&e&lSolde : &6" + balance + " $"));
-        m.setLore(List.of(c(category.description()), c(""), c("&a▶ Clic gauche &f: Acheter"), c("&6▶ Clic droit &f: Vendre"), c(""), c("&7Page &f" + (page + 1) + " &7/ &f" + totalPages)));
+        m.setLore(List.of(
+            c(category.description()), c(""),
+            c("&a▶ Clic gauche &f: Acheter ×1"),
+            c("&2▶ Shift+Clic &f: Acheter ×64"),
+            c("&6▶ Clic droit &f: Vendre"), c(""),
+            c("&7Page &f" + (page + 1) + " &7/ &f" + totalPages)
+        ));
         item.setItemMeta(m); return item;
     }
 
