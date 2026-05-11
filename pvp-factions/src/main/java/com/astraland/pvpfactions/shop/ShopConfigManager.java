@@ -160,4 +160,26 @@ public class ShopConfigManager {
     }
 
     public List<ShopCategoryData> getCategories() { return categories; }
+
+    /**
+     * Retourne un Map Material → prix à l'item (pour /sell all).
+     * Seuls les items NORMAUX (récompense = ItemStack simple) et vendables sont inclus.
+     * Si un même material apparaît plusieurs fois, on garde le prix le plus élevé.
+     */
+    public Map<Material, Integer> getSellPriceMap() {
+        Map<Material, Integer> map = new java.util.HashMap<>();
+        for (ShopCategoryData cat : categories) {
+            for (ShopItemData item : cat.items()) {
+                if (!item.isSellable()) continue;
+                ItemStack reward = item.reward();
+                if (reward == null) continue;
+                Material mat = reward.getType();
+                int pricePerItem = (int) Math.floor((double) item.sellPrice() / Math.max(1, reward.getAmount()));
+                if (pricePerItem <= 0) continue;
+                // Garde le meilleur prix si le même material est listé plusieurs fois
+                map.merge(mat, pricePerItem, Math::max);
+            }
+        }
+        return map;
+    }
 }

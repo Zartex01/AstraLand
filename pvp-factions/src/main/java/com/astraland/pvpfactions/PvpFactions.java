@@ -70,6 +70,11 @@ public class PvpFactions extends JavaPlugin {
         getCommand("pay").setExecutor(ecoCmd);
 
         getCommand("shop").setExecutor(new ShopCommand(this));
+
+        SellAllCommand sellCmd = new SellAllCommand(this);
+        getCommand("sell").setExecutor(sellCmd);
+        getCommand("sell").setTabCompleter(sellCmd);
+
         getCommand("ah").setExecutor(new AHCommand(this));
         getCommand("givemoney").setExecutor(new GiveMoneyCommand(this));
 

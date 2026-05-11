@@ -46,6 +46,10 @@ commands:
     description: Hôtel des ventes
     aliases: [auction, bazaar]
     usage: /ah | /ah sell
+  sell:
+    description: Vendre des items du shop
+    aliases: [sellall, vendre]
+    usage: /sell all
   givemoney:
     description: Donner de l'argent à un joueur (admin)
     aliases: [addmoney, eco-give]
