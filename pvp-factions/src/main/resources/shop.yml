@@ -538,6 +538,207 @@ categories:
         lore:
           - "&716 feuilles de papier"
 
+  agriculture:
+    display: "&2&l🌾 Agriculture"
+    icon: WHEAT
+    description: "&7Graines, récoltes et ressources agricoles"
+    items:
+      # ── Graines ────────────────────────────────────────────
+      - name: "&eGraines de Blé &7x32"
+        material: WHEAT_SEEDS
+        amount: 32
+        buy: 12
+        sell: 4
+        lore:
+          - "&732 graines de blé"
+          - "&7Plante dans la terre travaillée"
+      - name: "&6Carottes &7x32"
+        material: CARROT
+        amount: 32
+        buy: 15
+        sell: 6
+        lore:
+          - "&732 carottes (se plantent directement)"
+      - name: "&bPommes de Terre &7x32"
+        material: POTATO
+        amount: 32
+        buy: 15
+        sell: 6
+        lore:
+          - "&732 pommes de terre"
+      - name: "&8Graines de Betterave &7x16"
+        material: BEETROOT_SEEDS
+        amount: 16
+        buy: 12
+        sell: 4
+        lore:
+          - "&716 graines de betterave"
+      - name: "&aGraines de Melon &7x8"
+        material: MELON_SEEDS
+        amount: 8
+        buy: 20
+        sell: 8
+        lore:
+          - "&78 graines de melon"
+      - name: "&6Graines de Citrouille &7x8"
+        material: PUMPKIN_SEEDS
+        amount: 8
+        buy: 20
+        sell: 8
+        lore:
+          - "&78 graines de citrouille"
+      - name: "&dGraines de Nether Wart &7x8"
+        material: NETHER_WART
+        amount: 8
+        buy: 30
+        sell: 12
+        lore:
+          - "&78 verrues du nether"
+          - "&7Nécessite du sable des âmes"
+      - name: "&aCacao &7x16"
+        material: COCOA_BEANS
+        amount: 16
+        buy: 15
+        sell: 5
+        lore:
+          - "&716 fèves de cacao"
+          - "&7Pousse sur les troncs de jungle"
+      - name: "&eDoucette &7x8"
+        material: SWEET_BERRIES
+        amount: 8
+        buy: 18
+        sell: 7
+        lore:
+          - "&78 baies sucrées"
+      - name: "&bGraines de Torchflower &7x4"
+        material: TORCHFLOWER_SEEDS
+        amount: 4
+        buy: 50
+        sell: 20
+        lore:
+          - "&74 graines de torchfleur"
+          - "&7Fleur rare des ruines"
+      # ── Récoltes ────────────────────────────────────────────
+      - name: "&eBlé &7x64"
+        material: WHEAT
+        amount: 64
+        buy: 18
+        sell: 7
+        lore:
+          - "&764 épis de blé"
+          - "&7Indispensable pour le pain"
+      - name: "&aBetterave &7x32"
+        material: BEETROOT
+        amount: 32
+        buy: 20
+        sell: 8
+        lore:
+          - "&732 betteraves"
+      - name: "&bMelon &7x32"
+        material: MELON_SLICE
+        amount: 32
+        buy: 15
+        sell: 6
+        lore:
+          - "&732 tranches de melon"
+      - name: "&6Citrouille &7x8"
+        material: PUMPKIN
+        amount: 8
+        buy: 20
+        sell: 8
+        lore:
+          - "&78 citrouilles"
+      - name: "&dChampignon Rouge &7x16"
+        material: RED_MUSHROOM
+        amount: 16
+        buy: 20
+        sell: 8
+        lore:
+          - "&716 champignons rouges"
+      - name: "&8Champignon Brun &7x16"
+        material: BROWN_MUSHROOM
+        amount: 16
+        buy: 20
+        sell: 8
+        lore:
+          - "&716 champignons bruns"
+      - name: "&fCanne à Sucre &7x32"
+        material: SUGAR_CANE
+        amount: 32
+        buy: 14
+        sell: 5
+        lore:
+          - "&732 cannes à sucre"
+          - "&7Pousse près de l'eau"
+      - name: "&aCactus &7x32"
+        material: CACTUS
+        amount: 32
+        buy: 10
+        sell: 4
+        lore:
+          - "&732 cactus"
+      - name: "&eBambou &7x32"
+        material: BAMBOO
+        amount: 32
+        buy: 12
+        sell: 4
+        lore:
+          - "&732 bambous"
+          - "&7Croît très rapidement !"
+      # ── Craft & Ingrédients agricoles ───────────────────────
+      - name: "&fFarine &7/ &eSucre &7x32"
+        material: SUGAR
+        amount: 32
+        buy: 15
+        sell: 5
+        lore:
+          - "&732 sucres"
+          - "&7Issu de la canne à sucre"
+      - name: "&aFeuilles de Chêne &7x64"
+        material: OAK_LEAVES
+        amount: 64
+        buy: 12
+        sell: 3
+        lore:
+          - "&764 feuilles de chêne"
+      - name: "&eOs &7x16"
+        material: BONE
+        amount: 16
+        buy: 20
+        sell: 8
+        lore:
+          - "&716 os (craft engrais)"
+      - name: "&fEngrais (Bonemeal) &7x32"
+        material: BONE_MEAL
+        amount: 32
+        buy: 25
+        sell: 8
+        lore:
+          - "&732 engrais"
+          - "&7Accélère la pousse des plantes"
+      - name: "&6Composteur"
+        material: COMPOSTER
+        amount: 1
+        buy: 25
+        sell: 10
+        lore:
+          - "&7Transforme les plantes en engrais"
+      - name: "&aArmure d'Herbe (Gazon) &7x32"
+        material: GRASS_BLOCK
+        amount: 32
+        buy: 10
+        sell: 3
+        lore:
+          - "&732 blocs d'herbe"
+      - name: "&6Terre Travaillée &7x32"
+        material: FARMLAND
+        amount: 32
+        buy: 10
+        sell: 0
+        lore:
+          - "&732 blocs de terre travaillée"
+          - "&7Prête pour la plantation"
+
   enchantements:
     display: "&3&l✨ Enchantements"
     icon: ENCHANTED_BOOK
