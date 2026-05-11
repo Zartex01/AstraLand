@@ -337,26 +337,33 @@ public class IslandManager {
     }
 
     private void buildCobbleGenerator(World world, int cx, int cy, int cz, Material floorMat) {
-        // Pont de 2 blocs vers l'Est (relie l'île au générateur)
-        world.getBlockAt(cx+3, cy, cz).setType(floorMat);
-        world.getBlockAt(cx+4, cy, cz).setType(floorMat);
-        // Support sous le générateur
-        for (int i = 5; i <= 10; i++)
-            world.getBlockAt(cx+i, cy-1, cz).setType(floorMat);
-        // Générateur cobblestone : [mur][lave][spot][buffer][eau][mur]
-        world.getBlockAt(cx+5,  cy, cz).setType(floorMat);
-        world.getBlockAt(cx+6,  cy, cz).setType(Material.LAVA);
-        world.getBlockAt(cx+7,  cy, cz).setType(Material.AIR);
-        world.getBlockAt(cx+8,  cy, cz).setType(Material.AIR);
-        world.getBlockAt(cx+9,  cy, cz).setType(Material.WATER);
-        world.getBlockAt(cx+10, cy, cz).setType(floorMat);
-        // Parois latérales pour contenir lave et eau
-        world.getBlockAt(cx+6, cy, cz-1).setType(floorMat);
-        world.getBlockAt(cx+6, cy, cz+1).setType(floorMat);
-        world.getBlockAt(cx+8, cy, cz-1).setType(floorMat);
-        world.getBlockAt(cx+8, cy, cz+1).setType(floorMat);
-        world.getBlockAt(cx+9, cy, cz-1).setType(floorMat);
-        world.getBlockAt(cx+9, cy, cz+1).setType(floorMat);
+        // Schéma (vue du dessus, niveau cy) :
+        //   [île cx+2][lave cx+3][spot cx+4][eau cx+5][mur cx+6]
+        // L'arête de l'île (cx+2) fait office de mur arrière naturel.
+        // La lave et l'eau sont séparées d'un seul bloc : elles s'écoulent
+        // toutes les deux vers cx+4 et forment de la cobblestone.
+
+        // 1. Plancher sous le canal (cx+3 à cx+6, z-1 à z+1)
+        for (int dx = 3; dx <= 6; dx++)
+            for (int dz = -1; dz <= 1; dz++)
+                world.getBlockAt(cx+dx, cy-1, cz+dz).setType(floorMat);
+
+        // 2. Parois latérales du canal (z-1 et z+1, positions cx+3 à cx+5)
+        for (int dx = 3; dx <= 5; dx++) {
+            world.getBlockAt(cx+dx, cy, cz-1).setType(floorMat);
+            world.getBlockAt(cx+dx, cy, cz+1).setType(floorMat);
+        }
+
+        // 3. Mur frontal (cx+6) — contient l'eau côté opposé à l'île
+        for (int dz = -1; dz <= 1; dz++)
+            world.getBlockAt(cx+6, cy, cz+dz).setType(floorMat);
+
+        // 4. Vider le spot cobblestone au cas où un bloc s'y trouverait
+        world.getBlockAt(cx+4, cy, cz).setType(Material.AIR);
+
+        // 5. Fluides en dernier (murs déjà en place)
+        world.getBlockAt(cx+3, cy, cz).setType(Material.LAVA);   // source lave
+        world.getBlockAt(cx+5, cy, cz).setType(Material.WATER);  // source eau
     }
 
     private void placeLeaves(World w, int cx, int cy, int cz, int radius, Material mat) {
