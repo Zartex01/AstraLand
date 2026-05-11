@@ -1,5 +1,6 @@
 package com.astraland.skyblock;
 
+import com.astraland.skyblock.challenges.ChallengeManager;
 import com.astraland.skyblock.commands.*;
 import com.astraland.skyblock.listeners.AHListener;
 import com.astraland.skyblock.listeners.IslandListener;
@@ -16,21 +17,23 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Skyblock extends JavaPlugin {
 
     private static Skyblock instance;
-    private IslandManager     islandManager;
+    private IslandManager      islandManager;
     private IslandLevelManager levelManager;
-    private EconomyManager    economyManager;
-    private AuctionManager    auctionManager;
-    private ScoreboardTask    scoreboardTask;
+    private EconomyManager     economyManager;
+    private AuctionManager     auctionManager;
+    private ChallengeManager   challengeManager;
+    private ScoreboardTask     scoreboardTask;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
 
-        this.islandManager  = new IslandManager(this);
-        this.levelManager   = new IslandLevelManager();
-        this.economyManager = new EconomyManager(this);
-        this.auctionManager = new AuctionManager(this);
+        this.islandManager    = new IslandManager(this);
+        this.levelManager     = new IslandLevelManager();
+        this.economyManager   = new EconomyManager(this);
+        this.auctionManager   = new AuctionManager(this);
+        this.challengeManager = new ChallengeManager(this);
 
         // /island
         IslandCommand islandCmd = new IslandCommand(this);
@@ -70,7 +73,7 @@ public class Skyblock extends JavaPlugin {
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();
 
-        getLogger().info("AstraLand - Skyblock chargé !");
+        getLogger().info("AstraLand - Skyblock chargé avec " + challengeManager.getAllChallenges().size() + " défis !");
     }
 
     @Override
@@ -80,15 +83,17 @@ public class Skyblock extends JavaPlugin {
         getLogger().info("AstraLand - Skyblock désactivé.");
     }
 
-    public static Skyblock getInstance()            { return instance; }
-    public IslandManager getIslandManager()         { return islandManager; }
-    public IslandLevelManager getLevelManager()     { return levelManager; }
-    public EconomyManager getEconomyManager()       { return economyManager; }
-    public AuctionManager getAuctionManager()       { return auctionManager; }
+    public static Skyblock getInstance()              { return instance; }
+    public IslandManager getIslandManager()           { return islandManager; }
+    public IslandLevelManager getLevelManager()       { return levelManager; }
+    public EconomyManager getEconomyManager()         { return economyManager; }
+    public AuctionManager getAuctionManager()         { return auctionManager; }
+    public ChallengeManager getChallengeManager()     { return challengeManager; }
 
-    public ShopMenuGUI newShopMenuGUI(Player player) { return new ShopMenuGUI(player, economyManager); }
+    public ShopMenuGUI newShopMenuGUI(Player player)  { return new ShopMenuGUI(player, economyManager); }
 
-    public String getPluginWorld()                  { return getConfig().getString("island.world", "world_skyblock"); }
-    public boolean isInPluginWorld(Player player)   { return player.getWorld().getName().equals(getPluginWorld()); }
-    public String wrongWorldMsg()                   { return org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
+    public String getPluginWorld()                    { return getConfig().getString("island.world", "world_skyblock"); }
+    public boolean isInPluginWorld(Player player)     { return player.getWorld().getName().equals(getPluginWorld()); }
+    public String wrongWorldMsg()                     { return org.bukkit.ChatColor.translateAlternateColorCodes('&',
+        "&cCette commande est uniquement disponible dans le monde &e" + getPluginWorld() + "&c."); }
 }

@@ -1,9 +1,13 @@
 package com.astraland.skyblock.commands;
 
 import com.astraland.skyblock.Skyblock;
+import com.astraland.skyblock.challenges.ChallengeGUI;
 import com.astraland.skyblock.gui.IslandGeneratorGUI;
+import com.astraland.skyblock.gui.IslandMenuGUI;
 import com.astraland.skyblock.gui.IslandSettingsGUI;
+import com.astraland.skyblock.gui.IslandUpgradesGUI;
 import com.astraland.skyblock.gui.IslandWarpGUI;
+import com.astraland.skyblock.managers.EconomyManager;
 import com.astraland.skyblock.managers.IslandManager;
 import com.astraland.skyblock.models.Island;
 import org.bukkit.Bukkit;
@@ -25,22 +29,36 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         "info","top","visit","warp","warps","setwarp","delwarp",
         "lock","unlock","pvp","ban","unban","banlist",
         "coop","uncoop","chat","level","scan","setname","expel",
-        "settings","generator","help"
+        "settings","generator","upgrades","challenges","bank","help"
     );
 
     private final Skyblock plugin;
     public IslandCommand(Skyblock plugin) { this.plugin = plugin; }
 
-    private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
-    private String pre() { return c(plugin.getConfig().getString("prefix", "&8[&a&lSkyblock&8] &r")); }
-    private String msg(String key) { return pre() + c(plugin.getConfig().getString("messages." + key, "&c" + key)); }
+    private String c(String s)    { return ChatColor.translateAlternateColorCodes('&', s); }
+    private String pre()          { return c(plugin.getConfig().getString("prefix", "&8[&a&lSkyblock&8] &r")); }
+    private String msg(String key){ return pre() + c(plugin.getConfig().getString("messages." + key, "&c" + key)); }
+    private String fmt(long v)    { return NumberFormat.getInstance(Locale.FRENCH).format(v); }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) { sender.sendMessage("Joueur uniquement."); return true; }
         if (!plugin.isInPluginWorld(player)) { player.sendMessage(plugin.wrongWorldMsg()); return true; }
         IslandManager im = plugin.getIslandManager();
-        String sub = args.length > 0 ? args[0].toLowerCase() : "help";
+
+        // Sans argument → ouvrir le menu GUI
+        if (args.length == 0) {
+            Island isl = im.getIsland(player.getUniqueId());
+            if (isl == null) {
+                player.sendMessage(msg("no-island"));
+                player.sendMessage(pre() + c("&7Utilise &e/is create &7pour créer ton île."));
+            } else {
+                new IslandMenuGUI(plugin, player, isl).open(player);
+            }
+            return true;
+        }
+
+        String sub = args[0].toLowerCase();
 
         switch (sub) {
 
@@ -77,7 +95,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 if (args.length < 2) { player.sendMessage(pre() + c("&cUsage : /is invite <joueur>")); return true; }
                 Island isl = im.getOwnedIsland(player.getUniqueId());
                 if (isl == null) { player.sendMessage(pre() + c("&cTu dois être propriétaire.")); return true; }
-                if (isl.getMemberCount() >= isl.getMemberSlots()) { player.sendMessage(pre() + c("&cTon île est pleine ! (&e" + isl.getMemberSlots() + " &cslots)")); return true; }
+                if (isl.getMemberCount() >= isl.getMemberSlots()) { player.sendMessage(pre() + c("&cTon île est pleine ! (&e" + isl.getMemberSlots() + " &cslots max)")); return true; }
                 Player target = Bukkit.getPlayerExact(args[1]);
                 if (target == null) { player.sendMessage(pre() + c("&cJoueur introuvable.")); return true; }
                 if (isl.isMember(target.getUniqueId())) { player.sendMessage(pre() + c("&cCe joueur est déjà membre.")); return true; }
@@ -141,13 +159,18 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 Island isl = im.getIsland(player.getUniqueId());
                 if (isl == null) { player.sendMessage(msg("no-island")); return true; }
                 org.bukkit.OfflinePlayer owner = Bukkit.getOfflinePlayer(isl.getOwner());
+                int completed = plugin.getChallengeManager().countCompleted(isl.getOwner());
+                int total     = plugin.getChallengeManager().getAllChallenges().size();
                 player.sendMessage(c("&8&m─────────────────────────────"));
                 player.sendMessage(c("  &a&lÎle &8— &f" + isl.getName()));
                 player.sendMessage(c("&8&m─────────────────────────────"));
                 player.sendMessage(c("  &7Propriétaire : &e" + (owner.getName() != null ? owner.getName() : "?")));
                 player.sendMessage(c("  &7Membres : &f" + (isl.getMemberCount() + 1) + " &8/ &f" + (isl.getMemberSlots() + 1)));
-                player.sendMessage(c("  &7Niveau : &a" + isl.getLevel() + "  &7Valeur : &6" + fmt(isl.getValue())));
+                player.sendMessage(c("  &7Niveau : &a" + isl.getLevel() + "  &7Valeur : &6" + fmt(isl.getValue()) + " pts"));
                 player.sendMessage(c("  &7Générateur : &b" + isl.getGeneratorLevel() + "/7"));
+                player.sendMessage(c("  &7Défis : &a" + completed + " &8/ &f" + total));
+                player.sendMessage(c("  &7Banque d'île : &6" + fmt(isl.getBankBalance()) + " $"));
+                player.sendMessage(c("  &7Vol : " + (isl.hasFlyUpgrade() ? "&a✔" : "&c✗") + "  &7Keep Inv : " + (isl.hasKeepInventoryUpgrade() ? "&a✔" : "&c✗")));
                 player.sendMessage(c("  &7PvP : " + (isl.isPvpEnabled() ? "&cActivé" : "&aDesactivé")));
                 player.sendMessage(c("  &7Verrou : " + (isl.isLocked() ? "&cVerrouillée" : "&aOuverte")));
                 player.sendMessage(c("  &7Warp public : " + (isl.isWarpEnabled() ? "&a" + (isl.getWarpName().isBlank() ? "Activé" : isl.getWarpName()) : "&cDésactivé")));
@@ -163,7 +186,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                     org.bukkit.OfflinePlayer o = Bukkit.getOfflinePlayer(isl.getOwner());
                     String medal = i == 0 ? "&6🥇" : i == 1 ? "&7🥈" : i == 2 ? "&c🥉" : "&8#" + (i + 1);
                     player.sendMessage(c(medal + " &f" + (o.getName() != null ? o.getName() : "?") +
-                        " &7- Niveau &a" + isl.getLevel() + " &8| &7Valeur &6" + fmt(isl.getValue())));
+                        " &7- Nv.&a" + isl.getLevel() + " &8| &6" + fmt(isl.getValue()) + " pts"));
                 }
             }
 
@@ -178,7 +201,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 player.teleport(isl.getHome());
                 player.sendMessage(pre() + c("&aTu visites l'île de &e" + (target.getName() != null ? target.getName() : args[1]) + "&a."));
             }
-            case "warps" -> { new IslandWarpGUI(plugin).open(player); }
+            case "warps" -> new IslandWarpGUI(plugin).open(player);
             case "warp" -> {
                 if (args.length < 2) { new IslandWarpGUI(plugin).open(player); return true; }
                 String search = args[1].toLowerCase();
@@ -198,23 +221,21 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 Island isl = im.getOwnedIsland(player.getUniqueId());
                 if (isl == null) { player.sendMessage(pre() + c("&cTu dois être propriétaire.")); return true; }
                 String warpName = args.length >= 2 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : player.getName();
-                isl.setWarpName(warpName);
-                isl.setWarpEnabled(true);
+                isl.setWarpName(warpName); isl.setWarpEnabled(true);
                 im.saveAll();
-                player.sendMessage(pre() + c("&aWarp public &e" + warpName + " &acréé ! Ton île est visible via &e/is warps"));
+                player.sendMessage(pre() + c("&aWarp public &e" + warpName + " &acréé !"));
             }
             case "delwarp" -> {
                 Island isl = im.getOwnedIsland(player.getUniqueId());
                 if (isl == null) { player.sendMessage(pre() + c("&cTu dois être propriétaire.")); return true; }
-                isl.setWarpEnabled(false);
-                isl.setWarpName("");
+                isl.setWarpEnabled(false); isl.setWarpName("");
                 im.saveAll();
                 player.sendMessage(pre() + c("&aWarp supprimé."));
             }
 
             // ── Sécurité ────────────────────────────────────────────────────────
-            case "lock" -> { toggleLock(player, im, true); }
-            case "unlock" -> { toggleLock(player, im, false); }
+            case "lock"   -> toggleLock(player, im, true);
+            case "unlock" -> toggleLock(player, im, false);
             case "pvp" -> {
                 Island isl = im.getOwnedIsland(player.getUniqueId());
                 if (isl == null) { player.sendMessage(pre() + c("&cTu dois être propriétaire.")); return true; }
@@ -294,21 +315,20 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(c("&8&m─────────────────────────────"));
                 player.sendMessage(c("  &a&lNiveau de l'île : &e" + isl.getLevel()));
                 player.sendMessage(c("  &7Valeur : &6" + fmt(isl.getValue()) + " pts"));
-                player.sendMessage(c("  &7Prochain niveau : &6" + fmt(next) + " pts"));
+                player.sendMessage(c("  &7Prochain niveau à : &6" + fmt(next) + " pts"));
                 long diff = next - isl.getValue();
                 if (diff > 0) player.sendMessage(c("  &7Manque : &c" + fmt(diff) + " pts"));
-                else player.sendMessage(c("  &aProchain niveau atteint ! Fais &e/is scan&a."));
-                player.sendMessage(c("  &7Fais &e/is scan &7pour recalculer."));
+                else player.sendMessage(c("  &aMaximum atteint !"));
                 player.sendMessage(c("&8&m─────────────────────────────"));
             }
             case "scan" -> {
                 Island isl = im.getIsland(player.getUniqueId());
                 if (isl == null) { player.sendMessage(msg("no-island")); return true; }
-                player.sendMessage(pre() + c("&7Scan de l'île en cours... ça peut prendre un moment."));
+                player.sendMessage(pre() + c("&7Scan de l'île en cours..."));
                 int radius = plugin.getConfig().getInt("island.size", 100);
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    long value = plugin.getLevelManager().scanIsland(isl, radius);
-                    int newLevel = isl.getLevel();
+                    long value    = plugin.getLevelManager().scanIsland(isl, radius);
+                    int  newLevel = isl.getLevel();
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         im.saveAll();
                         player.sendMessage(pre() + c("&aScan terminé ! Valeur : &6" + fmt(value) + " pts &8| &7Niveau : &a" + newLevel));
@@ -323,15 +343,14 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 if (args.length < 2) { player.sendMessage(pre() + c("&cUsage : /is setname <nom>")); return true; }
                 String name = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                 if (name.length() > 32) { player.sendMessage(pre() + c("&cNom trop long (max 32 caractères).")); return true; }
-                isl.setName(name);
-                im.saveAll();
+                isl.setName(name); im.saveAll();
                 player.sendMessage(pre() + c("&aNom de l'île : &f" + name));
             }
             case "expel" -> {
                 Island isl = im.getOwnedIsland(player.getUniqueId());
                 if (isl == null) { player.sendMessage(pre() + c("&cTu dois être propriétaire.")); return true; }
                 int radius = plugin.getConfig().getInt("island.size", 100);
-                int count = 0;
+                int count  = 0;
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p.equals(player) || !plugin.isInPluginWorld(p)) continue;
                     if (!isl.isInsideIsland(p.getLocation(), radius)) continue;
@@ -354,67 +373,123 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 if (isl == null) { player.sendMessage(pre() + c("&cTu dois être propriétaire.")); return true; }
                 new IslandGeneratorGUI(isl, plugin).open(player);
             }
+            case "upgrades" -> {
+                Island isl = im.getOwnedIsland(player.getUniqueId());
+                if (isl == null) { player.sendMessage(pre() + c("&cTu dois être propriétaire.")); return true; }
+                new IslandUpgradesGUI(isl, plugin).open(player);
+            }
+            case "challenges" -> {
+                Island isl = im.getIsland(player.getUniqueId());
+                if (isl == null) { player.sendMessage(msg("no-island")); return true; }
+                new ChallengeGUI(plugin, player, isl, null, 0).open(player);
+            }
 
-            default -> sendHelp(player);
+            // ── Banque d'île ──────────────────────────────────────────────────────
+            case "bank" -> handleBank(player, im, args);
+
+            // ── Aide ────────────────────────────────────────────────────────────
+            default -> showHelp(player);
         }
         return true;
     }
 
-    private void toggleLock(Player player, IslandManager im, boolean lock) {
+    // ── Banque ────────────────────────────────────────────────────────────────
+
+    private void handleBank(Player player, IslandManager im, String[] args) {
+        Island isl = im.getIsland(player.getUniqueId());
+        if (isl == null) { player.sendMessage(msg("no-island")); return; }
+        EconomyManager eco = plugin.getEconomyManager();
+
+        if (args.length < 2) {
+            // Afficher le solde
+            player.sendMessage(c("&8&m─────────────────────────────"));
+            player.sendMessage(c("  &e&l🏦 Banque d'île"));
+            player.sendMessage(c("  &7Solde banque : &6" + fmt(isl.getBankBalance()) + " $"));
+            player.sendMessage(c("  &7Ton solde perso : &e" + fmt(eco.getBalance(player.getUniqueId())) + " $"));
+            player.sendMessage(c(""));
+            player.sendMessage(c("  &7/is bank deposit <montant>  &8— &fdéposer"));
+            player.sendMessage(c("  &7/is bank withdraw <montant> &8— &fretirer"));
+            player.sendMessage(c("&8&m─────────────────────────────"));
+            return;
+        }
+
+        String action = args[1].toLowerCase();
+        if (args.length < 3) {
+            player.sendMessage(pre() + c("&cUsage : /is bank " + action + " <montant>"));
+            return;
+        }
+
+        long amount;
+        try { amount = Long.parseLong(args[2]); } catch (NumberFormatException e) {
+            player.sendMessage(pre() + c("&cMontant invalide.")); return;
+        }
+        if (amount <= 0) { player.sendMessage(pre() + c("&cLe montant doit être positif.")); return; }
+
+        switch (action) {
+            case "deposit" -> {
+                if (eco.getBalance(player.getUniqueId()) < amount) {
+                    player.sendMessage(pre() + c("&cFonds insuffisants.")); return;
+                }
+                eco.removeBalance(player.getUniqueId(), (int) amount);
+                isl.depositToBank(amount);
+                im.saveAll();
+                player.sendMessage(pre() + c("&a+&6" + fmt(amount) + " $ &adéposés en banque d'île. Solde banque : &6" + fmt(isl.getBankBalance()) + " $"));
+                // Informer les membres
+                for (UUID uid : isl.getMembers()) {
+                    Player m = Bukkit.getPlayer(uid);
+                    if (m != null && !m.equals(player))
+                        m.sendMessage(pre() + c("&e" + player.getName() + " &7a déposé &6" + fmt(amount) + " $ &7en banque d'île."));
+                }
+            }
+            case "withdraw" -> {
+                if (!isl.isOwner(player.getUniqueId())) {
+                    player.sendMessage(pre() + c("&cSeul le propriétaire peut retirer de la banque.")); return;
+                }
+                if (!isl.withdrawFromBank(amount)) {
+                    player.sendMessage(pre() + c("&cFonds insuffisants en banque d'île (&6" + fmt(isl.getBankBalance()) + " $ &cdisponibles).")); return;
+                }
+                eco.addBalance(player.getUniqueId(), (int) amount);
+                im.saveAll();
+                player.sendMessage(pre() + c("&a&6" + fmt(amount) + " $ &aretirés de la banque. Solde perso : &6" + fmt(eco.getBalance(player.getUniqueId())) + " $"));
+            }
+            default -> player.sendMessage(pre() + c("&cUsage : /is bank [deposit|withdraw] <montant>"));
+        }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private void toggleLock(Player player, IslandManager im, boolean locked) {
         Island isl = im.getOwnedIsland(player.getUniqueId());
         if (isl == null) { player.sendMessage(pre() + c("&cTu dois être propriétaire.")); return; }
-        isl.setLocked(lock);
-        im.saveAll();
-        player.sendMessage(pre() + c(lock ? "&cÎle &l🔒 Verrouillée&c." : "&aÎle &l🔓 Déverrouillée&a."));
+        isl.setLocked(locked); im.saveAll();
+        player.sendMessage(pre() + c("&7Île " + (locked ? "&cVerrouillée" : "&aOuverte") + "&7."));
     }
 
-    private void sendHelp(Player p) {
-        p.sendMessage(c("&8&m══════════════════════════════"));
-        p.sendMessage(c("  &a&l✦ Commandes /island (/is)"));
-        p.sendMessage(c("&8&m══════════════════════════════"));
-        p.sendMessage(c("  &e/is create &8- &7Créer ton île"));
-        p.sendMessage(c("  &e/is home &8- &7Aller à ton île"));
-        p.sendMessage(c("  &e/is sethome &8- &7Définir le point de téléportation"));
-        p.sendMessage(c("  &e/is setname <nom> &8- &7Renommer l'île"));
-        p.sendMessage(c("  &e/is info &8- &7Infos de l'île"));
-        p.sendMessage(c("  &e/is top &8- &7Classement des îles"));
-        p.sendMessage(c("  &e/is level &8- &7Voir le niveau / valeur de l'île"));
-        p.sendMessage(c("  &e/is scan &8- &7Recalculer le niveau de l'île"));
-        p.sendMessage(c("  &6/is invite <joueur> &8- &7Inviter un joueur"));
-        p.sendMessage(c("  &6/is join <proprio> &8- &7Rejoindre une île"));
-        p.sendMessage(c("  &6/is kick <joueur> &8- &7Expulser un membre"));
-        p.sendMessage(c("  &6/is leave &8- &7Quitter une île"));
-        p.sendMessage(c("  &6/is coop <joueur> &8- &7Faire confiance (construire)"));
-        p.sendMessage(c("  &6/is uncoop <joueur> &8- &7Retirer la confiance"));
-        p.sendMessage(c("  &c/is ban <joueur> &8- &7Bannir de l'île"));
-        p.sendMessage(c("  &c/is unban <joueur> &8- &7Débannir"));
-        p.sendMessage(c("  &c/is banlist &8- &7Liste des bannis"));
-        p.sendMessage(c("  &c/is expel &8- &7Expulser tous les visiteurs"));
-        p.sendMessage(c("  &b/is visit <joueur> &8- &7Visiter l'île d'un joueur"));
-        p.sendMessage(c("  &b/is warps &8- &7Voir les warps publics"));
-        p.sendMessage(c("  &b/is setwarp [nom] &8- &7Créer un warp public"));
-        p.sendMessage(c("  &b/is delwarp &8- &7Supprimer ton warp"));
-        p.sendMessage(c("  &d/is lock &8/ &d/is unlock &8- &7Verrouiller l'île"));
-        p.sendMessage(c("  &d/is pvp &8- &7Toggle PvP sur l'île"));
-        p.sendMessage(c("  &d/is chat &8- &7Toggle chat privé île"));
-        p.sendMessage(c("  &d/is settings &8- &7Paramètres (GUI)"));
-        p.sendMessage(c("  &d/is generator &8- &7Améliorer le générateur"));
-        p.sendMessage(c("  &4/is delete &8- &7Supprimer ton île"));
-        p.sendMessage(c("&8&m══════════════════════════════"));
+    private void showHelp(Player player) {
+        player.sendMessage(c("&8&m─────────────────────────────"));
+        player.sendMessage(c("  &a&lSkyblock &8— &7Commandes"));
+        player.sendMessage(c("&8&m─────────────────────────────"));
+        player.sendMessage(c("  &e/is &8— &7Ouvrir le menu principal"));
+        player.sendMessage(c("  &e/is create &8— &7Créer une île"));
+        player.sendMessage(c("  &e/is home &8— &7Aller à son île"));
+        player.sendMessage(c("  &e/is info &8— &7Infos de l'île"));
+        player.sendMessage(c("  &e/is top &8— &7Classement des îles"));
+        player.sendMessage(c("  &e/is challenges &8— &7Voir les défis"));
+        player.sendMessage(c("  &e/is upgrades &8— &7Améliorations d'île"));
+        player.sendMessage(c("  &e/is generator &8— &7Améliorer le générateur"));
+        player.sendMessage(c("  &e/is bank [deposit|withdraw] &8— &7Banque d'île"));
+        player.sendMessage(c("  &e/is invite/join/kick/leave &8— &7Membres"));
+        player.sendMessage(c("  &e/is warps &8— &7Visiter d'autres îles"));
+        player.sendMessage(c("  &e/is chat &8— &7Chat privé d'île"));
+        player.sendMessage(c("&8&m─────────────────────────────"));
     }
 
-    private String fmt(long v) { return NumberFormat.getInstance().format(v); }
+    // ── Tab completion ─────────────────────────────────────────────────────────
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        String typed = args[args.length - 1].toLowerCase();
-        if (args.length == 1)
-            return SUBS.stream().filter(s -> s.startsWith(typed)).collect(Collectors.toList());
-        if (args.length == 2) {
-            String sub = args[0].toLowerCase();
-            if (Set.of("invite","kick","ban","unban","coop","uncoop","visit","join").contains(sub))
-                return Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(n -> n.toLowerCase().startsWith(typed)).collect(Collectors.toList());
-        }
-        return List.of();
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        if (args.length == 1) return SUBS.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        if (args.length == 2 && args[0].equalsIgnoreCase("bank")) return List.of("deposit", "withdraw");
+        return Collections.emptyList();
     }
 }

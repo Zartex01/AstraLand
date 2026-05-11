@@ -9,7 +9,7 @@ commands:
   island:
     description: Commandes Skyblock
     aliases: [is, sb, skyblock]
-    usage: /island <create|home|sethome|invite|join|kick|leave|delete|info|top|visit|warp|warps|setwarp|delwarp|lock|unlock|pvp|ban|unban|banlist|coop|uncoop|chat|level|scan|setname|expel|settings|generator|help>
+    usage: /island <create|home|sethome|invite|join|kick|leave|delete|info|top|visit|warp|warps|setwarp|delwarp|lock|unlock|pvp|ban|unban|banlist|coop|uncoop|chat|level|scan|setname|expel|settings|generator|upgrades|challenges|bank|help>
   balance:
     description: Voir son solde de pièces
     aliases: [bal, money]
@@ -40,4 +40,12 @@ commands:
     usage: /givemoney <joueur> <montant>
     permission: astraland.admin
     permission-message: "&cTu n'as pas la permission d'utiliser cette commande."
+    default: op
+
+permissions:
+  astraland.skyblock.admin:
+    description: Bypass la protection des îles
+    default: op
+  astraland.admin:
+    description: Commandes d'administration Skyblock
     default: op

@@ -18,10 +18,13 @@ import java.util.*;
 public class IslandManager {
 
     private final Skyblock plugin;
-    private final Map<UUID, Island>  islands      = new HashMap<>();
-    private final Map<UUID, UUID>    memberIsland = new HashMap<>();
+    private final Map<UUID, Island>  islands       = new HashMap<>();
+    private final Map<UUID, UUID>    memberIsland  = new HashMap<>();
     private final Map<UUID, Long>    deleteConfirm = new HashMap<>();
     private final Set<UUID>          islandChatEnabled = new HashSet<>();
+    private final Map<UUID, ItemStack[]> savedInventories = new HashMap<>();
+    private final Map<UUID, ItemStack[]> savedArmor       = new HashMap<>();
+    private final Map<UUID, Integer>     savedExp         = new HashMap<>();
     private File dataFile;
 
     public IslandManager(Skyblock plugin) {
@@ -70,6 +73,26 @@ public class IslandManager {
         else { islandChatEnabled.add(uuid); return true; }
     }
     public boolean isIslandChatEnabled(UUID uuid) { return islandChatEnabled.contains(uuid); }
+
+    // ─── Keep inventory (death on own island) ─────────────────────────────────
+
+    public void saveInventoryForDeath(UUID uuid, ItemStack[] contents, ItemStack[] armor, int xp) {
+        savedInventories.put(uuid, contents);
+        savedArmor.put(uuid, armor);
+        savedExp.put(uuid, xp);
+    }
+
+    public boolean hasSavedInventory(UUID uuid) { return savedInventories.containsKey(uuid); }
+
+    public void restoreInventory(Player player) {
+        UUID uuid = player.getUniqueId();
+        ItemStack[] contents = savedInventories.remove(uuid);
+        ItemStack[] armor    = savedArmor.remove(uuid);
+        Integer xp           = savedExp.remove(uuid);
+        if (contents != null) player.getInventory().setContents(contents);
+        if (armor != null)    player.getInventory().setArmorContents(armor);
+        if (xp != null)       player.setTotalExperience(xp);
+    }
 
     // ─── Delete confirmation ──────────────────────────────────────────────────
 
@@ -146,7 +169,6 @@ public class IslandManager {
     // ─── Island Generation ────────────────────────────────────────────────────
 
     private void generateIsland(World world, int cx, int cy, int cz) {
-        // ── Plateforme principale 5×5 (coins coupés) ──
         int[][] grassPattern = {
             {-1,-2},{0,-2},{1,-2},
             {-2,-1},{-1,-1},{0,-1},{1,-1},{2,-1},
@@ -160,36 +182,26 @@ public class IslandManager {
             world.getBlockAt(bx, cy-1, bz).setType(Material.DIRT);
             world.getBlockAt(bx, cy-2, bz).setType(Material.DIRT);
         }
-        // Centre inférieur
         world.getBlockAt(cx, cy-3, cz).setType(Material.DIRT);
         world.getBlockAt(cx, cy-4, cz).setType(Material.STONE);
 
-        // ── Arbre (au centre) ──
         for (int y = cy+1; y <= cy+3; y++) world.getBlockAt(cx, y, cz).setType(Material.OAK_LOG);
         placeLeaves(world, cx, cy+4, cz, 2);
         placeLeaves(world, cx, cy+5, cz, 1);
         world.getBlockAt(cx, cy+6, cz).setType(Material.OAK_LEAVES);
 
-        // ── Coffre de démarrage ──
         Block chestBlock = world.getBlockAt(cx + 1, cy + 1, cz + 1);
         chestBlock.setType(Material.CHEST);
         if (chestBlock.getState() instanceof Chest chest) {
             fillStarterChest(chest);
         }
 
-        // ── Générateur de cobblestone basique (côté gauche de l'île) ──
-        // Pierre de support, laver, et source d'eau de l'autre côté
-        // Le joueur les disposera pour faire son générateur
-        // Structure: [STONE][STONE][STONE] extension de l'île vers -X
         world.getBlockAt(cx-3, cy-1, cz).setType(Material.STONE);
         world.getBlockAt(cx-3, cy,   cz).setType(Material.STONE);
         world.getBlockAt(cx-4, cy-1, cz).setType(Material.STONE);
         world.getBlockAt(cx-4, cy,   cz).setType(Material.STONE);
-
-        // Lava source sur la plateforme gauche
         world.getBlockAt(cx-4, cy+1, cz).setType(Material.LAVA);
 
-        // Plateforme eau à droite
         world.getBlockAt(cx+3, cy-1, cz).setType(Material.STONE);
         world.getBlockAt(cx+3, cy,   cz).setType(Material.STONE);
         world.getBlockAt(cx+4, cy-1, cz).setType(Material.STONE);
@@ -244,19 +256,25 @@ public class IslandManager {
         for (Map.Entry<UUID, Island> e : islands.entrySet()) {
             Island isl = e.getValue();
             String p = "islands." + e.getKey();
-            cfg.set(p + ".name",           isl.getName());
-            cfg.set(p + ".level",          isl.getLevel());
-            cfg.set(p + ".value",          isl.getValue());
-            cfg.set(p + ".blocks",         isl.getBlocksBroken());
-            cfg.set(p + ".locked",         isl.isLocked());
-            cfg.set(p + ".pvp",            isl.isPvpEnabled());
-            cfg.set(p + ".warpEnabled",    isl.isWarpEnabled());
-            cfg.set(p + ".warpName",       isl.getWarpName());
-            cfg.set(p + ".generatorLevel", isl.getGeneratorLevel());
-            cfg.set(p + ".memberSlots",    isl.getMemberSlots());
+            cfg.set(p + ".name",                  isl.getName());
+            cfg.set(p + ".level",                 isl.getLevel());
+            cfg.set(p + ".value",                 isl.getValue());
+            cfg.set(p + ".blocks",                isl.getBlocksBroken());
+            cfg.set(p + ".locked",                isl.isLocked());
+            cfg.set(p + ".pvp",                   isl.isPvpEnabled());
+            cfg.set(p + ".warpEnabled",           isl.isWarpEnabled());
+            cfg.set(p + ".warpName",              isl.getWarpName());
+            cfg.set(p + ".generatorLevel",        isl.getGeneratorLevel());
+            cfg.set(p + ".memberSlots",           isl.getMemberSlots());
             cfg.set(p + ".visitorsCanBuild",      isl.isVisitorsCanBuild());
             cfg.set(p + ".visitorsCanBreak",      isl.isVisitorsCanBreak());
             cfg.set(p + ".visitorsCanOpenChests", isl.isVisitorsCanOpenChests());
+            // Nouveaux champs
+            cfg.set(p + ".flyUpgrade",            isl.hasFlyUpgrade());
+            cfg.set(p + ".keepInventoryUpgrade",  isl.hasKeepInventoryUpgrade());
+            cfg.set(p + ".memberSlotsUpgrade",    isl.getMemberSlotsUpgrade());
+            cfg.set(p + ".bankBalance",           isl.getBankBalance());
+
             List<String> members = new ArrayList<>();
             isl.getMembers().forEach(m -> members.add(m.toString()));
             cfg.set(p + ".members", members);
@@ -296,6 +314,12 @@ public class IslandManager {
                 isl.setVisitorsCanBuild(cfg.getBoolean(p + ".visitorsCanBuild", false));
                 isl.setVisitorsCanBreak(cfg.getBoolean(p + ".visitorsCanBreak", false));
                 isl.setVisitorsCanOpenChests(cfg.getBoolean(p + ".visitorsCanOpenChests", false));
+                // Nouveaux champs
+                isl.setFlyUpgrade(cfg.getBoolean(p + ".flyUpgrade", false));
+                isl.setKeepInventoryUpgrade(cfg.getBoolean(p + ".keepInventoryUpgrade", false));
+                isl.setMemberSlotsUpgrade(cfg.getInt(p + ".memberSlotsUpgrade", 0));
+                isl.setBankBalance(cfg.getLong(p + ".bankBalance", 0));
+
                 Location home = loadLocation(cfg, p + ".home");
                 if (home != null) isl.setHome(home);
                 for (String m : cfg.getStringList(p + ".members"))   { try { UUID mu = UUID.fromString(m); isl.addMember(mu); memberIsland.put(mu, owner); } catch (Exception ignored) {} }

@@ -21,6 +21,12 @@ generator:
     6: 60000
     7: 100000
 
+upgrades:
+  fly-cost: 100000
+  keep-inventory-cost: 75000
+  member-slot-cost: 25000
+  max-member-slot-upgrades: 3
+
 messages:
   island-created: "&aÎle créée ! Utilise &e/is home &apour t'y téléporter."
   island-exists: "&cTu as déjà une île !"
