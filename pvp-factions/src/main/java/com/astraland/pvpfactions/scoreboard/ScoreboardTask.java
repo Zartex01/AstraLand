@@ -3,7 +3,6 @@ package com.astraland.pvpfactions.scoreboard;
 import com.astraland.pvpfactions.PvpFactions;
 import com.astraland.pvpfactions.models.Faction;
 import com.astraland.pvpfactions.models.FactionRole;
-import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -14,6 +13,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
+
+import java.lang.reflect.Method;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class ScoreboardTask implements Listener {
             t.addEntry(E[i]);
             Score score = obj.getScore(E[i]);
             score.setScore(i);
-            score.numberFormat(NumberFormat.blank());
+            applyBlankFormat(score);
         }
         boards.put(p.getUniqueId(), board);
         p.setScoreboard(board);
@@ -124,6 +125,18 @@ public class ScoreboardTask implements Listener {
         setLine(board, 2,  bounty > 0 ? "&7Prime: &c" + bounty + "$" : "&7Prime: &8aucune");
         setLine(board, 1,  "&b✈ FlyClaim &8[bientôt]");
         setLine(board, 0,  "&8astraland.fr");
+    }
+
+    private void applyBlankFormat(Score score) {
+        try {
+            Class<?> nfClass = Class.forName("io.papermc.paper.scoreboard.numbers.NumberFormat");
+            Method blankMethod = nfClass.getMethod("blank");
+            Object blank = blankMethod.invoke(null);
+            Method apply = score.getClass().getMethod("numberFormat", nfClass);
+            apply.invoke(score, blank);
+        } catch (Exception ignored) {
+            // Spigot sans l'API Paper : les numéros restent visibles mais pas de crash
+        }
     }
 
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
