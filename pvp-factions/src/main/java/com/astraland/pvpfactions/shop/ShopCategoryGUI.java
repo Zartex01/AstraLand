@@ -101,86 +101,23 @@ public class ShopCategoryGUI implements InventoryHolder {
 
         ClickType click = e.getClick();
 
+        // LEFT or SHIFT+LEFT → achat (compatible Bedrock et Java)
         if (click == ClickType.LEFT || click == ClickType.SHIFT_LEFT) {
-            handleBuy(player, eco, data);
-        } else if (click == ClickType.RIGHT || click == ClickType.SHIFT_RIGHT) {
-            handleSell(player, eco, data);
-        }
-    }
-
-    private void handleBuy(Player player, EconomyManager eco, ShopItemData data) {
-        if (data.buyPrice() <= 0) {
-            player.sendMessage(c("&c✗ Cet item n'est pas en vente."));
-            return;
-        }
-        if (!eco.removeBalance(player.getUniqueId(), data.buyPrice())) {
-            player.sendMessage(c("&c✗ Fonds insuffisants ! &7Il te faut &e" + data.buyPrice()
-                + " $ &7| Solde : &e" + eco.getBalance(player.getUniqueId()) + " $"));
-            return;
-        }
-        ItemStack reward = data.reward().clone();
-        Map<Integer, ItemStack> leftover = player.getInventory().addItem(reward);
-        leftover.values().forEach(item ->
-            player.getWorld().dropItemNaturally(player.getLocation(), item));
-
-        player.sendMessage(c("&a✔ Acheté : &f" + c(data.name())
-            + " &apour &e" + data.buyPrice() + " $ &8| &7Solde : &e"
-            + eco.getBalance(player.getUniqueId()) + " $"));
-        player.playSound(player.getLocation(),
-            org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.2f);
-        refreshInfo(player, eco);
-    }
-
-    private void handleSell(Player player, EconomyManager eco, ShopItemData data) {
-        if (!data.isSellable()) {
-            player.sendMessage(c("&c✗ Cet item n'est pas vendable."));
-            return;
-        }
-
-        Material mat = data.reward().getType();
-        int needed   = data.reward().getAmount();
-        int inInv    = countInInventory(player, mat);
-
-        if (inInv == 0) {
-            player.sendMessage(c("&c✗ Tu n'as pas de &f" + c(data.name()) + " &cà vendre."));
-            return;
-        }
-
-        int toSell  = Math.min(inInv, needed);
-        int gained  = (int) Math.floor((double) data.sellPrice() / needed * toSell);
-
-        removeFromInventory(player, mat, toSell);
-        eco.addBalance(player.getUniqueId(), gained);
-
-        player.sendMessage(c("&e💰 Vendu : &f" + toSell + "x " + c(data.name())
-            + " &epour &6" + gained + " $ &8| &7Solde : &e"
-            + eco.getBalance(player.getUniqueId()) + " $"));
-        player.playSound(player.getLocation(),
-            org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 0.8f);
-        refreshInfo(player, eco);
-    }
-
-    private int countInInventory(Player player, Material mat) {
-        int count = 0;
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && item.getType() == mat) count += item.getAmount();
-        }
-        return count;
-    }
-
-    private void removeFromInventory(Player player, Material mat, int amount) {
-        int remaining = amount;
-        ItemStack[] contents = player.getInventory().getContents();
-        for (int i = 0; i < contents.length && remaining > 0; i++) {
-            ItemStack item = contents[i];
-            if (item == null || item.getType() != mat) continue;
-            if (item.getAmount() <= remaining) {
-                remaining -= item.getAmount();
-                player.getInventory().setItem(i, null);
-            } else {
-                item.setAmount(item.getAmount() - remaining);
-                remaining = 0;
+            if (data.buyPrice() <= 0) {
+                player.sendMessage(c("&c✗ Cet item n'est pas en vente."));
+                return;
             }
+            Runnable back = () -> new ShopCategoryGUI(category, page, player, eco, backAction).open(player);
+            new ShopQuantityGUI(data, eco, ShopQuantityGUI.Mode.BUY, player, back).open(player);
+
+        // RIGHT ou SHIFT+RIGHT → vente (Java seulement, mais SHIFT_LEFT = sell aussi pour Bedrock)
+        } else if (click == ClickType.RIGHT || click == ClickType.SHIFT_RIGHT) {
+            if (!data.isSellable()) {
+                player.sendMessage(c("&c✗ Cet item n'est pas vendable."));
+                return;
+            }
+            Runnable back = () -> new ShopCategoryGUI(category, page, player, eco, backAction).open(player);
+            new ShopQuantityGUI(data, eco, ShopQuantityGUI.Mode.SELL, player, back).open(player);
         }
     }
 
@@ -200,7 +137,7 @@ public class ShopCategoryGUI implements InventoryHolder {
         lore.add(c("&6💰 Vente : &e" + (data.isSellable() ? data.sellPrice() + " $" : "Non vendable")));
         lore.add("");
         lore.add(c("&a▶ Clic gauche &fpour acheter"));
-        if (data.isSellable()) lore.add(c("&6▶ Clic droit &fpour vendre"));
+        if (data.isSellable()) lore.add(c("&6▶ Clic droit &f(PC) &7/ &6Maj+Gauche &f(Bedrock) &fpour vendre"));
 
         m.setLore(lore);
         m.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES,
@@ -217,7 +154,7 @@ public class ShopCategoryGUI implements InventoryHolder {
             c(category.description()),
             c(""),
             c("&a▶ Clic gauche &f: Acheter"),
-            c("&6▶ Clic droit &f: Vendre"),
+            c("&6▶ Clic droit &f(PC) &7/ &6Maj+Gauche &f(Bedrock) &f: Vendre"),
             c(""),
             c("&7Page &f" + (page + 1) + " &7/ &f" + totalPages)
         ));

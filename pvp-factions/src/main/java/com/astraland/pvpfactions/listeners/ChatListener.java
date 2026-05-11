@@ -24,9 +24,8 @@ public class ChatListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        if (!plugin.isInPluginWorld(player)) return;
 
-        // AH price input interception
+        // AH price input interception — must be before world check so Bedrock/any world works
         if (AHSellGUI.AWAITING_PRICE.containsKey(player.getUniqueId())) {
             event.setCancelled(true);
             AHSellGUI.SellSession session = AHSellGUI.AWAITING_PRICE.remove(player.getUniqueId());
