@@ -107,13 +107,13 @@ public class ScoreboardTask implements Listener {
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&7─────────");
+        setLine(board, 11, "&7──────");
         setLine(board, 10, "&7Île de: " + ownerLine);
         setLine(board, 9,  "&7Membres: " + membLine);
-        setLine(board, 8,  "&7─────────");
+        setLine(board, 8,  "&7──────");
         setLine(board, 7,  "&7Phase: " + phaseLine);
         setLine(board, 6,  "&7Blocs: " + blocksLine);
-        setLine(board, 5,  "&7─────────");
+        setLine(board, 5,  "&7──────");
         setLine(board, 4,  "&7Mode: &aOneBlock");
         setLine(board, 3,  "&7» &e/oneblock home");
         setLine(board, 2,  " ");

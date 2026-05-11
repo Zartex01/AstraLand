@@ -211,12 +211,7 @@ public class IslandManager {
         chestBlock.setType(Material.CHEST);
         if (chestBlock.getState() instanceof Chest chest) fillStarterChest(chest, schematicItems(IslandSchematicGUI.Schematic.CLASSIQUE));
 
-        world.getBlockAt(cx-4, cy+1, cz).setType(Material.LAVA);
-        world.getBlockAt(cx-4, cy, cz).setType(Material.STONE);
-        world.getBlockAt(cx-3, cy, cz).setType(Material.STONE);
-        world.getBlockAt(cx+4, cy+1, cz).setType(Material.WATER);
-        world.getBlockAt(cx+4, cy, cz).setType(Material.STONE);
-        world.getBlockAt(cx+3, cy, cz).setType(Material.STONE);
+        buildCobbleGenerator(world, cx, cy, cz, Material.STONE);
     }
 
     // ─── Jungle ────────────────────────────────────────────────────────────────
@@ -254,10 +249,7 @@ public class IslandManager {
         chestBlock.setType(Material.CHEST);
         if (chestBlock.getState() instanceof Chest chest) fillStarterChest(chest, schematicItems(IslandSchematicGUI.Schematic.JUNGLE));
 
-        world.getBlockAt(cx-4, cy+1, cz).setType(Material.WATER);
-        world.getBlockAt(cx-4, cy, cz).setType(Material.STONE);
-        world.getBlockAt(cx+5, cy+1, cz).setType(Material.LAVA);
-        world.getBlockAt(cx+5, cy, cz).setType(Material.STONE);
+        buildCobbleGenerator(world, cx, cy, cz, Material.STONE);
     }
 
     // ─── Désert ────────────────────────────────────────────────────────────────
@@ -294,10 +286,7 @@ public class IslandManager {
         chestBlock.setType(Material.CHEST);
         if (chestBlock.getState() instanceof Chest chest) fillStarterChest(chest, schematicItems(IslandSchematicGUI.Schematic.DESERT));
 
-        world.getBlockAt(cx-4, cy+1, cz).setType(Material.WATER);
-        world.getBlockAt(cx-4, cy, cz).setType(Material.SANDSTONE);
-        world.getBlockAt(cx+4, cy+1, cz).setType(Material.LAVA);
-        world.getBlockAt(cx+4, cy, cz).setType(Material.SANDSTONE);
+        buildCobbleGenerator(world, cx, cy, cz, Material.SANDSTONE);
     }
 
     // ─── Igloo ────────────────────────────────────────────────────────────────
@@ -344,10 +333,30 @@ public class IslandManager {
         chestBlock.setType(Material.CHEST);
         if (chestBlock.getState() instanceof Chest chest) fillStarterChest(chest, schematicItems(IslandSchematicGUI.Schematic.IGLOO));
 
-        world.getBlockAt(cx-4, cy+1, cz).setType(Material.WATER);
-        world.getBlockAt(cx-4, cy, cz).setType(Material.PACKED_ICE);
-        world.getBlockAt(cx+4, cy+1, cz).setType(Material.LAVA);
-        world.getBlockAt(cx+4, cy, cz).setType(Material.PACKED_ICE);
+        buildCobbleGenerator(world, cx, cy, cz, Material.PACKED_ICE);
+    }
+
+    private void buildCobbleGenerator(World world, int cx, int cy, int cz, Material floorMat) {
+        // Pont de 2 blocs vers l'Est (relie l'île au générateur)
+        world.getBlockAt(cx+3, cy, cz).setType(floorMat);
+        world.getBlockAt(cx+4, cy, cz).setType(floorMat);
+        // Support sous le générateur
+        for (int i = 5; i <= 10; i++)
+            world.getBlockAt(cx+i, cy-1, cz).setType(floorMat);
+        // Générateur cobblestone : [mur][lave][spot][buffer][eau][mur]
+        world.getBlockAt(cx+5,  cy, cz).setType(floorMat);
+        world.getBlockAt(cx+6,  cy, cz).setType(Material.LAVA);
+        world.getBlockAt(cx+7,  cy, cz).setType(Material.AIR);
+        world.getBlockAt(cx+8,  cy, cz).setType(Material.AIR);
+        world.getBlockAt(cx+9,  cy, cz).setType(Material.WATER);
+        world.getBlockAt(cx+10, cy, cz).setType(floorMat);
+        // Parois latérales pour contenir lave et eau
+        world.getBlockAt(cx+6, cy, cz-1).setType(floorMat);
+        world.getBlockAt(cx+6, cy, cz+1).setType(floorMat);
+        world.getBlockAt(cx+8, cy, cz-1).setType(floorMat);
+        world.getBlockAt(cx+8, cy, cz+1).setType(floorMat);
+        world.getBlockAt(cx+9, cy, cz-1).setType(floorMat);
+        world.getBlockAt(cx+9, cy, cz+1).setType(floorMat);
     }
 
     private void placeLeaves(World w, int cx, int cy, int cz, int radius, Material mat) {

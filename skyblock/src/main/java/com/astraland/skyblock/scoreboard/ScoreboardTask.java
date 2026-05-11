@@ -124,17 +124,17 @@ public class ScoreboardTask implements Listener {
         // Slots 0..16 (17 lignes max)
         setLine(board, 16, " ");
         setLine(board, 15, "&f" + p.getName());
-        setLine(board, 14, "&7─────────────────");
+        setLine(board, 14, "&7──────");
         setLine(board, 13, "&7Île : " + islName);
         setLine(board, 12, "&7Rang : " + rankLine);
         setLine(board, 11, "&7Niveau : " + levelLine);
-        setLine(board, 10, "&7Générateur : " + genLine);
+        setLine(board, 10, "&7Gén : " + genLine);
         setLine(board, 9,  "&7Warp : " + warpLine);
-        setLine(board, 8,  "&7─────────────────");
+        setLine(board, 8,  "&7──────");
         setLine(board, 7,  "&7Argent : &6" + fmt(balance) + " $");
-        setLine(board, 6,  "&7─────────────────");
+        setLine(board, 6,  "&7──────");
         setLine(board, 5,  "&7Quêtes : &e" + questDone + " &8/ &e" + questTotal);
-        setLine(board, 4,  "&7─────────────────");
+        setLine(board, 4,  "&7──────");
         setLine(board, 3,  isl == null ? "&e/is create" : "&a/is quetes");
         setLine(board, 2,  "&bastraland.fr");
         setLine(board, 1,  " ");

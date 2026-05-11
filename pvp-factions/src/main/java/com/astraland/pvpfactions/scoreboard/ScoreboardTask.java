@@ -111,14 +111,14 @@ public class ScoreboardTask implements Listener {
 
         setLine(board, 15, " ");
         setLine(board, 14, "&f" + p.getName());
-        setLine(board, 13, "&7─────────");
+        setLine(board, 13, "&7──────");
         setLine(board, 12, "&7Faction: " + fLine);
         setLine(board, 11, "&7Rôle: " + roleLine);
         setLine(board, 10, "&7Membres: " + membLine);
         setLine(board, 9,  "&7Puiss: " + powLine);
-        setLine(board, 8,  "&7─────────");
+        setLine(board, 8,  "&7──────");
         setLine(board, 7,  "&7Argent: &6" + money + " $");
-        setLine(board, 6,  "&7─────────");
+        setLine(board, 6,  "&7──────");
         setLine(board, 5,  "&7Kills: &a" + kills + "  &7Morts: &c" + deaths);
         setLine(board, 4,  "&7K/D: &e" + String.format("%.2f", kd));
         setLine(board, 3,  "&7Série: &6" + streak + " kill" + (streak > 1 ? "s" : ""));

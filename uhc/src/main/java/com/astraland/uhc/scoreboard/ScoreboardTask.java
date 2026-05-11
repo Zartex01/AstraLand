@@ -113,16 +113,16 @@ public class ScoreboardTask implements Listener {
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&7─────────");
+        setLine(board, 11, "&7──────");
         setLine(board, 10, "&7Phase: " + stateLine);
         setLine(board, 9,  "&7Scénario: &e" + scenario);
-        setLine(board, 8,  "&7─────────");
+        setLine(board, 8,  "&7──────");
         setLine(board, 7,  "&7Statut: " + statusLine);
         setLine(board, 6,  "&7Cœurs: " + heartLine);
         setLine(board, 5,  "&7Kills: " + killsLine);
         setLine(board, 4,  aliveLine);
         setLine(board, 3,  graceLine);
-        setLine(board, 2,  "&7─────────");
+        setLine(board, 2,  "&7──────");
         setLine(board, 1,  "&bastraland-fr.com");
         setLine(board, 0,  " ");
     }

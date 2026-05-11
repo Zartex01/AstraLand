@@ -14,6 +14,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -41,19 +44,19 @@ public class IslandListener implements Listener {
     private static final Material[][] GEN_BLOCKS = {
         {Material.COBBLESTONE},
         {Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE,
-         Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.STONE, Material.STONE, Material.STONE},
+         Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.STONE, Material.STONE, Material.CHEST},
         {Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE,
-         Material.COBBLESTONE, Material.STONE, Material.STONE, Material.STONE, Material.ANDESITE, Material.GRANITE},
+         Material.COBBLESTONE, Material.STONE, Material.STONE, Material.STONE, Material.ANDESITE, Material.CHEST},
         {Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE,
-         Material.STONE, Material.STONE, Material.STONE, Material.ANDESITE, Material.COAL_ORE, Material.GRANITE},
+         Material.STONE, Material.STONE, Material.STONE, Material.ANDESITE, Material.COAL_ORE, Material.CHEST},
         {Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.STONE,
-         Material.STONE, Material.STONE, Material.IRON_ORE, Material.IRON_ORE, Material.COAL_ORE, Material.ANDESITE},
+         Material.STONE, Material.STONE, Material.IRON_ORE, Material.IRON_ORE, Material.COAL_ORE, Material.CHEST},
         {Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.STONE,
-         Material.STONE, Material.IRON_ORE, Material.IRON_ORE, Material.GOLD_ORE, Material.COAL_ORE, Material.ANDESITE},
+         Material.STONE, Material.IRON_ORE, Material.IRON_ORE, Material.GOLD_ORE, Material.COAL_ORE, Material.CHEST},
         {Material.COBBLESTONE, Material.COBBLESTONE, Material.STONE, Material.STONE,
-         Material.IRON_ORE, Material.IRON_ORE, Material.GOLD_ORE, Material.COAL_ORE, Material.DIAMOND_ORE, Material.ANDESITE},
+         Material.IRON_ORE, Material.IRON_ORE, Material.GOLD_ORE, Material.COAL_ORE, Material.DIAMOND_ORE, Material.CHEST},
         {Material.COBBLESTONE, Material.COBBLESTONE, Material.STONE, Material.IRON_ORE,
-         Material.IRON_ORE, Material.GOLD_ORE, Material.COAL_ORE, Material.DIAMOND_ORE, Material.DIAMOND_ORE, Material.EMERALD_ORE}
+         Material.IRON_ORE, Material.GOLD_ORE, Material.COAL_ORE, Material.DIAMOND_ORE, Material.EMERALD_ORE, Material.CHEST}
     };
 
     public IslandListener(Skyblock plugin) { this.plugin = plugin; }
@@ -286,6 +289,78 @@ public class IslandListener implements Listener {
         Material chosen = pool[random.nextInt(pool.length)];
         if (chosen == Material.COBBLESTONE) return;
         event.getNewState().setType(chosen);
+        if (chosen == Material.CHEST) {
+            Block block = event.getBlock();
+            IslandRank rank = IslandRank.fromLevel(isl.getLevel());
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (block.getState() instanceof Chest chest) {
+                    fillGeneratorChest(chest.getInventory(), rank);
+                    chest.update();
+                }
+            }, 2L);
+        }
+    }
+
+    private void fillGeneratorChest(Inventory inv, IslandRank rank) {
+        Random rng = new Random();
+        switch (rank) {
+            case BOIS -> {
+                inv.setItem(0, new ItemStack(Material.BREAD, 2 + rng.nextInt(4)));
+                inv.setItem(1, new ItemStack(Material.OAK_LOG, 4 + rng.nextInt(8)));
+                inv.setItem(2, new ItemStack(Material.DIRT, 8 + rng.nextInt(16)));
+                inv.setItem(3, new ItemStack(Material.COBBLESTONE, 16 + rng.nextInt(16)));
+                inv.setItem(4, new ItemStack(Material.TORCH, 8));
+                inv.setItem(5, new ItemStack(Material.WHEAT_SEEDS, 4 + rng.nextInt(4)));
+            }
+            case PIERRE -> {
+                inv.setItem(0, new ItemStack(Material.BREAD, 4 + rng.nextInt(4)));
+                inv.setItem(1, new ItemStack(Material.COAL, 4 + rng.nextInt(8)));
+                inv.setItem(2, new ItemStack(Material.STONE, 16 + rng.nextInt(16)));
+                inv.setItem(3, new ItemStack(Material.IRON_NUGGET, 4 + rng.nextInt(8)));
+                inv.setItem(4, new ItemStack(Material.STONE_PICKAXE, 1));
+                inv.setItem(5, new ItemStack(Material.COBBLESTONE, 32));
+            }
+            case FER -> {
+                inv.setItem(0, new ItemStack(Material.BREAD, 4 + rng.nextInt(4)));
+                inv.setItem(1, new ItemStack(Material.IRON_INGOT, 3 + rng.nextInt(5)));
+                inv.setItem(2, new ItemStack(Material.COAL, 8 + rng.nextInt(8)));
+                inv.setItem(3, new ItemStack(Material.IRON_PICKAXE, 1));
+                inv.setItem(4, new ItemStack(Material.IRON_SWORD, 1));
+                inv.setItem(5, new ItemStack(Material.STONE, 32));
+            }
+            case OR -> {
+                inv.setItem(0, new ItemStack(Material.GOLDEN_APPLE, 1));
+                inv.setItem(1, new ItemStack(Material.GOLD_INGOT, 3 + rng.nextInt(5)));
+                inv.setItem(2, new ItemStack(Material.IRON_INGOT, 5 + rng.nextInt(5)));
+                inv.setItem(3, new ItemStack(Material.EXPERIENCE_BOTTLE, 2 + rng.nextInt(4)));
+                inv.setItem(4, new ItemStack(Material.IRON_CHESTPLATE, 1));
+                inv.setItem(5, new ItemStack(Material.COAL, 16));
+            }
+            case DIAMANT -> {
+                inv.setItem(0, new ItemStack(Material.DIAMOND, 1 + rng.nextInt(3)));
+                inv.setItem(1, new ItemStack(Material.IRON_INGOT, 8 + rng.nextInt(8)));
+                inv.setItem(2, new ItemStack(Material.GOLDEN_APPLE, 1 + rng.nextInt(2)));
+                inv.setItem(3, new ItemStack(Material.DIAMOND_PICKAXE, 1));
+                inv.setItem(4, new ItemStack(Material.EXPERIENCE_BOTTLE, 4 + rng.nextInt(4)));
+                inv.setItem(5, new ItemStack(Material.GOLD_INGOT, 8 + rng.nextInt(8)));
+            }
+            case EMERAUDE -> {
+                inv.setItem(0, new ItemStack(Material.EMERALD, 1 + rng.nextInt(3)));
+                inv.setItem(1, new ItemStack(Material.DIAMOND, 2 + rng.nextInt(3)));
+                inv.setItem(2, new ItemStack(Material.GOLDEN_APPLE, 2 + rng.nextInt(2)));
+                inv.setItem(3, new ItemStack(Material.DIAMOND_SWORD, 1));
+                inv.setItem(4, new ItemStack(Material.EXPERIENCE_BOTTLE, 8 + rng.nextInt(8)));
+                inv.setItem(5, new ItemStack(Material.IRON_INGOT, 16));
+            }
+            case NETHERITE -> {
+                inv.setItem(0, new ItemStack(Material.NETHERITE_SCRAP, 1 + rng.nextInt(2)));
+                inv.setItem(1, new ItemStack(Material.DIAMOND, 3 + rng.nextInt(4)));
+                inv.setItem(2, new ItemStack(Material.EMERALD, 2 + rng.nextInt(4)));
+                inv.setItem(3, new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1));
+                inv.setItem(4, new ItemStack(Material.EXPERIENCE_BOTTLE, 16));
+                inv.setItem(5, new ItemStack(Material.GOLD_INGOT, 16));
+            }
+        }
     }
 
     // ─── Explosions ───────────────────────────────────────────────────────────

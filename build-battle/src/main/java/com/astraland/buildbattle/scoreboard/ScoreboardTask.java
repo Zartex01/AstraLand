@@ -124,15 +124,15 @@ public class ScoreboardTask implements Listener {
 
         setLine(board, 13, " ");
         setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&7─────────");
+        setLine(board, 11, "&7──────");
         setLine(board, 10, "&7Partie: " + gameLine);
         setLine(board, 9,  "&7Joueurs: " + playersLine);
         setLine(board, 8,  "&7État: " + stateLine);
-        setLine(board, 7,  "&7─────────");
+        setLine(board, 7,  "&7──────");
         setLine(board, 6,  "&7Thème: " + themeLine);
         setLine(board, 5,  "&7Builder: " + builderLine);
         setLine(board, 4,  "&7Points: " + scoreLine);
-        setLine(board, 3,  "&7─────────");
+        setLine(board, 3,  "&7──────");
         setLine(board, 2,  "&7Mode: &eBuild Battle");
         setLine(board, 1,  "&bastraland-fr.com");
         setLine(board, 0,  " ");
