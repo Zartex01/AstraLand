@@ -1,7 +1,9 @@
 package com.astraland.skyblock.managers;
 
 import com.astraland.skyblock.Skyblock;
+import com.astraland.skyblock.gui.IslandSchematicGUI;
 import com.astraland.skyblock.models.Island;
+import com.astraland.skyblock.models.IslandRole;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -74,7 +76,7 @@ public class IslandManager {
     }
     public boolean isIslandChatEnabled(UUID uuid) { return islandChatEnabled.contains(uuid); }
 
-    // ─── Keep inventory (death on own island) ─────────────────────────────────
+    // ─── Keep inventory ───────────────────────────────────────────────────────
 
     public void saveInventoryForDeath(UUID uuid, ItemStack[] contents, ItemStack[] armor, int xp) {
         savedInventories.put(uuid, contents);
@@ -110,6 +112,10 @@ public class IslandManager {
     // ─── CRUD ─────────────────────────────────────────────────────────────────
 
     public Island createIsland(UUID owner) {
+        return createIsland(owner, IslandSchematicGUI.Schematic.CLASSIQUE);
+    }
+
+    public Island createIsland(UUID owner, IslandSchematicGUI.Schematic schematic) {
         String worldName = plugin.getConfig().getString("island.world", "world_skyblock");
         World world = Bukkit.getWorld(worldName);
         if (world == null) { plugin.getLogger().warning("Monde skyblock '" + worldName + "' introuvable !"); return null; }
@@ -118,10 +124,11 @@ public class IslandManager {
         int x    = islands.size() * dist;
         Location center = new Location(world, x, 65, 0);
 
-        generateIsland(world, center.getBlockX(), center.getBlockY(), center.getBlockZ());
+        generateIsland(world, center.getBlockX(), center.getBlockY(), center.getBlockZ(), schematic);
 
         Island island = new Island(owner, center);
         island.setHome(center.clone().add(0.5, 2, 0.5));
+        island.setSchematicType(schematic.name());
         islands.put(owner, island);
         memberIsland.put(owner, owner);
 
@@ -168,74 +175,235 @@ public class IslandManager {
 
     // ─── Island Generation ────────────────────────────────────────────────────
 
-    private void generateIsland(World world, int cx, int cy, int cz) {
-        int[][] grassPattern = {
+    private void generateIsland(World world, int cx, int cy, int cz, IslandSchematicGUI.Schematic schematic) {
+        switch (schematic) {
+            case CLASSIQUE -> generateClassique(world, cx, cy, cz);
+            case JUNGLE    -> generateJungle(world, cx, cy, cz);
+            case DESERT    -> generateDesert(world, cx, cy, cz);
+            case IGLOO     -> generateIgloo(world, cx, cy, cz);
+        }
+    }
+
+    // ─── Classique ─────────────────────────────────────────────────────────────
+
+    private void generateClassique(World world, int cx, int cy, int cz) {
+        int[][] pattern = {
             {-1,-2},{0,-2},{1,-2},
             {-2,-1},{-1,-1},{0,-1},{1,-1},{2,-1},
             {-2,0},{-1,0},{0,0},{1,0},{2,0},
             {-2,1},{-1,1},{0,1},{1,1},{2,1},
             {-1,2},{0,2},{1,2}
         };
-        for (int[] pos : grassPattern) {
-            int bx = cx + pos[0], bz = cz + pos[1];
-            world.getBlockAt(bx, cy,   bz).setType(Material.GRASS_BLOCK);
-            world.getBlockAt(bx, cy-1, bz).setType(Material.DIRT);
-            world.getBlockAt(bx, cy-2, bz).setType(Material.DIRT);
+        for (int[] pos : pattern) {
+            world.getBlockAt(cx+pos[0], cy,   cz+pos[1]).setType(Material.GRASS_BLOCK);
+            world.getBlockAt(cx+pos[0], cy-1, cz+pos[1]).setType(Material.DIRT);
+            world.getBlockAt(cx+pos[0], cy-2, cz+pos[1]).setType(Material.DIRT);
         }
         world.getBlockAt(cx, cy-3, cz).setType(Material.DIRT);
         world.getBlockAt(cx, cy-4, cz).setType(Material.STONE);
 
         for (int y = cy+1; y <= cy+3; y++) world.getBlockAt(cx, y, cz).setType(Material.OAK_LOG);
-        placeLeaves(world, cx, cy+4, cz, 2);
-        placeLeaves(world, cx, cy+5, cz, 1);
+        placeLeaves(world, cx, cy+4, cz, 2, Material.OAK_LEAVES);
+        placeLeaves(world, cx, cy+5, cz, 1, Material.OAK_LEAVES);
         world.getBlockAt(cx, cy+6, cz).setType(Material.OAK_LEAVES);
 
-        Block chestBlock = world.getBlockAt(cx + 1, cy + 1, cz + 1);
+        Block chestBlock = world.getBlockAt(cx+1, cy+1, cz+1);
         chestBlock.setType(Material.CHEST);
-        if (chestBlock.getState() instanceof Chest chest) {
-            fillStarterChest(chest);
-        }
+        if (chestBlock.getState() instanceof Chest chest) fillStarterChest(chest, schematicItems(IslandSchematicGUI.Schematic.CLASSIQUE));
 
-        world.getBlockAt(cx-3, cy-1, cz).setType(Material.STONE);
-        world.getBlockAt(cx-3, cy,   cz).setType(Material.STONE);
-        world.getBlockAt(cx-4, cy-1, cz).setType(Material.STONE);
-        world.getBlockAt(cx-4, cy,   cz).setType(Material.STONE);
         world.getBlockAt(cx-4, cy+1, cz).setType(Material.LAVA);
-
-        world.getBlockAt(cx+3, cy-1, cz).setType(Material.STONE);
-        world.getBlockAt(cx+3, cy,   cz).setType(Material.STONE);
-        world.getBlockAt(cx+4, cy-1, cz).setType(Material.STONE);
-        world.getBlockAt(cx+4, cy,   cz).setType(Material.STONE);
+        world.getBlockAt(cx-4, cy, cz).setType(Material.STONE);
+        world.getBlockAt(cx-3, cy, cz).setType(Material.STONE);
         world.getBlockAt(cx+4, cy+1, cz).setType(Material.WATER);
+        world.getBlockAt(cx+4, cy, cz).setType(Material.STONE);
+        world.getBlockAt(cx+3, cy, cz).setType(Material.STONE);
     }
 
-    private void placeLeaves(World w, int cx, int cy, int cz, int radius) {
+    // ─── Jungle ────────────────────────────────────────────────────────────────
+
+    private void generateJungle(World world, int cx, int cy, int cz) {
+        int[][] pattern = {
+            {-2,-2},{-1,-2},{0,-2},{1,-2},{2,-2},
+            {-2,-1},{-1,-1},{0,-1},{1,-1},{2,-1},
+            {-2,0},{-1,0},{0,0},{1,0},{2,0},
+            {-2,1},{-1,1},{0,1},{1,1},{2,1},
+            {-2,2},{-1,2},{0,2},{1,2},{2,2}
+        };
+        for (int[] pos : pattern) {
+            world.getBlockAt(cx+pos[0], cy,   cz+pos[1]).setType(Material.GRASS_BLOCK);
+            world.getBlockAt(cx+pos[0], cy-1, cz+pos[1]).setType(Material.DIRT);
+            world.getBlockAt(cx+pos[0], cy-2, cz+pos[1]).setType(Material.DIRT);
+        }
+        world.getBlockAt(cx, cy-3, cz).setType(Material.DIRT);
+
+        // Grand arbre jungle
+        for (int y = cy+1; y <= cy+7; y++) world.getBlockAt(cx, y, cz).setType(Material.JUNGLE_LOG);
+        placeLeaves(world, cx, cy+6, cz, 3, Material.JUNGLE_LEAVES);
+        placeLeaves(world, cx, cy+7, cz, 2, Material.JUNGLE_LEAVES);
+        placeLeaves(world, cx, cy+8, cz, 1, Material.JUNGLE_LEAVES);
+
+        // Bambous
+        for (int y = cy+1; y <= cy+4; y++) world.getBlockAt(cx-2, y, cz-2).setType(Material.BAMBOO);
+        for (int y = cy+1; y <= cy+3; y++) world.getBlockAt(cx+2, y, cz-1).setType(Material.BAMBOO);
+
+        // Lianes
+        world.getBlockAt(cx-1, cy+3, cz+2).setType(Material.VINE);
+        world.getBlockAt(cx+1, cy+4, cz-2).setType(Material.VINE);
+
+        Block chestBlock = world.getBlockAt(cx+2, cy+1, cz+2);
+        chestBlock.setType(Material.CHEST);
+        if (chestBlock.getState() instanceof Chest chest) fillStarterChest(chest, schematicItems(IslandSchematicGUI.Schematic.JUNGLE));
+
+        world.getBlockAt(cx-4, cy+1, cz).setType(Material.WATER);
+        world.getBlockAt(cx-4, cy, cz).setType(Material.STONE);
+        world.getBlockAt(cx+5, cy+1, cz).setType(Material.LAVA);
+        world.getBlockAt(cx+5, cy, cz).setType(Material.STONE);
+    }
+
+    // ─── Désert ────────────────────────────────────────────────────────────────
+
+    private void generateDesert(World world, int cx, int cy, int cz) {
+        int[][] pattern = {
+            {-2,-2},{-1,-2},{0,-2},{1,-2},{2,-2},
+            {-2,-1},{-1,-1},{0,-1},{1,-1},{2,-1},
+            {-2,0},{-1,0},{0,0},{1,0},{2,0},
+            {-2,1},{-1,1},{0,1},{1,1},{2,1},
+            {-1,2},{0,2},{1,2}
+        };
+        for (int[] pos : pattern) {
+            world.getBlockAt(cx+pos[0], cy,   cz+pos[1]).setType(Material.SAND);
+            world.getBlockAt(cx+pos[0], cy-1, cz+pos[1]).setType(Material.SANDSTONE);
+            world.getBlockAt(cx+pos[0], cy-2, cz+pos[1]).setType(Material.SANDSTONE);
+        }
+        world.getBlockAt(cx, cy-3, cz).setType(Material.SMOOTH_SANDSTONE);
+
+        // Cactus
+        world.getBlockAt(cx-2, cy+1, cz).setType(Material.CACTUS);
+        world.getBlockAt(cx-2, cy+2, cz).setType(Material.CACTUS);
+        world.getBlockAt(cx+2, cy+1, cz+2).setType(Material.CACTUS);
+
+        // Plante morte
+        world.getBlockAt(cx+1, cy+1, cz-1).setType(Material.DEAD_BUSH);
+        world.getBlockAt(cx-1, cy+1, cz+1).setType(Material.DEAD_BUSH);
+
+        // Puits
+        world.getBlockAt(cx, cy, cz).setType(Material.SANDSTONE);
+        world.getBlockAt(cx, cy+1, cz).setType(Material.CHISELED_SANDSTONE);
+
+        Block chestBlock = world.getBlockAt(cx+2, cy+1, cz-2);
+        chestBlock.setType(Material.CHEST);
+        if (chestBlock.getState() instanceof Chest chest) fillStarterChest(chest, schematicItems(IslandSchematicGUI.Schematic.DESERT));
+
+        world.getBlockAt(cx-4, cy+1, cz).setType(Material.WATER);
+        world.getBlockAt(cx-4, cy, cz).setType(Material.SANDSTONE);
+        world.getBlockAt(cx+4, cy+1, cz).setType(Material.LAVA);
+        world.getBlockAt(cx+4, cy, cz).setType(Material.SANDSTONE);
+    }
+
+    // ─── Igloo ────────────────────────────────────────────────────────────────
+
+    private void generateIgloo(World world, int cx, int cy, int cz) {
+        int[][] platform = {
+            {-2,-2},{-1,-2},{0,-2},{1,-2},{2,-2},
+            {-2,-1},{-1,-1},{0,-1},{1,-1},{2,-1},
+            {-2,0},{-1,0},{0,0},{1,0},{2,0},
+            {-2,1},{-1,1},{0,1},{1,1},{2,1},
+            {-1,2},{0,2},{1,2}
+        };
+        for (int[] pos : platform) {
+            world.getBlockAt(cx+pos[0], cy,   cz+pos[1]).setType(Material.SNOW_BLOCK);
+            world.getBlockAt(cx+pos[0], cy-1, cz+pos[1]).setType(Material.PACKED_ICE);
+            world.getBlockAt(cx+pos[0], cy-2, cz+pos[1]).setType(Material.BLUE_ICE);
+        }
+        world.getBlockAt(cx, cy-3, cz).setType(Material.PACKED_ICE);
+
+        // Igloo dôme
+        for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) {
+            if (Math.abs(dx) + Math.abs(dz) <= 3)
+                world.getBlockAt(cx+dx, cy+1, cz+dz).setType(Material.SNOW_BLOCK);
+        }
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++)
+            world.getBlockAt(cx+dx, cy+2, cz+dz).setType(Material.SNOW_BLOCK);
+        world.getBlockAt(cx, cy+3, cz).setType(Material.SNOW_BLOCK);
+
+        // Intérieur creux
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++)
+            world.getBlockAt(cx+dx, cy+1, cz+dz).setType(Material.AIR);
+        world.getBlockAt(cx, cy+2, cz).setType(Material.AIR);
+
+        // Entrée
+        world.getBlockAt(cx, cy+1, cz+2).setType(Material.AIR);
+
+        // Sapin
+        for (int y = cy+1; y <= cy+3; y++) world.getBlockAt(cx+3, y, cz+3).setType(Material.SPRUCE_LOG);
+        placeLeaves(world, cx+3, cy+3, cz+3, 1, Material.SPRUCE_LEAVES);
+        placeLeaves(world, cx+3, cy+4, cz+3, 1, Material.SPRUCE_LEAVES);
+        world.getBlockAt(cx+3, cy+5, cz+3).setType(Material.SPRUCE_LEAVES);
+
+        Block chestBlock = world.getBlockAt(cx+1, cy+1, cz);
+        chestBlock.setType(Material.CHEST);
+        if (chestBlock.getState() instanceof Chest chest) fillStarterChest(chest, schematicItems(IslandSchematicGUI.Schematic.IGLOO));
+
+        world.getBlockAt(cx-4, cy+1, cz).setType(Material.WATER);
+        world.getBlockAt(cx-4, cy, cz).setType(Material.PACKED_ICE);
+        world.getBlockAt(cx+4, cy+1, cz).setType(Material.LAVA);
+        world.getBlockAt(cx+4, cy, cz).setType(Material.PACKED_ICE);
+    }
+
+    private void placeLeaves(World w, int cx, int cy, int cz, int radius, Material mat) {
         for (int dx = -radius; dx <= radius; dx++)
             for (int dz = -radius; dz <= radius; dz++)
                 if (Math.abs(dx) + Math.abs(dz) <= radius + 1)
-                    w.getBlockAt(cx+dx, cy, cz+dz).setType(Material.OAK_LEAVES);
+                    w.getBlockAt(cx+dx, cy, cz+dz).setType(mat);
     }
 
-    private void fillStarterChest(Chest chest) {
+    private void fillStarterChest(Chest chest, List<ItemStack> extras) {
         var inv = chest.getInventory();
-        inv.setItem(0,  item(Material.OAK_LOG,         8,  "&eChêne de départ"));
-        inv.setItem(1,  item(Material.LAVA_BUCKET,     1,  "&cSeau de lave &7(générateur)"));
-        inv.setItem(2,  item(Material.ICE,              1,  "&bGlaçon &7(→ source d'eau)"));
-        inv.setItem(3,  item(Material.WHEAT_SEEDS,     32, "&eGraines de blé"));
-        inv.setItem(4,  item(Material.BONE_MEAL,       16, "&fEngrais"));
-        inv.setItem(5,  item(Material.DIRT,            32, "&6Terre"));
-        inv.setItem(6,  item(Material.MELON_SEEDS,      4, "&aGraines de melon"));
-        inv.setItem(7,  item(Material.PUMPKIN_SEEDS,    4, "&6Graines de citrouille"));
-        inv.setItem(8,  item(Material.SUGAR_CANE,       4, "&fCanne à sucre"));
-        inv.setItem(9,  item(Material.BREAD,            8,  "&eNourriture de départ"));
-        inv.setItem(10, item(Material.STONE_PICKAXE,   1,  "&7Pioche de départ"));
-        inv.setItem(11, item(Material.STONE_SWORD,     1,  "&7Épée de départ"));
-        inv.setItem(12, item(Material.STONE_AXE,       1,  "&7Hache de départ"));
-        inv.setItem(13, item(Material.STONE_SHOVEL,    1,  "&7Pelle de départ"));
-        inv.setItem(14, item(Material.COBBLESTONE,     32, "&7Cobblestone de départ"));
-        inv.setItem(15, item(Material.TORCH,           16, "&eTorches"));
-        inv.setItem(16, item(Material.SAND,             8, "&eSable"));
-        inv.setItem(17, item(Material.CACTUS,           2, "&aCactus"));
+        inv.setItem(0,  item(Material.LAVA_BUCKET,   1,  "&cSeau de lave"));
+        inv.setItem(1,  item(Material.ICE,            1,  "&bGlaçon → eau"));
+        inv.setItem(2,  item(Material.WHEAT_SEEDS,   32,  "&eGraines de blé"));
+        inv.setItem(3,  item(Material.BONE_MEAL,     16,  "&fEngrais"));
+        inv.setItem(4,  item(Material.BREAD,          8,  "&eNourriture"));
+        inv.setItem(5,  item(Material.STONE_PICKAXE,  1,  "&7Pioche de départ"));
+        inv.setItem(6,  item(Material.STONE_SWORD,    1,  "&7Épée de départ"));
+        inv.setItem(7,  item(Material.STONE_AXE,      1,  "&7Hache de départ"));
+        inv.setItem(8,  item(Material.COBBLESTONE,   32,  "&7Cobblestone"));
+        inv.setItem(9,  item(Material.TORCH,         16,  "&eTorches"));
+        inv.setItem(10, item(Material.DIRT,          32,  "&6Terre"));
+        inv.setItem(11, item(Material.CACTUS,         2,  "&aCactus"));
+        inv.setItem(12, item(Material.SUGAR_CANE,     4,  "&fCanne à sucre"));
+        for (int i = 0; i < extras.size() && i + 13 < 27; i++) {
+            inv.setItem(13 + i, extras.get(i));
+        }
+    }
+
+    private List<ItemStack> schematicItems(IslandSchematicGUI.Schematic s) {
+        return switch (s) {
+            case CLASSIQUE -> List.of(
+                item(Material.OAK_LOG,        8, "&eChêne de départ"),
+                item(Material.MELON_SEEDS,    4, "&aGraines de melon"),
+                item(Material.PUMPKIN_SEEDS,  4, "&6Graines de citrouille"),
+                item(Material.SAND,           8, "&eSable")
+            );
+            case JUNGLE    -> List.of(
+                item(Material.JUNGLE_LOG,     8, "&2Bois de Jungle"),
+                item(Material.COCOA_BEANS,    8, "&6Fèves de cacao"),
+                item(Material.BAMBOO,        16, "&aGrandir du bambou"),
+                item(Material.MELON_SEEDS,    8, "&aGraines de melon")
+            );
+            case DESERT    -> List.of(
+                item(Material.SAND,          32, "&eSable"),
+                item(Material.CACTUS,         8, "&aCactus"),
+                item(Material.TERRACOTTA,    16, "&6Terracotta"),
+                item(Material.SANDSTONE,     16, "&eGrès")
+            );
+            case IGLOO     -> List.of(
+                item(Material.SNOW_BLOCK,    16, "&fBloc de Neige"),
+                item(Material.PACKED_ICE,    8,  "&bGlace compacte"),
+                item(Material.SPRUCE_LOG,    8,  "&7Bois d'Épicéa"),
+                item(Material.SWEET_BERRIES, 8,  "&cBaies sauvages")
+            );
+        };
     }
 
     private ItemStack item(Material m, int amount, String name) {
@@ -269,15 +437,25 @@ public class IslandManager {
             cfg.set(p + ".visitorsCanBuild",      isl.isVisitorsCanBuild());
             cfg.set(p + ".visitorsCanBreak",      isl.isVisitorsCanBreak());
             cfg.set(p + ".visitorsCanOpenChests", isl.isVisitorsCanOpenChests());
-            // Nouveaux champs
             cfg.set(p + ".flyUpgrade",            isl.hasFlyUpgrade());
             cfg.set(p + ".keepInventoryUpgrade",  isl.hasKeepInventoryUpgrade());
             cfg.set(p + ".memberSlotsUpgrade",    isl.getMemberSlotsUpgrade());
             cfg.set(p + ".bankBalance",           isl.getBankBalance());
+            cfg.set(p + ".schematicType",         isl.getSchematicType());
 
             List<String> members = new ArrayList<>();
             isl.getMembers().forEach(m -> members.add(m.toString()));
             cfg.set(p + ".members", members);
+
+            List<String> officers = new ArrayList<>();
+            isl.getOfficers().forEach(m -> officers.add(m.toString()));
+            cfg.set(p + ".officers", officers);
+
+            // Sauvegarder les rôles
+            for (Map.Entry<UUID, IslandRole> rEntry : isl.getRoles().entrySet()) {
+                cfg.set(p + ".roles." + rEntry.getKey(), rEntry.getValue().name());
+            }
+
             List<String> coops = new ArrayList<>();
             isl.getCoopPlayers().forEach(m -> coops.add(m.toString()));
             cfg.set(p + ".coops", coops);
@@ -314,17 +492,29 @@ public class IslandManager {
                 isl.setVisitorsCanBuild(cfg.getBoolean(p + ".visitorsCanBuild", false));
                 isl.setVisitorsCanBreak(cfg.getBoolean(p + ".visitorsCanBreak", false));
                 isl.setVisitorsCanOpenChests(cfg.getBoolean(p + ".visitorsCanOpenChests", false));
-                // Nouveaux champs
                 isl.setFlyUpgrade(cfg.getBoolean(p + ".flyUpgrade", false));
                 isl.setKeepInventoryUpgrade(cfg.getBoolean(p + ".keepInventoryUpgrade", false));
                 isl.setMemberSlotsUpgrade(cfg.getInt(p + ".memberSlotsUpgrade", 0));
                 isl.setBankBalance(cfg.getLong(p + ".bankBalance", 0));
+                isl.setSchematicType(cfg.getString(p + ".schematicType", "CLASSIQUE"));
 
                 Location home = loadLocation(cfg, p + ".home");
                 if (home != null) isl.setHome(home);
-                for (String m : cfg.getStringList(p + ".members"))   { try { UUID mu = UUID.fromString(m); isl.addMember(mu); memberIsland.put(mu, owner); } catch (Exception ignored) {} }
-                for (String m : cfg.getStringList(p + ".coops"))     { try { UUID mu = UUID.fromString(m); isl.addCoop(mu);   memberIsland.put(mu, owner); } catch (Exception ignored) {} }
-                for (String m : cfg.getStringList(p + ".banned"))    { try { UUID mu = UUID.fromString(m); isl.banPlayer(mu); } catch (Exception ignored) {} }
+                for (String m : cfg.getStringList(p + ".members")) {
+                    try { UUID mu = UUID.fromString(m); isl.addMember(mu); memberIsland.put(mu, owner); } catch (Exception ignored) {}
+                }
+                // Charger rôles
+                if (cfg.getConfigurationSection(p + ".roles") != null) {
+                    for (String ru : cfg.getConfigurationSection(p + ".roles").getKeys(false)) {
+                        try {
+                            UUID rUuid = UUID.fromString(ru);
+                            IslandRole role = IslandRole.valueOf(cfg.getString(p + ".roles." + ru, "MEMBER"));
+                            isl.setRole(rUuid, role);
+                        } catch (Exception ignored) {}
+                    }
+                }
+                for (String m : cfg.getStringList(p + ".coops"))   { try { UUID mu = UUID.fromString(m); isl.addCoop(mu);   memberIsland.put(mu, owner); } catch (Exception ignored) {} }
+                for (String m : cfg.getStringList(p + ".banned"))  { try { UUID mu = UUID.fromString(m); isl.banPlayer(mu); } catch (Exception ignored) {} }
                 islands.put(owner, isl);
                 memberIsland.put(owner, owner);
             } catch (Exception ignored) {}

@@ -13,6 +13,8 @@ public class Island {
     private final Set<UUID> invited      = new HashSet<>();
     private final Set<UUID> coopPlayers  = new HashSet<>();
     private final Set<UUID> bannedPlayers = new HashSet<>();
+    private final Set<UUID> officers     = new HashSet<>();
+    private final Map<UUID, IslandRole> roles = new HashMap<>();
 
     private Location home;
     private Location center;
@@ -33,11 +35,12 @@ public class Island {
     private boolean visitorsCanBreak;
     private boolean visitorsCanOpenChests;
 
-    // ── Nouveaux champs ───────────────────────────────────────────────────────
     private boolean flyUpgrade;
     private boolean keepInventoryUpgrade;
-    private int     memberSlotsUpgrade;   // nombre d'upgrades achetées (max 3)
-    private long    bankBalance;          // Banque commune de l'île
+    private int     memberSlotsUpgrade;
+    private long    bankBalance;
+
+    private String schematicType = "CLASSIQUE";
 
     public Island(UUID owner, Location center) {
         this.owner         = owner;
@@ -61,7 +64,10 @@ public class Island {
         this.keepInventoryUpgrade   = false;
         this.memberSlotsUpgrade     = 0;
         this.bankBalance            = 0;
+        roles.put(owner, IslandRole.OWNER);
     }
+
+    // ── Membres & Rôles ───────────────────────────────────────────────────────
 
     public boolean isOwner(UUID uuid)    { return uuid.equals(owner); }
     public boolean isMember(UUID uuid)   { return uuid.equals(owner) || members.contains(uuid) || coopPlayers.contains(uuid); }
@@ -69,14 +75,33 @@ public class Island {
     public boolean isBanned(UUID uuid)   { return bannedPlayers.contains(uuid); }
     public boolean isCoop(UUID uuid)     { return coopPlayers.contains(uuid); }
 
-    public void addMember(UUID uuid)     { members.add(uuid);     invited.remove(uuid); }
-    public void removeMember(UUID uuid)  { members.remove(uuid); }
+    public IslandRole getRole(UUID uuid) {
+        if (uuid.equals(owner)) return IslandRole.OWNER;
+        return roles.getOrDefault(uuid, IslandRole.MEMBER);
+    }
+
+    public void setRole(UUID uuid, IslandRole role) {
+        roles.put(uuid, role);
+        if (role == IslandRole.OFFICER) officers.add(uuid);
+        else officers.remove(uuid);
+    }
+
+    public Set<UUID> getOfficers() { return Collections.unmodifiableSet(officers); }
+
+    public void addMember(UUID uuid) {
+        members.add(uuid);
+        invited.remove(uuid);
+        if (!roles.containsKey(uuid)) roles.put(uuid, IslandRole.MEMBER);
+    }
+    public void removeMember(UUID uuid)  { members.remove(uuid); officers.remove(uuid); roles.remove(uuid); }
     public void invite(UUID uuid)        { invited.add(uuid); }
     public void uninvite(UUID uuid)      { invited.remove(uuid); }
     public void addCoop(UUID uuid)       { coopPlayers.add(uuid); }
     public void removeCoop(UUID uuid)    { coopPlayers.remove(uuid); }
-    public void banPlayer(UUID uuid)     { bannedPlayers.add(uuid); members.remove(uuid); coopPlayers.remove(uuid); invited.remove(uuid); }
+    public void banPlayer(UUID uuid)     { bannedPlayers.add(uuid); members.remove(uuid); officers.remove(uuid); roles.remove(uuid); coopPlayers.remove(uuid); invited.remove(uuid); }
     public void unbanPlayer(UUID uuid)   { bannedPlayers.remove(uuid); }
+
+    // ── Géographie ────────────────────────────────────────────────────────────
 
     public boolean isInsideIsland(Location loc, int size) {
         if (center == null || loc.getWorld() == null) return false;
@@ -97,6 +122,7 @@ public class Island {
     public Set<UUID> getCoopPlayers()    { return Collections.unmodifiableSet(coopPlayers); }
     public Set<UUID> getBannedPlayers()  { return Collections.unmodifiableSet(bannedPlayers); }
     public Set<UUID> getInvited()        { return Collections.unmodifiableSet(invited); }
+    public Map<UUID, IslandRole> getRoles() { return Collections.unmodifiableMap(roles); }
 
     public Location getHome()            { return home; }
     public void     setHome(Location l)  { this.home = l; }
@@ -131,19 +157,16 @@ public class Island {
     public long    getCreatedAt()           { return createdAt; }
     public int     getMemberCount()         { return members.size(); }
 
-    // ── Nouveaux getters/setters ──────────────────────────────────────────────
-
     public boolean hasFlyUpgrade()             { return flyUpgrade; }
     public void    setFlyUpgrade(boolean b)    { this.flyUpgrade = b; }
-
     public boolean hasKeepInventoryUpgrade()          { return keepInventoryUpgrade; }
     public void    setKeepInventoryUpgrade(boolean b) { this.keepInventoryUpgrade = b; }
-
     public int  getMemberSlotsUpgrade()           { return memberSlotsUpgrade; }
     public void setMemberSlotsUpgrade(int n)      { this.memberSlotsUpgrade = n; }
-
     public long getBankBalance()                  { return bankBalance; }
     public void setBankBalance(long v)            { this.bankBalance = Math.max(0, v); }
+    public String getSchematicType()              { return schematicType; }
+    public void   setSchematicType(String s)      { this.schematicType = s; }
 
     public boolean depositToBank(long amount) {
         if (amount <= 0) return false;
