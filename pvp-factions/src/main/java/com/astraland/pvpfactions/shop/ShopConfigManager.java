@@ -35,6 +35,10 @@ public class ShopConfigManager {
             plugin.saveResource("shop.yml", false);
         }
         YamlConfiguration cfg = YamlConfiguration.loadConfiguration(shopFile);
+        mergeDefaultCategories(cfg);
+        try { cfg.save(shopFile); } catch (Exception e) {
+            plugin.getLogger().warning("[Shop] Impossible de sauvegarder shop.yml : " + e.getMessage());
+        }
 
         ConfigurationSection cats = cfg.getConfigurationSection("categories");
         if (cats == null) return;
@@ -157,6 +161,29 @@ public class ShopConfigManager {
         if (v == null) return def;
         try { return Integer.parseInt(v.toString()); }
         catch (NumberFormatException e) { return def; }
+    }
+
+    /**
+     * Ajoute dans cfg les catégories présentes dans le shop.yml du jar
+     * mais absentes du fichier sur disque. Permet de mettre à jour sans
+     * écraser les modifications existantes.
+     */
+    private void mergeDefaultCategories(YamlConfiguration cfg) {
+        try (InputStreamReader reader = new InputStreamReader(
+                plugin.getResource("shop.yml"), java.nio.charset.StandardCharsets.UTF_8)) {
+            YamlConfiguration defaults = YamlConfiguration.loadConfiguration(reader);
+            ConfigurationSection defCats = defaults.getConfigurationSection("categories");
+            if (defCats == null) return;
+            for (String catId : defCats.getKeys(false)) {
+                String path = "categories." + catId;
+                if (!cfg.contains(path)) {
+                    cfg.set(path, defCats.getConfigurationSection(catId));
+                    plugin.getLogger().info("[Shop] Nouvelle catégorie ajoutée : " + catId);
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("[Shop] Fusion shop.yml impossible : " + e.getMessage());
+        }
     }
 
     public List<ShopCategoryData> getCategories() { return categories; }

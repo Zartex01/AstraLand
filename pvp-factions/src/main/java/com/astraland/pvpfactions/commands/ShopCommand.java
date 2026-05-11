@@ -2,12 +2,16 @@ package com.astraland.pvpfactions.commands;
 
 import com.astraland.pvpfactions.PvpFactions;
 import com.astraland.pvpfactions.shop.ShopMenuGUI;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-public class ShopCommand implements CommandExecutor {
+import java.util.List;
+
+public class ShopCommand implements CommandExecutor, TabCompleter {
 
     private final PvpFactions plugin;
 
@@ -17,6 +21,18 @@ public class ShopCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        // /shop reload (op uniquement)
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+            if (!sender.hasPermission("astraland.admin") && !sender.isOp()) {
+                sender.sendMessage(c("&cTu n'as pas la permission."));
+                return true;
+            }
+            plugin.getShopConfigManager().reload();
+            sender.sendMessage(c("&a✔ Shop rechargé ! &7Les catégories manquantes ont été ajoutées."));
+            return true;
+        }
+
         if (!(sender instanceof Player player)) {
             sender.sendMessage("§cJoueurs uniquement.");
             return true;
@@ -27,5 +43,15 @@ public class ShopCommand implements CommandExecutor {
         }
         new ShopMenuGUI(player, plugin.getEconomyManager(), plugin.getShopConfigManager()).open(player);
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length == 1 && sender.isOp()) return List.of("reload");
+        return List.of();
+    }
+
+    private String c(String s) {
+        return ChatColor.translateAlternateColorCodes('&', s);
     }
 }
