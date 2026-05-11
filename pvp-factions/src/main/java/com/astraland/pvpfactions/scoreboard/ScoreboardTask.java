@@ -3,6 +3,7 @@ package com.astraland.pvpfactions.scoreboard;
 import com.astraland.pvpfactions.PvpFactions;
 import com.astraland.pvpfactions.models.Faction;
 import com.astraland.pvpfactions.models.FactionRole;
+import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -21,7 +22,8 @@ import java.util.UUID;
 public class ScoreboardTask implements Listener {
 
     private static final String[] E = {
-        "§0","§1","§2","§3","§4","§5","§6","§7","§8","§9","§a","§b","§c","§d"
+        "§0","§1","§2","§3","§4","§5","§6","§7","§8","§9",
+        "§a","§b","§c","§d","§e","§f"
     };
 
     private final PvpFactions plugin;
@@ -64,7 +66,9 @@ public class ScoreboardTask implements Listener {
         for (int i = 0; i < E.length; i++) {
             Team t = board.registerNewTeam("l" + i);
             t.addEntry(E[i]);
-            obj.getScore(E[i]).setScore(i);
+            Score score = obj.getScore(E[i]);
+            score.setScore(i);
+            score.numberFormat(NumberFormat.blank());
         }
         boards.put(p.getUniqueId(), board);
         p.setScoreboard(board);
@@ -95,28 +99,31 @@ public class ScoreboardTask implements Listener {
         double kd  = plugin.getStatsManager().getKD(uid);
         int streak = plugin.getStatsManager().getCurrentStreak(uid);
         int bounty = plugin.getBountyManager().getTotalBounty(uid);
+        int money  = plugin.getEconomyManager().getBalance(uid);
 
         Faction f = plugin.getFactionManager().getPlayerFaction(uid);
-        String fLine    = f != null ? "&e[&6" + f.getTag() + "&e] &f" + f.getName() : "&8Aucune";
+        String fLine    = f != null ? "&f" + f.getName() : "&8Aucune";
         String roleLine = f != null ? "&e" + f.getMembers().getOrDefault(uid, FactionRole.MEMBER).getDisplay() : "&8-";
         String maxM     = String.valueOf(plugin.getConfig().getInt("faction.max-members", 30));
         String membLine = f != null ? "&f" + f.getMembers().size() + "&7/" + maxM : "&8-";
         String powLine  = f != null ? "&f" + (int) f.getPower() : "&8-";
 
-        setLine(board, 13, " ");
-        setLine(board, 12, "&f" + p.getName());
-        setLine(board, 11, "&7─────────");
-        setLine(board, 10, "&7Faction: " + fLine);
-        setLine(board, 9,  "&7Rôle: " + roleLine);
-        setLine(board, 8,  "&7Membres: " + membLine);
-        setLine(board, 7,  "&7Puiss: " + powLine);
+        setLine(board, 15, " ");
+        setLine(board, 14, "&f" + p.getName());
+        setLine(board, 13, "&7─────────");
+        setLine(board, 12, "&7Faction: " + fLine);
+        setLine(board, 11, "&7Rôle: " + roleLine);
+        setLine(board, 10, "&7Membres: " + membLine);
+        setLine(board, 9,  "&7Puiss: " + powLine);
+        setLine(board, 8,  "&7─────────");
+        setLine(board, 7,  "&7Argent: &6" + money + " $");
         setLine(board, 6,  "&7─────────");
         setLine(board, 5,  "&7Kills: &a" + kills + "  &7Morts: &c" + deaths);
         setLine(board, 4,  "&7K/D: &e" + String.format("%.2f", kd));
         setLine(board, 3,  "&7Série: &6" + streak + " kill" + (streak > 1 ? "s" : ""));
         setLine(board, 2,  bounty > 0 ? "&7Prime: &c" + bounty + "$" : "&7Prime: &8aucune");
-        setLine(board, 1,  "&bastraland.fr");
-        setLine(board, 0,  " ");
+        setLine(board, 1,  "&b✈ FlyClaim &8[bientôt]");
+        setLine(board, 0,  "&8astraland.fr");
     }
 
     private String c(String s) { return ChatColor.translateAlternateColorCodes('&', s); }

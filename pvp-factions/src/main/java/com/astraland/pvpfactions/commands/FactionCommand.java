@@ -38,10 +38,11 @@ public class FactionCommand implements CommandExecutor, TabCompleter {
             // ─── CRÉATION / SUPPRESSION ───────────────────────────────────────
             case "create" -> {
                 if (args.length < 2) { player.sendMessage(pre() + c("&cUsage : /f create <nom>")); return true; }
-                String name = args[1];
+                String name = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                 int min = plugin.getConfig().getInt("faction.min-name-length", 3);
                 int max = plugin.getConfig().getInt("faction.max-name-length", 20);
                 if (name.length() < min || name.length() > max) { player.sendMessage(pre() + c("&cNom invalide (" + min + "-" + max + " car.).")); return true; }
+                if (!name.matches("[a-zA-Z0-9 _\\-éèêëàâùûüîïôœç]+")) { player.sendMessage(pre() + c("&cNom invalide. (lettres, chiffres, espaces, tirets seulement)")); return true; }
                 if (fm.hasPlayerFaction(player.getUniqueId())) { player.sendMessage(pre() + c(plugin.getConfig().getString("messages.already-in-faction", "&cTu es déjà dans une faction."))); return true; }
                 if (fm.factionExists(name)) { player.sendMessage(pre() + c("&cCette faction existe déjà.")); return true; }
                 fm.createFaction(name, player.getUniqueId());
