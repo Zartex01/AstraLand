@@ -3,6 +3,12 @@ prefix: "&8[&6&lOneBlock&8] &r"
 oneblock:
   world: "world_oneblock"
   spawn-distance: 300
+  mob-spawn-chance: 12
+  chest-drop-chance: 5
+
+economy:
+  block-reward: 2
+  mob-reward: 5
 
 phases:
   - name: "Plaines"
@@ -23,3 +29,21 @@ phases:
   - name: "End"
     blocks-required: 5000
     color: "&5"
+
+upgrades:
+  generator:
+    level-1-cost: 500
+    level-2-cost: 1500
+    level-3-cost: 5000
+  mob-drops:
+    level-1-cost: 300
+    level-2-cost: 1000
+    level-3-cost: 3000
+  chest-luck:
+    level-1-cost: 400
+    level-2-cost: 1200
+    level-3-cost: 4000
+  island-size:
+    level-1-cost: 600
+    level-2-cost: 2000
+    level-3-cost: 6000

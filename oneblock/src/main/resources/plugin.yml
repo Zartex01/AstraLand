@@ -9,10 +9,17 @@ commands:
   oneblock:
     description: Commandes OneBlock
     aliases: [ob, one]
-    usage: /oneblock <create|home|info|phase|top>
+    usage: /oneblock [create|home|sethome|info|phase|top|invite|kick|accept|decline|leave|delete|warp|setwarp|membres|upgrades|defis|warps|settings|help]
+  obadmin:
+    description: Commandes admin OneBlock
+    aliases: [oneblockadmin]
+    usage: /obadmin [info|tp|setblocks|reset|give|list|reload]
+    permission: astraland.admin
+    permission-message: "&cTu n'as pas la permission."
+    default: op
   balance:
     description: Voir son solde de pièces
-    aliases: [bal, money]
+    aliases: [bal, money, coins]
     usage: /balance [joueur]
   pay:
     description: Envoyer des pièces à un joueur
@@ -30,4 +37,9 @@ commands:
     usage: /givemoney <joueur> <montant>
     permission: astraland.admin
     permission-message: "&cTu n'as pas la permission d'utiliser cette commande."
+    default: op
+
+permissions:
+  astraland.admin:
+    description: Accès aux commandes admin OneBlock
     default: op
