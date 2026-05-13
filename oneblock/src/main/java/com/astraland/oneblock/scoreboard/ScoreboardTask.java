@@ -23,7 +23,7 @@ public class ScoreboardTask implements Listener {
 
     private static final String[] E = {
         "§0","§1","§2","§3","§4","§5","§6","§7","§8","§9",
-        "§a","§b","§c","§d","§e","§f","§k","§l","§m","§n"
+        "§a","§b","§c","§d","§e","§f","§k","§l","§m","§n","§o","§r"
     };
 
     private final OneBlock plugin;
@@ -48,15 +48,10 @@ public class ScoreboardTask implements Listener {
         boards.clear();
     }
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (plugin.isInPluginWorld(e.getPlayer())) init(e.getPlayer());
-        }, 5L);
+    @EventHandler public void onJoin(PlayerJoinEvent e) {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> { if (plugin.isInPluginWorld(e.getPlayer())) init(e.getPlayer()); }, 5L);
     }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent e) { boards.remove(e.getPlayer().getUniqueId()); }
+    @EventHandler public void onQuit(PlayerQuitEvent e) { boards.remove(e.getPlayer().getUniqueId()); }
 
     private void init(Player p) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -92,58 +87,64 @@ public class ScoreboardTask implements Listener {
         UUID uid = p.getUniqueId();
         OneBlockIsland isl = plugin.getOneBlockManager().getIsland(uid);
 
-        String ownerLine, phaseLine, blocksLine, membLine, levelLine, balanceLine, nextLine;
+        String ownerLine, phaseLine, blocksLine, membLine, levelLine, balanceLine, nextLine, multLine, prestigeLine;
 
         if (isl != null) {
             OfflinePlayer owner = Bukkit.getOfflinePlayer(isl.getOwner());
             String ownerName = owner.getName() != null ? owner.getName() : "?";
             Phase ph = isl.getCurrentPhase();
-
             Phase nextPhase = null;
             for (Phase pp : Phase.values()) if (pp.getBlocksRequired() > isl.getBlocksBroken()) { nextPhase = pp; break; }
 
-            ownerLine  = "&e" + ownerName + (isl.isOwner(uid) ? " &7(toi)" : "");
-            phaseLine  = ph.getColor() + "&l" + ph.getDisplayName();
-            blocksLine = "&f" + isl.getBlocksBroken();
-            membLine   = "&f" + (isl.getMembers().size() + 1) + " &7membre(s)";
-            levelLine  = "&b" + isl.getIslandLevel();
-            balanceLine = "&e" + plugin.getEconomyManager().getBalance(uid) + " &7pièces";
+            double totalMult = isl.getPrestigeMultiplier() * plugin.getSkillManager().getTotalMoneyMultiplier(uid);
+
+            ownerLine    = "&e" + ownerName + (isl.isOwner(uid) ? " &7(toi)" : "");
+            phaseLine    = ph.getColor() + "&l" + ph.getDisplayName();
+            blocksLine   = "&f" + isl.getBlocksBroken();
+            membLine     = "&f" + isl.getAllMemberUUIDs().size() + " &7membre(s)";
+            levelLine    = "&b" + isl.getIslandLevel();
+            balanceLine  = "&e" + plugin.getEconomyManager().getBalance(uid) + " &7pièces";
+            prestigeLine = isl.getPrestige() > 0 ? "&d✦ Prestige " + isl.getPrestige() : "&8Pas de prestige";
+            multLine     = "&e×" + String.format("%.2f", totalMult);
 
             if (nextPhase != null) {
                 long toNext = nextPhase.getBlocksRequired() - isl.getBlocksBroken();
                 long total = nextPhase.getBlocksRequired() - ph.getBlocksRequired();
-                long done = total - toNext;
-                nextLine = "&7" + buildBar(done, total) + " &8" + toNext + " blocs";
+                nextLine = "&7" + buildBar(total - toNext, total) + " &8" + toNext + " blocs";
             } else {
                 nextLine = "&a✔ Phase max !";
             }
         } else {
-            ownerLine  = "&8Aucune île";
-            phaseLine  = "&8-";
-            blocksLine = "&80";
-            membLine   = "&8-";
-            levelLine  = "&80";
-            balanceLine = "&80 &7pièces";
-            nextLine   = "&8-";
+            ownerLine    = "&8Aucune île";
+            phaseLine    = "&8-";
+            blocksLine   = "&80";
+            membLine     = "&8-";
+            levelLine    = "&80";
+            balanceLine  = "&80 &7pièces";
+            prestigeLine = "&8-";
+            multLine     = "&8×1.00";
+            nextLine     = "&8-";
         }
 
-        setLine(board, 19, " ");
-        setLine(board, 18, "&f" + p.getName());
-        setLine(board, 17, "&7──────────");
-        setLine(board, 16, "&7Île : " + ownerLine);
-        setLine(board, 15, "&7Membres : " + membLine);
-        setLine(board, 14, "&7──────────");
-        setLine(board, 13, "&7Phase : " + phaseLine);
-        setLine(board, 12, "&7Blocs : " + blocksLine);
-        setLine(board, 11, "&7Niveau : " + levelLine);
-        setLine(board, 10, "&7──────────");
-        setLine(board, 9,  "&7Prochaine phase :");
-        setLine(board, 8,  nextLine);
-        setLine(board, 7,  "&7──────────");
-        setLine(board, 6,  "&7Solde : " + balanceLine);
-        setLine(board, 5,  "&7──────────");
+        setLine(board, 21, " ");
+        setLine(board, 20, "&f" + p.getName());
+        setLine(board, 19, "&7───────────");
+        setLine(board, 18, "&7Île : " + ownerLine);
+        setLine(board, 17, "&7Membres : " + membLine);
+        setLine(board, 16, "&7───────────");
+        setLine(board, 15, "&7Phase : " + phaseLine);
+        setLine(board, 14, "&7Blocs : " + blocksLine);
+        setLine(board, 13, "&7Niveau : " + levelLine);
+        setLine(board, 12, prestigeLine);
+        setLine(board, 11, "&7───────────");
+        setLine(board, 10, "&7Prochaine phase :");
+        setLine(board, 9,  nextLine);
+        setLine(board, 8,  "&7───────────");
+        setLine(board, 7,  "&7Solde : " + balanceLine);
+        setLine(board, 6,  "&7Multiplicateur : " + multLine);
+        setLine(board, 5,  "&7───────────");
         setLine(board, 4,  "&7Mode : &aOneBlock");
-        setLine(board, 3,  "&7» &e/ob");
+        setLine(board, 3,  "&7» &e/ob &8| &7/ic");
         setLine(board, 2,  " ");
         setLine(board, 1,  "&bastraland-fr.com");
         setLine(board, 0,  " ");

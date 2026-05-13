@@ -15,6 +15,8 @@ public class OneBlock extends JavaPlugin {
     private OneBlockManager oneBlockManager;
     private EconomyManager economyManager;
     private AuctionManager auctionManager;
+    private SkillManager skillManager;
+    private DailyMissionManager dailyMissionManager;
     private ScoreboardTask scoreboardTask;
     private final Random random = new Random();
 
@@ -23,9 +25,11 @@ public class OneBlock extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
-        this.oneBlockManager = new OneBlockManager(this);
-        this.economyManager  = new EconomyManager(this);
-        this.auctionManager  = new AuctionManager(this);
+        this.oneBlockManager       = new OneBlockManager(this);
+        this.economyManager        = new EconomyManager(this);
+        this.auctionManager        = new AuctionManager(this);
+        this.skillManager          = new SkillManager(this);
+        this.dailyMissionManager   = new DailyMissionManager(this);
 
         OneBlockCommand obCmd = new OneBlockCommand(this);
         getCommand("oneblock").setExecutor(obCmd);
@@ -34,6 +38,9 @@ public class OneBlock extends JavaPlugin {
         OBAdminCommand adminCmd = new OBAdminCommand(this);
         getCommand("obadmin").setExecutor(adminCmd);
         getCommand("obadmin").setTabCompleter(adminCmd);
+
+        IslandChatCommand chatCmd = new IslandChatCommand(this);
+        getCommand("ic").setExecutor(chatCmd);
 
         EconomyCommand ecoCmd = new EconomyCommand(this);
         getCommand("balance").setExecutor(ecoCmd);
@@ -52,21 +59,24 @@ public class OneBlock extends JavaPlugin {
         this.scoreboardTask = new ScoreboardTask(this);
         this.scoreboardTask.start();
 
-        getLogger().info("AstraLand - OneBlock chargé !");
+        getLogger().info("AstraLand - OneBlock chargé avec toutes les fonctionnalités !");
     }
 
     @Override
     public void onDisable() {
         if (scoreboardTask != null) scoreboardTask.stop();
         if (oneBlockManager != null) oneBlockManager.saveAll();
+        if (dailyMissionManager != null) dailyMissionManager.save();
         getLogger().info("AstraLand - OneBlock désactivé.");
     }
 
-    public static OneBlock getInstance()          { return instance; }
-    public OneBlockManager getOneBlockManager()   { return oneBlockManager; }
-    public EconomyManager getEconomyManager()     { return economyManager; }
-    public AuctionManager getAuctionManager()     { return auctionManager; }
-    public Random getRandom()                     { return random; }
+    public static OneBlock getInstance()                      { return instance; }
+    public OneBlockManager getOneBlockManager()               { return oneBlockManager; }
+    public EconomyManager getEconomyManager()                 { return economyManager; }
+    public AuctionManager getAuctionManager()                 { return auctionManager; }
+    public SkillManager getSkillManager()                     { return skillManager; }
+    public DailyMissionManager getDailyMissionManager()       { return dailyMissionManager; }
+    public Random getRandom()                                 { return random; }
 
     public String getPluginWorld() { return getConfig().getString("oneblock.world", "world_oneblock"); }
     public boolean isInPluginWorld(Player player) { return player.getWorld().getName().equals(getPluginWorld()); }

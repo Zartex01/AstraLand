@@ -9,7 +9,7 @@ commands:
   oneblock:
     description: Commandes OneBlock
     aliases: [ob, one]
-    usage: /oneblock [create|home|sethome|info|phase|top|invite|kick|accept|decline|leave|delete|warp|setwarp|membres|upgrades|defis|warps|settings|help]
+    usage: /oneblock [create|home|sethome|info|phase|top|invite|kick|accept|decline|leave|coowner|delete|warp|setwarp|motd|ic|membres|upgrades|defis|missions|skills|bank|prestige|stats|warps|settings|help]
   obadmin:
     description: Commandes admin OneBlock
     aliases: [oneblockadmin]
@@ -17,6 +17,10 @@ commands:
     permission: astraland.admin
     permission-message: "&cTu n'as pas la permission."
     default: op
+  ic:
+    description: Chat d'île (uniquement tes coéquipiers voient le message)
+    aliases: [islandchat, teamchat]
+    usage: /ic <message>
   balance:
     description: Voir son solde de pièces
     aliases: [bal, money, coins]

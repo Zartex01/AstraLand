@@ -41,13 +41,8 @@ public class OneBlockManager {
         return owner == null ? null : islands.get(owner);
     }
 
-    public OneBlockIsland getIslandByOwner(UUID owner) {
-        return islands.get(owner);
-    }
-
-    public Collection<OneBlockIsland> getAllIslands() {
-        return islands.values();
-    }
+    public OneBlockIsland getIslandByOwner(UUID owner) { return islands.get(owner); }
+    public Collection<OneBlockIsland> getAllIslands() { return islands.values(); }
 
     public OneBlockIsland createIsland(UUID owner) {
         String worldName = plugin.getConfig().getString("oneblock.world", "world_oneblock");
@@ -77,17 +72,13 @@ public class OneBlockManager {
         int genLevel = island.getUpgradeLevel(UpgradeType.GENERATOR);
         Material mat;
         if (genLevel >= 2 && plugin.getRandom().nextInt(100) < 15) {
-            mat = getBoostedBlock(phase);
+            List<Material> blocks = phase.getBlocks();
+            int idx = blocks.size() - 1 - plugin.getRandom().nextInt(Math.min(4, blocks.size()));
+            mat = blocks.get(Math.max(0, idx));
         } else {
             mat = phase.getRandomBlock();
         }
         loc.getBlock().setType(mat);
-    }
-
-    private Material getBoostedBlock(Phase phase) {
-        List<Material> blocks = phase.getBlocks();
-        int idx = blocks.size() - 1 - plugin.getRandom().nextInt(Math.min(4, blocks.size()));
-        return blocks.get(Math.max(0, idx));
     }
 
     public void deleteIsland(UUID owner) {
@@ -95,12 +86,19 @@ public class OneBlockManager {
         if (island == null) return;
         memberIsland.remove(owner);
         for (UUID m : island.getMembers()) memberIsland.remove(m);
+        for (UUID m : island.getCoOwners()) memberIsland.remove(m);
         saveAll();
     }
 
     public List<OneBlockIsland> getTop(int limit) {
         List<OneBlockIsland> list = new ArrayList<>(islands.values());
         list.sort((a, b) -> Long.compare(b.getBlocksBroken(), a.getBlocksBroken()));
+        return list.subList(0, Math.min(limit, list.size()));
+    }
+
+    public List<OneBlockIsland> getTopByLevel(int limit) {
+        List<OneBlockIsland> list = new ArrayList<>(islands.values());
+        list.sort((a, b) -> Long.compare(b.getIslandLevel(), a.getIslandLevel()));
         return list.subList(0, Math.min(limit, list.size()));
     }
 
@@ -124,9 +122,7 @@ public class OneBlockManager {
         return true;
     }
 
-    public UUID getPendingInviteFrom(UUID targetUuid) {
-        return pendingInvites.get(targetUuid);
-    }
+    public UUID getPendingInviteFrom(UUID targetUuid) { return pendingInvites.get(targetUuid); }
 
     public boolean acceptInvite(UUID targetUuid) {
         UUID ownerUuid = pendingInvites.remove(targetUuid);
@@ -169,6 +165,40 @@ public class OneBlockManager {
         return true;
     }
 
+    public boolean setCoOwner(UUID ownerUuid, UUID targetUuid) {
+        OneBlockIsland island = islands.get(ownerUuid);
+        if (island == null) return false;
+        if (!island.isMember(targetUuid) || island.isOwner(targetUuid)) return false;
+        island.addCoOwner(targetUuid);
+        saveAll();
+        return true;
+    }
+
+    public boolean removeCoOwner(UUID ownerUuid, UUID targetUuid) {
+        OneBlockIsland island = islands.get(ownerUuid);
+        if (island == null) return false;
+        if (!island.isCoOwner(targetUuid)) return false;
+        island.removeCoOwner(targetUuid);
+        island.addMember(targetUuid);
+        saveAll();
+        return true;
+    }
+
+    public boolean prestigeIsland(UUID ownerUuid) {
+        OneBlockIsland island = islands.get(ownerUuid);
+        if (island == null) return false;
+        if (island.getCurrentPhase() != Phase.END) return false;
+        if (island.getBlocksBroken() < 5000) return false;
+        if (island.getPrestige() >= PrestigeGUI.MAX_PRESTIGE) return false;
+        Location blockLoc = island.getBlockLocation();
+        island.doPrestige();
+        if (blockLoc != null && blockLoc.getWorld() != null) {
+            blockLoc.getBlock().setType(Material.GRASS_BLOCK);
+        }
+        saveAll();
+        return true;
+    }
+
     public String getOwnerName(OneBlockIsland island) {
         OfflinePlayer op = Bukkit.getOfflinePlayer(island.getOwner());
         return op.getName() != null ? op.getName() : "Inconnu";
@@ -186,18 +216,28 @@ public class OneBlockManager {
             cfg.set(path + ".visitors", isl.isVisitorsAllowed());
             cfg.set(path + ".warp", isl.isWarpEnabled());
             cfg.set(path + ".warp-name", isl.getWarpName());
+            cfg.set(path + ".motd", isl.getMotd());
+            cfg.set(path + ".bank", isl.getBankBalance());
+            cfg.set(path + ".prestige", isl.getPrestige());
+
             List<String> members = new ArrayList<>();
             isl.getMembers().forEach(m -> members.add(m.toString()));
             cfg.set(path + ".members", members);
+
+            List<String> coOwners = new ArrayList<>();
+            isl.getCoOwners().forEach(m -> coOwners.add(m.toString()));
+            cfg.set(path + ".co-owners", coOwners);
+
             if (isl.getBlockLocation() != null) saveLocation(cfg, path + ".blockloc", isl.getBlockLocation());
             if (isl.getHome() != null) saveLocation(cfg, path + ".home", isl.getHome());
-            for (Map.Entry<String, Integer> upg : isl.getUpgrades().entrySet()) {
+
+            for (Map.Entry<String, Integer> upg : isl.getUpgrades().entrySet())
                 cfg.set(path + ".upgrades." + upg.getKey(), upg.getValue());
-            }
-            for (Map.Entry<String, Long> cp : isl.getChallengeProgressMap().entrySet()) {
+            for (Map.Entry<String, Long> cp : isl.getChallengeProgressMap().entrySet())
                 cfg.set(path + ".challenge-progress." + cp.getKey(), cp.getValue());
-            }
             cfg.set(path + ".completed-challenges", new ArrayList<>(isl.getCompletedChallenges()));
+            for (Map.Entry<String, Long> col : isl.getCollections().entrySet())
+                cfg.set(path + ".collections." + col.getKey(), col.getValue());
         }
         try { cfg.save(dataFile); } catch (IOException ex) { ex.printStackTrace(); }
     }
@@ -212,32 +252,41 @@ public class OneBlockManager {
                 String path = "islands." + uuidStr;
                 Location blockLoc = loadLocation(cfg, path + ".blockloc");
                 if (blockLoc == null) continue;
+
                 OneBlockIsland isl = new OneBlockIsland(owner, blockLoc);
                 isl.setBlocksBroken(cfg.getLong(path + ".blocks", 0));
                 Location home = loadLocation(cfg, path + ".home");
                 if (home != null) isl.setHome(home);
+
                 isl.setPvpEnabled(cfg.getBoolean(path + ".pvp", false));
                 isl.setVisitorsAllowed(cfg.getBoolean(path + ".visitors", true));
                 isl.setWarpEnabled(cfg.getBoolean(path + ".warp", false));
                 isl.setWarpName(cfg.getString(path + ".warp-name", ""));
+                isl.setMotd(cfg.getString(path + ".motd", ""));
+                isl.setBankBalance(cfg.getLong(path + ".bank", 0));
+                isl.setPrestige(cfg.getInt(path + ".prestige", 0));
+
                 for (String m : cfg.getStringList(path + ".members")) {
-                    try {
-                        UUID mu = UUID.fromString(m);
-                        isl.addMember(mu);
-                        memberIsland.put(mu, owner);
-                    } catch (Exception ignored) {}
+                    try { UUID mu = UUID.fromString(m); isl.addMember(mu); memberIsland.put(mu, owner); } catch (Exception ignored) {}
                 }
-                if (cfg.getConfigurationSection(path + ".upgrades") != null) {
-                    for (String key : cfg.getConfigurationSection(path + ".upgrades").getKeys(false)) {
+                for (String m : cfg.getStringList(path + ".co-owners")) {
+                    try { UUID mu = UUID.fromString(m); isl.addCoOwner(mu); memberIsland.put(mu, owner); } catch (Exception ignored) {}
+                }
+
+                if (cfg.getConfigurationSection(path + ".upgrades") != null)
+                    for (String key : cfg.getConfigurationSection(path + ".upgrades").getKeys(false))
                         isl.getUpgrades().put(key, cfg.getInt(path + ".upgrades." + key, 0));
-                    }
-                }
-                if (cfg.getConfigurationSection(path + ".challenge-progress") != null) {
-                    for (String key : cfg.getConfigurationSection(path + ".challenge-progress").getKeys(false)) {
+
+                if (cfg.getConfigurationSection(path + ".challenge-progress") != null)
+                    for (String key : cfg.getConfigurationSection(path + ".challenge-progress").getKeys(false))
                         isl.getChallengeProgressMap().put(key, cfg.getLong(path + ".challenge-progress." + key, 0));
-                    }
-                }
+
                 isl.getCompletedChallenges().addAll(cfg.getStringList(path + ".completed-challenges"));
+
+                if (cfg.getConfigurationSection(path + ".collections") != null)
+                    for (String key : cfg.getConfigurationSection(path + ".collections").getKeys(false))
+                        isl.getCollections().put(key, cfg.getLong(path + ".collections." + key, 0));
+
                 islands.put(owner, isl);
                 memberIsland.put(owner, owner);
             } catch (Exception ignored) {}
@@ -257,5 +306,9 @@ public class OneBlockManager {
         World world = Bukkit.getWorld(w);
         if (world == null) return null;
         return new Location(world, cfg.getDouble(path + ".x"), cfg.getDouble(path + ".y"), cfg.getDouble(path + ".z"));
+    }
+
+    private static final class PrestigeGUI {
+        static final int MAX_PRESTIGE = com.astraland.oneblock.gui.PrestigeGUI.MAX_PRESTIGE;
     }
 }
