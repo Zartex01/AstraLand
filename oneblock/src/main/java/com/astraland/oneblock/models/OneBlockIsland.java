@@ -23,11 +23,13 @@ public class OneBlockIsland {
 
     private long bankBalance = 0;
     private int prestige = 0;
+    private long islandWorth = 0;
 
     private final Map<String, Integer> upgrades = new HashMap<>();
     private final Map<String, Long> challengeProgress = new HashMap<>();
     private final Set<String> completedChallenges = new HashSet<>();
     private final Map<String, Long> collections = new HashMap<>();
+    private final Map<String, Integer> claimedMilestones = new HashMap<>();
 
     public OneBlockIsland(UUID owner, Location blockLocation) {
         this.owner = owner;
@@ -99,15 +101,20 @@ public class OneBlockIsland {
     }
     public long getCollection(String materialName) { return collections.getOrDefault(materialName, 0L); }
 
-    public boolean depositToBank(int amount) {
-        bankBalance += amount;
-        return true;
+    public int getClaimedMilestone(String collectionId) { return claimedMilestones.getOrDefault(collectionId, -1); }
+    public void setClaimedMilestone(String collectionId, int milestoneIndex) {
+        claimedMilestones.put(collectionId, milestoneIndex);
     }
+
+    public boolean depositToBank(int amount) { bankBalance += amount; return true; }
     public boolean withdrawFromBank(int amount) {
         if (bankBalance < amount) return false;
         bankBalance -= amount;
         return true;
     }
+
+    public void addWorth(long amount) { islandWorth += amount; }
+    public void removeWorth(long amount) { islandWorth = Math.max(0, islandWorth - amount); }
 
     public void doPrestige() {
         blocksBroken = 0;
@@ -145,10 +152,13 @@ public class OneBlockIsland {
     public void setBankBalance(long v) { this.bankBalance = v; }
     public int getPrestige() { return prestige; }
     public void setPrestige(int v) { this.prestige = v; }
+    public long getIslandWorth() { return islandWorth; }
+    public void setIslandWorth(long v) { this.islandWorth = v; }
     public Map<String, Integer> getUpgrades() { return upgrades; }
     public Map<String, Long> getChallengeProgressMap() { return challengeProgress; }
     public Set<String> getCompletedChallenges() { return completedChallenges; }
     public Map<String, Long> getCollections() { return collections; }
+    public Map<String, Integer> getClaimedMilestones() { return claimedMilestones; }
 
     public Set<UUID> getAllMemberUUIDs() {
         Set<UUID> all = new HashSet<>();

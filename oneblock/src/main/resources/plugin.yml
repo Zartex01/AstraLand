@@ -2,48 +2,50 @@ name: AstraLand-OneBlock
 version: 1.0.0-SNAPSHOT
 main: com.astraland.oneblock.OneBlock
 api-version: "1.21"
-description: AstraLand - Module OneBlock
+description: AstraLand - Module OneBlock complet
 authors: [AstraLand]
 
 commands:
   oneblock:
     description: Commandes OneBlock
     aliases: [ob, one]
-    usage: /oneblock [create|home|sethome|info|phase|top|invite|kick|accept|decline|leave|coowner|delete|warp|setwarp|motd|ic|membres|upgrades|defis|missions|skills|bank|prestige|stats|warps|settings|help]
+    usage: /ob [create|home|info|top|invite|kick|accept|decline|leave|coowner|delete|warp|setwarp|motd|ic|members|upgrades|defis|missions|weekly|skills|bank|prestige|boost|collections|achievements|vault|stats|playerstats|sellall|worth|help]
   obadmin:
     description: Commandes admin OneBlock
     aliases: [oneblockadmin]
-    usage: /obadmin [info|tp|setblocks|reset|give|list|reload]
+    usage: /obadmin [info|tp|setblocks|reset|give|list|reload|boost]
     permission: astraland.admin
-    permission-message: "&cTu n'as pas la permission."
     default: op
   ic:
-    description: Chat d'île (uniquement tes coéquipiers voient le message)
+    description: Chat d'île
     aliases: [islandchat, teamchat]
     usage: /ic <message>
+  sellall:
+    description: Vendre tout l'inventaire au prix du shop
+    aliases: [sa, vendretout]
+    usage: /sellall
   balance:
-    description: Voir son solde de pièces
+    description: Voir son solde
     aliases: [bal, money, coins]
     usage: /balance [joueur]
   pay:
-    description: Envoyer des pièces à un joueur
+    description: Envoyer des pièces
     usage: /pay <joueur> <montant>
   shop:
-    description: Ouvre le shop du mode de jeu
+    description: Shop du serveur
     usage: /shop
   ah:
     description: Hôtel des ventes
     aliases: [auction, bazaar]
     usage: /ah [sell <prix>]
   givemoney:
-    description: Donner de l'argent à un joueur (admin)
+    description: Donner de l'argent (admin)
     aliases: [addmoney, eco-give]
     usage: /givemoney <joueur> <montant>
     permission: astraland.admin
-    permission-message: "&cTu n'as pas la permission d'utiliser cette commande."
     default: op
 
 permissions:
   astraland.admin:
-    description: Accès aux commandes admin OneBlock
+    description: Accès aux commandes admin
     default: op

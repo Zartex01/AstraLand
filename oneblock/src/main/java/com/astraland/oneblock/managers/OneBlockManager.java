@@ -4,11 +4,7 @@ import com.astraland.oneblock.OneBlock;
 import com.astraland.oneblock.models.OneBlockIsland;
 import com.astraland.oneblock.models.Phase;
 import com.astraland.oneblock.models.UpgradeType;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -23,7 +19,7 @@ public class OneBlockManager {
     private final Map<UUID, OneBlockIsland> islands = new HashMap<>();
     private final Map<UUID, UUID> memberIsland = new HashMap<>();
     private final Map<UUID, UUID> pendingInvites = new HashMap<>();
-    private File dataFile;
+    private final File dataFile;
 
     public OneBlockManager(OneBlock plugin) {
         this.plugin = plugin;
@@ -31,31 +27,23 @@ public class OneBlockManager {
         load();
     }
 
-    public boolean hasIsland(UUID uuid) {
-        return islands.containsKey(uuid) || memberIsland.containsKey(uuid);
-    }
-
+    public boolean hasIsland(UUID uuid) { return islands.containsKey(uuid) || memberIsland.containsKey(uuid); }
     public OneBlockIsland getIsland(UUID uuid) {
         if (islands.containsKey(uuid)) return islands.get(uuid);
         UUID owner = memberIsland.get(uuid);
         return owner == null ? null : islands.get(owner);
     }
-
     public OneBlockIsland getIslandByOwner(UUID owner) { return islands.get(owner); }
     public Collection<OneBlockIsland> getAllIslands() { return islands.values(); }
 
     public OneBlockIsland createIsland(UUID owner) {
         String worldName = plugin.getConfig().getString("oneblock.world", "world_oneblock");
         World world = Bukkit.getWorld(worldName);
-        if (world == null) {
-            plugin.getLogger().warning("Monde oneblock '" + worldName + "' introuvable !");
-            return null;
-        }
+        if (world == null) { plugin.getLogger().warning("Monde '" + worldName + "' introuvable !"); return null; }
         int dist = plugin.getConfig().getInt("oneblock.spawn-distance", 300);
         int x = islands.size() * dist;
         Location blockLoc = new Location(world, x, 65, 0);
         world.getBlockAt(blockLoc).setType(Material.GRASS_BLOCK);
-
         OneBlockIsland island = new OneBlockIsland(owner, blockLoc);
         islands.put(owner, island);
         memberIsland.put(owner, owner);
@@ -68,7 +56,6 @@ public class OneBlockManager {
         if (loc == null || loc.getWorld() == null) return;
         island.incrementBlocks();
         Phase phase = island.getCurrentPhase();
-
         int genLevel = island.getUpgradeLevel(UpgradeType.GENERATOR);
         Material mat;
         if (genLevel >= 2 && plugin.getRandom().nextInt(100) < 15) {
@@ -85,14 +72,20 @@ public class OneBlockManager {
         OneBlockIsland island = islands.remove(owner);
         if (island == null) return;
         memberIsland.remove(owner);
-        for (UUID m : island.getMembers()) memberIsland.remove(m);
-        for (UUID m : island.getCoOwners()) memberIsland.remove(m);
+        island.getMembers().forEach(memberIsland::remove);
+        island.getCoOwners().forEach(memberIsland::remove);
         saveAll();
     }
 
     public List<OneBlockIsland> getTop(int limit) {
         List<OneBlockIsland> list = new ArrayList<>(islands.values());
         list.sort((a, b) -> Long.compare(b.getBlocksBroken(), a.getBlocksBroken()));
+        return list.subList(0, Math.min(limit, list.size()));
+    }
+
+    public List<OneBlockIsland> getTopByWorth(int limit) {
+        List<OneBlockIsland> list = new ArrayList<>(islands.values());
+        list.sort((a, b) -> Long.compare(b.getIslandWorth(), a.getIslandWorth()));
         return list.subList(0, Math.min(limit, list.size()));
     }
 
@@ -111,18 +104,14 @@ public class OneBlockManager {
 
     public boolean invitePlayer(UUID ownerUuid, UUID targetUuid) {
         OneBlockIsland island = islands.get(ownerUuid);
-        if (island == null) return false;
-        if (island.isMember(targetUuid)) return false;
+        if (island == null || island.isMember(targetUuid)) return false;
         island.invite(targetUuid);
         pendingInvites.put(targetUuid, ownerUuid);
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            island.removeInvite(targetUuid);
-            pendingInvites.remove(targetUuid);
-        }, 20L * 60);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> { island.removeInvite(targetUuid); pendingInvites.remove(targetUuid); }, 20L * 60);
         return true;
     }
 
-    public UUID getPendingInviteFrom(UUID targetUuid) { return pendingInvites.get(targetUuid); }
+    public UUID getPendingInviteFrom(UUID uuid) { return pendingInvites.get(uuid); }
 
     public boolean acceptInvite(UUID targetUuid) {
         UUID ownerUuid = pendingInvites.remove(targetUuid);
@@ -146,8 +135,7 @@ public class OneBlockManager {
 
     public boolean kickMember(UUID ownerUuid, UUID memberUuid) {
         OneBlockIsland island = islands.get(ownerUuid);
-        if (island == null) return false;
-        if (!island.isMember(memberUuid) || island.isOwner(memberUuid)) return false;
+        if (island == null || !island.isMember(memberUuid) || island.isOwner(memberUuid)) return false;
         island.removeMember(memberUuid);
         memberIsland.remove(memberUuid);
         saveAll();
@@ -167,8 +155,7 @@ public class OneBlockManager {
 
     public boolean setCoOwner(UUID ownerUuid, UUID targetUuid) {
         OneBlockIsland island = islands.get(ownerUuid);
-        if (island == null) return false;
-        if (!island.isMember(targetUuid) || island.isOwner(targetUuid)) return false;
+        if (island == null || !island.isMember(targetUuid) || island.isOwner(targetUuid)) return false;
         island.addCoOwner(targetUuid);
         saveAll();
         return true;
@@ -176,8 +163,7 @@ public class OneBlockManager {
 
     public boolean removeCoOwner(UUID ownerUuid, UUID targetUuid) {
         OneBlockIsland island = islands.get(ownerUuid);
-        if (island == null) return false;
-        if (!island.isCoOwner(targetUuid)) return false;
+        if (island == null || !island.isCoOwner(targetUuid)) return false;
         island.removeCoOwner(targetUuid);
         island.addMember(targetUuid);
         saveAll();
@@ -189,12 +175,10 @@ public class OneBlockManager {
         if (island == null) return false;
         if (island.getCurrentPhase() != Phase.END) return false;
         if (island.getBlocksBroken() < 5000) return false;
-        if (island.getPrestige() >= PrestigeGUI.MAX_PRESTIGE) return false;
+        if (island.getPrestige() >= com.astraland.oneblock.gui.PrestigeGUI.MAX_PRESTIGE) return false;
         Location blockLoc = island.getBlockLocation();
         island.doPrestige();
-        if (blockLoc != null && blockLoc.getWorld() != null) {
-            blockLoc.getBlock().setType(Material.GRASS_BLOCK);
-        }
+        if (blockLoc != null && blockLoc.getWorld() != null) blockLoc.getBlock().setType(Material.GRASS_BLOCK);
         saveAll();
         return true;
     }
@@ -219,6 +203,7 @@ public class OneBlockManager {
             cfg.set(path + ".motd", isl.getMotd());
             cfg.set(path + ".bank", isl.getBankBalance());
             cfg.set(path + ".prestige", isl.getPrestige());
+            cfg.set(path + ".worth", isl.getIslandWorth());
 
             List<String> members = new ArrayList<>();
             isl.getMembers().forEach(m -> members.add(m.toString()));
@@ -231,13 +216,11 @@ public class OneBlockManager {
             if (isl.getBlockLocation() != null) saveLocation(cfg, path + ".blockloc", isl.getBlockLocation());
             if (isl.getHome() != null) saveLocation(cfg, path + ".home", isl.getHome());
 
-            for (Map.Entry<String, Integer> upg : isl.getUpgrades().entrySet())
-                cfg.set(path + ".upgrades." + upg.getKey(), upg.getValue());
-            for (Map.Entry<String, Long> cp : isl.getChallengeProgressMap().entrySet())
-                cfg.set(path + ".challenge-progress." + cp.getKey(), cp.getValue());
+            isl.getUpgrades().forEach((k, v) -> cfg.set(path + ".upgrades." + k, v));
+            isl.getChallengeProgressMap().forEach((k, v) -> cfg.set(path + ".challenge-progress." + k, v));
             cfg.set(path + ".completed-challenges", new ArrayList<>(isl.getCompletedChallenges()));
-            for (Map.Entry<String, Long> col : isl.getCollections().entrySet())
-                cfg.set(path + ".collections." + col.getKey(), col.getValue());
+            isl.getCollections().forEach((k, v) -> cfg.set(path + ".collections." + k, v));
+            isl.getClaimedMilestones().forEach((k, v) -> cfg.set(path + ".claimed-milestones." + k, v));
         }
         try { cfg.save(dataFile); } catch (IOException ex) { ex.printStackTrace(); }
     }
@@ -252,12 +235,10 @@ public class OneBlockManager {
                 String path = "islands." + uuidStr;
                 Location blockLoc = loadLocation(cfg, path + ".blockloc");
                 if (blockLoc == null) continue;
-
                 OneBlockIsland isl = new OneBlockIsland(owner, blockLoc);
                 isl.setBlocksBroken(cfg.getLong(path + ".blocks", 0));
                 Location home = loadLocation(cfg, path + ".home");
                 if (home != null) isl.setHome(home);
-
                 isl.setPvpEnabled(cfg.getBoolean(path + ".pvp", false));
                 isl.setVisitorsAllowed(cfg.getBoolean(path + ".visitors", true));
                 isl.setWarpEnabled(cfg.getBoolean(path + ".warp", false));
@@ -265,6 +246,7 @@ public class OneBlockManager {
                 isl.setMotd(cfg.getString(path + ".motd", ""));
                 isl.setBankBalance(cfg.getLong(path + ".bank", 0));
                 isl.setPrestige(cfg.getInt(path + ".prestige", 0));
+                isl.setIslandWorth(cfg.getLong(path + ".worth", 0));
 
                 for (String m : cfg.getStringList(path + ".members")) {
                     try { UUID mu = UUID.fromString(m); isl.addMember(mu); memberIsland.put(mu, owner); } catch (Exception ignored) {}
@@ -272,20 +254,15 @@ public class OneBlockManager {
                 for (String m : cfg.getStringList(path + ".co-owners")) {
                     try { UUID mu = UUID.fromString(m); isl.addCoOwner(mu); memberIsland.put(mu, owner); } catch (Exception ignored) {}
                 }
-
                 if (cfg.getConfigurationSection(path + ".upgrades") != null)
-                    for (String key : cfg.getConfigurationSection(path + ".upgrades").getKeys(false))
-                        isl.getUpgrades().put(key, cfg.getInt(path + ".upgrades." + key, 0));
-
+                    cfg.getConfigurationSection(path + ".upgrades").getKeys(false).forEach(k -> isl.getUpgrades().put(k, cfg.getInt(path + ".upgrades." + k, 0)));
                 if (cfg.getConfigurationSection(path + ".challenge-progress") != null)
-                    for (String key : cfg.getConfigurationSection(path + ".challenge-progress").getKeys(false))
-                        isl.getChallengeProgressMap().put(key, cfg.getLong(path + ".challenge-progress." + key, 0));
-
+                    cfg.getConfigurationSection(path + ".challenge-progress").getKeys(false).forEach(k -> isl.getChallengeProgressMap().put(k, cfg.getLong(path + ".challenge-progress." + k, 0)));
                 isl.getCompletedChallenges().addAll(cfg.getStringList(path + ".completed-challenges"));
-
                 if (cfg.getConfigurationSection(path + ".collections") != null)
-                    for (String key : cfg.getConfigurationSection(path + ".collections").getKeys(false))
-                        isl.getCollections().put(key, cfg.getLong(path + ".collections." + key, 0));
+                    cfg.getConfigurationSection(path + ".collections").getKeys(false).forEach(k -> isl.getCollections().put(k, cfg.getLong(path + ".collections." + k, 0)));
+                if (cfg.getConfigurationSection(path + ".claimed-milestones") != null)
+                    cfg.getConfigurationSection(path + ".claimed-milestones").getKeys(false).forEach(k -> isl.getClaimedMilestones().put(k, cfg.getInt(path + ".claimed-milestones." + k, -1)));
 
                 islands.put(owner, isl);
                 memberIsland.put(owner, owner);
@@ -306,9 +283,5 @@ public class OneBlockManager {
         World world = Bukkit.getWorld(w);
         if (world == null) return null;
         return new Location(world, cfg.getDouble(path + ".x"), cfg.getDouble(path + ".y"), cfg.getDouble(path + ".z"));
-    }
-
-    private static final class PrestigeGUI {
-        static final int MAX_PRESTIGE = com.astraland.oneblock.gui.PrestigeGUI.MAX_PRESTIGE;
     }
 }

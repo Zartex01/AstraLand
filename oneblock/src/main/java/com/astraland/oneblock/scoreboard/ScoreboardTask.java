@@ -1,23 +1,17 @@
 package com.astraland.oneblock.scoreboard;
 
 import com.astraland.oneblock.OneBlock;
+import com.astraland.oneblock.models.Boost;
 import com.astraland.oneblock.models.OneBlockIsland;
 import com.astraland.oneblock.models.Phase;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.*;
+import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ScoreboardTask implements Listener {
 
@@ -41,10 +35,7 @@ public class ScoreboardTask implements Listener {
     public void stop() {
         if (task != null) { task.cancel(); task = null; }
         HandlerList.unregisterAll(this);
-        boards.forEach((uuid, b) -> {
-            Player p = Bukkit.getPlayer(uuid);
-            if (p != null) p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-        });
+        boards.forEach((uuid, b) -> { Player p = Bukkit.getPlayer(uuid); if (p != null) p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard()); });
         boards.clear();
     }
 
@@ -87,8 +78,6 @@ public class ScoreboardTask implements Listener {
         UUID uid = p.getUniqueId();
         OneBlockIsland isl = plugin.getOneBlockManager().getIsland(uid);
 
-        String ownerLine, phaseLine, blocksLine, membLine, levelLine, balanceLine, nextLine, multLine, prestigeLine;
-
         if (isl != null) {
             OfflinePlayer owner = Bukkit.getOfflinePlayer(isl.getOwner());
             String ownerName = owner.getName() != null ? owner.getName() : "?";
@@ -96,58 +85,55 @@ public class ScoreboardTask implements Listener {
             Phase nextPhase = null;
             for (Phase pp : Phase.values()) if (pp.getBlocksRequired() > isl.getBlocksBroken()) { nextPhase = pp; break; }
 
-            double totalMult = isl.getPrestigeMultiplier() * plugin.getSkillManager().getTotalMoneyMultiplier(uid);
+            Boost activeBoost = plugin.getBoostManager().getBoost(isl.getOwner());
+            double totalMult = isl.getPrestigeMultiplier()
+                * plugin.getSkillManager().getTotalMoneyMultiplier(uid)
+                * plugin.getBoostManager().getMultiplier(isl.getOwner());
 
-            ownerLine    = "&e" + ownerName + (isl.isOwner(uid) ? " &7(toi)" : "");
-            phaseLine    = ph.getColor() + "&l" + ph.getDisplayName();
-            blocksLine   = "&f" + isl.getBlocksBroken();
-            membLine     = "&f" + isl.getAllMemberUUIDs().size() + " &7membre(s)";
-            levelLine    = "&b" + isl.getIslandLevel();
-            balanceLine  = "&e" + plugin.getEconomyManager().getBalance(uid) + " &7pièces";
-            prestigeLine = isl.getPrestige() > 0 ? "&d✦ Prestige " + isl.getPrestige() : "&8Pas de prestige";
-            multLine     = "&e×" + String.format("%.2f", totalMult);
-
+            setLine(board, 21, " ");
+            setLine(board, 20, "&f" + p.getName());
+            setLine(board, 19, "&7─────────────");
+            setLine(board, 18, "&7Île : &e" + ownerName);
+            setLine(board, 17, "&7Membres : &f" + isl.getAllMemberUUIDs().size());
+            setLine(board, 16, "&7─────────────");
+            setLine(board, 15, "&7Phase : " + ph.getColor() + "&l" + ph.getDisplayName());
+            setLine(board, 14, "&7Blocs : &f" + isl.getBlocksBroken());
+            setLine(board, 13, "&7Niveau : &b" + isl.getIslandLevel());
+            setLine(board, 12, "&7Valeur : &a" + isl.getIslandWorth() + " ✦");
+            setLine(board, 11, isl.getPrestige() > 0 ? "&dPrestige " + isl.getPrestige() : "&8Sans prestige");
+            setLine(board, 10, "&7─────────────");
             if (nextPhase != null) {
                 long toNext = nextPhase.getBlocksRequired() - isl.getBlocksBroken();
                 long total = nextPhase.getBlocksRequired() - ph.getBlocksRequired();
-                nextLine = "&7" + buildBar(total - toNext, total) + " &8" + toNext + " blocs";
+                setLine(board, 9, "&7Prochain : " + buildBar(total - toNext, total) + " &8" + toNext);
             } else {
-                nextLine = "&a✔ Phase max !";
+                setLine(board, 9, "&a✔ Phase max !");
             }
+            setLine(board, 8, "&7─────────────");
+            setLine(board, 7, "&7Solde : &e" + plugin.getEconomyManager().getBalance(uid) + " &7pièces");
+            setLine(board, 6, "&7Mult : &e×" + String.format("%.2f", totalMult));
+            if (activeBoost != null) {
+                setLine(board, 5, "&c⚡ &e" + activeBoost.getType().getDisplayName() + " &c" + activeBoost.formatRemaining());
+            } else {
+                setLine(board, 5, "&8Aucun boost");
+            }
+            setLine(board, 4, "&7─────────────");
+            setLine(board, 3, "&7/ob &8| &7/ic &8| &7/sellall");
+            setLine(board, 2, " ");
+            setLine(board, 1, "&bastraland-fr.com");
+            setLine(board, 0, " ");
         } else {
-            ownerLine    = "&8Aucune île";
-            phaseLine    = "&8-";
-            blocksLine   = "&80";
-            membLine     = "&8-";
-            levelLine    = "&80";
-            balanceLine  = "&80 &7pièces";
-            prestigeLine = "&8-";
-            multLine     = "&8×1.00";
-            nextLine     = "&8-";
+            setLine(board, 21, " ");
+            setLine(board, 20, "&f" + p.getName());
+            setLine(board, 19, "&7─────────────");
+            setLine(board, 18, "&cAucune île OneBlock");
+            setLine(board, 17, "&7Utilise &e/ob create");
+            for (int i = 16; i >= 4; i--) setLine(board, i, " ");
+            setLine(board, 3, "&7/ob &8| &7/ic &8| &7/sellall");
+            setLine(board, 2, " ");
+            setLine(board, 1, "&bastraland-fr.com");
+            setLine(board, 0, " ");
         }
-
-        setLine(board, 21, " ");
-        setLine(board, 20, "&f" + p.getName());
-        setLine(board, 19, "&7───────────");
-        setLine(board, 18, "&7Île : " + ownerLine);
-        setLine(board, 17, "&7Membres : " + membLine);
-        setLine(board, 16, "&7───────────");
-        setLine(board, 15, "&7Phase : " + phaseLine);
-        setLine(board, 14, "&7Blocs : " + blocksLine);
-        setLine(board, 13, "&7Niveau : " + levelLine);
-        setLine(board, 12, prestigeLine);
-        setLine(board, 11, "&7───────────");
-        setLine(board, 10, "&7Prochaine phase :");
-        setLine(board, 9,  nextLine);
-        setLine(board, 8,  "&7───────────");
-        setLine(board, 7,  "&7Solde : " + balanceLine);
-        setLine(board, 6,  "&7Multiplicateur : " + multLine);
-        setLine(board, 5,  "&7───────────");
-        setLine(board, 4,  "&7Mode : &aOneBlock");
-        setLine(board, 3,  "&7» &e/ob &8| &7/ic");
-        setLine(board, 2,  " ");
-        setLine(board, 1,  "&bastraland-fr.com");
-        setLine(board, 0,  " ");
     }
 
     private String buildBar(long done, long total) {
