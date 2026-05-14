@@ -60,6 +60,36 @@ public class OneBlockListener implements Listener {
             return;
         }
 
+        // ── Coffre de Récompense (TRAPPED_CHEST) ─────────────────────────────
+        if (event.getBlock().getType() == org.bukkit.Material.TRAPPED_CHEST
+                && om.isRewardChest(island.getOwner())) {
+            event.setDropItems(false); // Le chest lui-même ne doit pas drop en item
+            om.claimRewardChest(island.getOwner());
+
+            // Récupère et drop les items du coffre
+            org.bukkit.block.Chest chest = (org.bukkit.block.Chest) event.getBlock().getState();
+            for (ItemStack ci : chest.getInventory().getContents()) {
+                if (ci != null && !ci.getType().isAir())
+                    event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation().add(0.5, 0.5, 0.5), ci);
+            }
+            chest.getInventory().clear();
+
+            // Effets visuels/sonores
+            player.sendTitle(c("&6&l✦ COFFRE DE RÉCOMPENSE ✦"), c("&7Ramasse tes items !"), 5, 50, 15);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.2f);
+            player.sendMessage(c("&8&m────────────────────────"));
+            player.sendMessage(c("&6&l★ Coffre #" + (island.getBlocksBroken() / 15) + " ouvert ! Bonne continuation !"));
+            player.sendMessage(c("&7Prochain coffre dans &e15 blocs&7 !"));
+            player.sendMessage(c("&8&m────────────────────────"));
+            event.getBlock().getWorld().spawnParticle(org.bukkit.Particle.HAPPY_VILLAGER,
+                event.getBlock().getLocation().add(0.5, 1, 0.5), 20, 0.5, 0.5, 0.5, 0.1);
+
+            // Génère le bloc suivant normalement
+            om.regenerateBlock(island);
+            om.saveAll();
+            return;
+        }
+
         // --- Multiplier = prestige × skills × boost ---
         UUID ownerUid = island.getOwner();
         double boostMult = plugin.getBoostManager().getMultiplier(ownerUid);
@@ -83,8 +113,12 @@ public class OneBlockListener implements Listener {
         Phase phaseBefore = island.getCurrentPhase();
         om.regenerateBlock(island);
         Phase phaseAfter = island.getCurrentPhase();
+        long blocksNow = island.getBlocksBroken();
 
         if (!phaseBefore.equals(phaseAfter)) handlePhaseUnlock(island, phaseAfter, player);
+
+        // ── Messages tutoriel aux étapes clés ────────────────────────────────
+        sendTutorialMessage(player, island, blocksNow);
 
         trySpawnMob(island, phaseAfter);
         tryDropBonusLoot(island, phaseAfter, player, totalMult);
@@ -94,6 +128,25 @@ public class OneBlockListener implements Listener {
         checkAchievements(player, island);
         event.setDropItems(true);
         om.saveAll();
+    }
+
+    private void sendTutorialMessage(Player player, OneBlockIsland island, long blocks) {
+        String msg = switch ((int) blocks) {
+            case 1  -> "&7&oAstuce : &fLes &e14 premiers blocs &fsont doux — aucun outil nécessaire !";
+            case 5  -> "&7&oAstuce : &fTous les &615 blocs &f: un &6✦ Coffre de Récompense &fapparaît !";
+            case 10 -> "&7&oAstuce : &fUtilise &e/ob &fpour gérer ton île, tes stats et tes missions !";
+            case 14 -> "&6⚠ &eProchain bloc = &6✦ COFFRE DE RÉCOMPENSE &e⚠";
+            case 16 -> "&7&oAstuce : &fLes blocs durs arrivent ! Utilise la &epioche &fdu coffre.";
+            case 29 -> "&6⚠ &eProchain bloc = &6✦ COFFRE N°2 &e⚠";
+            case 50 -> "&7&oAstuce : &fUpgrade ton générateur &e(/ob upgrades) &fpour des blocs rares !";
+            case 99 -> "&7&oAstuce : &fTu approches de la &2Phase Forêt &f! Prépare-toi.";
+            default -> blocks % 15 == 14 ? "&6⚠ &eProchain bloc = &6✦ COFFRE ×" + (blocks / 15 + 1) + " &e⚠" : null;
+        };
+        if (msg != null) {
+            player.sendActionBar(c(msg));
+            if (blocks == 14 || blocks == 29 || (blocks > 29 && blocks % 15 == 14))
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1.5f);
+        }
     }
 
     private void handlePhaseUnlock(OneBlockIsland island, Phase phase, Player trigger) {
