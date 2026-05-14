@@ -65,7 +65,16 @@ public class OneBlockManager {
         } else {
             mat = phase.getRandomBlock();
         }
-        loc.getBlock().setType(mat);
+        // Délai d'1 tick OBLIGATOIRE : sinon Bukkit casse le nouveau bloc
+        // juste après que l'événement BlockBreakEvent le positionne
+        final Material finalMat = mat;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (loc.getWorld() != null) {
+                loc.getBlock().setType(finalMat);
+                // Joue un son pour confirmer la régénération
+                loc.getWorld().playSound(loc, org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 1.5f);
+            }
+        }, 1L);
     }
 
     public void deleteIsland(UUID owner) {

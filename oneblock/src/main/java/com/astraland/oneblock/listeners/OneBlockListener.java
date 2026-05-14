@@ -48,7 +48,7 @@ public class OneBlockListener implements Listener {
             return;
         }
 
-        if (!event.getBlock().getLocation().equals(island.getBlockLocation())) {
+        if (!isSameBlock(event.getBlock().getLocation(), island.getBlockLocation())) {
             if (!island.isMember(player.getUniqueId())) {
                 event.setCancelled(true);
                 player.sendMessage(c("&cCette zone ne t'appartient pas."));
@@ -430,6 +430,15 @@ public class OneBlockListener implements Listener {
                 yield price > 0 ? price / 2 : 0;
             }
         };
+    }
+
+    private boolean isSameBlock(Location a, Location b) {
+        if (a == null || b == null) return false;
+        if (a.getWorld() == null || b.getWorld() == null) return false;
+        return a.getWorld().equals(b.getWorld())
+            && a.getBlockX() == b.getBlockX()
+            && a.getBlockY() == b.getBlockY()
+            && a.getBlockZ() == b.getBlockZ();
     }
 
     private String formatName(String name) {
